@@ -1,0 +1,13 @@
+node_modules
+.idea
+.vscode
+tmp
+.DS_Store
+build
+*.map
+*.tgz
+*.log
+.dev-server
+
+#ignore .commitinfo created by ioBroker release script
+.commitinfo

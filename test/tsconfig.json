@@ -1,0 +1,10 @@
+// TypeScript settings for the tests: the adapter settings plus the Node.js and Mocha types
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "noEmit": true,
+        "rootDir": "..",
+        "types": ["node", "mocha", "@iobroker/types"]
+    },
+    "include": ["./**/*.ts", "../src/**/*.ts"]
+}

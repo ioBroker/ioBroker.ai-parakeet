@@ -1,0 +1,371 @@
+{
+    "i18n": true,
+    "type": "tabs",
+    "items": {
+        "_server": {
+            "type": "panel",
+            "label": "Server",
+            "items": {
+                "_notAlive": {
+                    "type": "infoBox",
+                    "text": "Start the instance to see the status",
+                    "boxType": "warning",
+                    "closeable": false,
+                    "hidden": "_alive",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "_status": {
+                    "type": "textSendTo",
+                    "container": "html",
+                    "command": "status",
+                    "hidden": "!_alive",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "_openTestPage": {
+                    "type": "sendTo",
+                    "command": "openTestPage",
+                    "openUrl": true,
+                    "label": "Open test page",
+                    "icon": "web",
+                    "variant": "outlined",
+                    "hidden": "!_alive || !data.testPage",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 4,
+                    "lg": 3,
+                    "xl": 3
+                },
+                "_headerServer": {
+                    "type": "header",
+                    "text": "Server",
+                    "size": 3,
+                    "newLine": true
+                },
+                "bind": {
+                    "type": "ip",
+                    "listenOnAllPorts": true,
+                    "label": "IP address",
+                    "help": "0.0.0.0: reachable from the whole network, e.g. for ioBroker.assistant on another host",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 8,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "port": {
+                    "type": "port",
+                    "min": 1,
+                    "label": "Port",
+                    "xs": 12,
+                    "sm": 4,
+                    "md": 3,
+                    "lg": 2,
+                    "xl": 2
+                },
+                "apiKey": {
+                    "type": "password",
+                    "visible": true,
+                    "label": "API key",
+                    "help": "Empty: no key needed. Otherwise clients send it as \"Authorization: Bearer <key>\"",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 9,
+                    "lg": 6,
+                    "xl": 6
+                },
+                "_generateApiKey": {
+                    "type": "sendTo",
+                    "command": "generateApiKey",
+                    "useNative": true,
+                    "label": "Generate key",
+                    "variant": "outlined",
+                    "hidden": "!_alive",
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 3,
+                    "lg": 3,
+                    "xl": 3
+                },
+                "secure": {
+                    "type": "checkbox",
+                    "label": "HTTPS",
+                    "help": "Browsers allow the microphone of the test page only with HTTPS (or on localhost)",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "_certificates": {
+                    "type": "certificates",
+                    "hidden": "!data.secure",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                }
+            }
+        },
+        "_model": {
+            "type": "panel",
+            "label": "Model",
+            "items": {
+                "_modelInfo": {
+                    "type": "staticText",
+                    "text": "NVIDIA Parakeet TDT 0.6B v3 (INT8, about 670 MB) recognizes 25 European languages and detects the language itself. It needs about 1.1 GB of memory.",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "modelDir": {
+                    "type": "text",
+                    "label": "Model directory",
+                    "help": "Absolute path, e.g. on an SSD. Empty: iobroker-data/ai-parakeet/models",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 9,
+                    "lg": 6,
+                    "xl": 6
+                },
+                "autoDownload": {
+                    "type": "checkbox",
+                    "label": "Download the model if it is missing",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "downloadUrl": {
+                    "type": "text",
+                    "label": "Download address",
+                    "help": "Hugging Face or a mirror of it",
+                    "hidden": "!data.autoDownload",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "threads": {
+                    "type": "number",
+                    "label": "CPU threads",
+                    "help": "0: automatic (cores - 1, at most 4)",
+                    "min": 0,
+                    "max": 64,
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 3,
+                    "lg": 2,
+                    "xl": 2
+                },
+                "unloadAfter": {
+                    "type": "number",
+                    "label": "Unload after idle minutes",
+                    "help": "0: keep the model in memory. Loading it again takes a few seconds",
+                    "min": 0,
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 3,
+                    "lg": 3,
+                    "xl": 3
+                },
+                "memoryCheck": {
+                    "type": "checkbox",
+                    "label": "Check free memory before loading",
+                    "help": "Protects other programs on hosts with little memory",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                }
+            }
+        },
+        "_recognition": {
+            "type": "panel",
+            "label": "Recognition",
+            "items": {
+                "maxAudioSeconds": {
+                    "type": "number",
+                    "label": "Maximal audio length",
+                    "unit": "s",
+                    "min": 5,
+                    "max": 3600,
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 3,
+                    "lg": 2,
+                    "xl": 2
+                },
+                "ffmpegPath": {
+                    "type": "text",
+                    "label": "Path of ffmpeg",
+                    "help": "For MP3, OGG, M4A and WebM. WAV works without ffmpeg. Empty: only WAV",
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 4,
+                    "lg": 3,
+                    "xl": 3
+                },
+                "useHints": {
+                    "type": "checkbox",
+                    "label": "Use the words of the prompt",
+                    "help": "Names in the \"prompt\" field (ioBroker.assistant sends device and room names) are written as there, e.g. \"io broker\" becomes \"ioBroker\"",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 6,
+                    "xl": 6
+                },
+                "publishText": {
+                    "type": "checkbox",
+                    "label": "Write the recognized text into a state",
+                    "help": "stats.lastText",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 6,
+                    "xl": 6
+                },
+                "_headerCorrections": {
+                    "type": "header",
+                    "text": "Correction dictionary",
+                    "size": 3,
+                    "newLine": true
+                },
+                "_correctionsInfo": {
+                    "type": "staticText",
+                    "text": "Replaces wrongly recognized words. Case, spaces and hyphens do not matter, only whole words are replaced.",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "corrections": {
+                    "type": "table",
+                    "newLine": true,
+                    "export": true,
+                    "import": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12,
+                    "items": [
+                        {
+                            "type": "text",
+                            "attr": "replacement",
+                            "title": "Replacement",
+                            "width": "30%",
+                            "filter": true,
+                            "sort": true,
+                            "default": ""
+                        },
+                        {
+                            "type": "text",
+                            "attr": "variants",
+                            "title": "Recognized variants, separated by commas",
+                            "width": "70%",
+                            "default": ""
+                        }
+                    ]
+                }
+            }
+        },
+        "_testPage": {
+            "type": "panel",
+            "label": "Test page",
+            "items": {
+                "testPage": {
+                    "type": "checkbox",
+                    "label": "Enable test page",
+                    "help": "Live recognition of the microphone in the browser, at the address of the server",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
+                "maxClients": {
+                    "type": "number",
+                    "label": "Browsers at the same time",
+                    "min": 1,
+                    "max": 64,
+                    "hidden": "!data.testPage",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 3,
+                    "lg": 2,
+                    "xl": 2
+                },
+                "partialInterval": {
+                    "type": "number",
+                    "label": "Intermediate result every",
+                    "unit": "s",
+                    "min": 0.5,
+                    "max": 30,
+                    "step": 0.1,
+                    "help": "On a Raspberry Pi 2-3 s are better",
+                    "hidden": "!data.testPage",
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 3,
+                    "lg": 2,
+                    "xl": 2
+                },
+                "silenceSeconds": {
+                    "type": "number",
+                    "label": "Silence that ends a sentence",
+                    "unit": "s",
+                    "min": 0.2,
+                    "max": 10,
+                    "step": 0.1,
+                    "hidden": "!data.testPage",
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 3,
+                    "lg": 2,
+                    "xl": 2
+                },
+                "vadThreshold": {
+                    "type": "number",
+                    "label": "Speech level",
+                    "help": "Louder audio counts as speech (0.001 - 0.1)",
+                    "min": 0.0001,
+                    "max": 1,
+                    "step": 0.001,
+                    "hidden": "!data.testPage",
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 3,
+                    "lg": 2,
+                    "xl": 2
+                }
+            }
+        }
+    }
+}

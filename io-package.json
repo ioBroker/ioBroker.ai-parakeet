@@ -1,0 +1,331 @@
+{
+  "common": {
+    "name": "ai-parakeet",
+    "version": "0.1.0",
+    "news": {
+      "0.1.0": {
+        "en": "Initial release: local speech recognition with NVIDIA Parakeet TDT 0.6B v3 on the CPU, OpenAI-compatible transcription API for ioBroker.assistant, sendTo and a live test page",
+        "de": "Erste Version: lokale Spracherkennung mit NVIDIA Parakeet TDT 0.6B v3 auf der CPU, OpenAI-kompatible Transkriptions-API für ioBroker.assistant, sendTo und eine Live-Testseite",
+        "ru": "Первый выпуск: локальное распознавание речи с NVIDIA Parakeet TDT 0.6B v3 на CPU, совместимый с OpenAI API транскрипции для ioBroker.assistant, sendTo и тестовая страница",
+        "pt": "Versão inicial: reconhecimento de fala local com NVIDIA Parakeet TDT 0.6B v3 na CPU, API de transcrição compatível com OpenAI para o ioBroker.assistant, sendTo e uma página de teste ao vivo",
+        "nl": "Eerste versie: lokale spraakherkenning met NVIDIA Parakeet TDT 0.6B v3 op de CPU, OpenAI-compatibele transcriptie-API voor ioBroker.assistant, sendTo en een live testpagina",
+        "fr": "Première version : reconnaissance vocale locale avec NVIDIA Parakeet TDT 0.6B v3 sur le CPU, API de transcription compatible OpenAI pour ioBroker.assistant, sendTo et une page de test en direct",
+        "it": "Prima versione: riconoscimento vocale locale con NVIDIA Parakeet TDT 0.6B v3 sulla CPU, API di trascrizione compatibile con OpenAI per ioBroker.assistant, sendTo e una pagina di test dal vivo",
+        "es": "Primera versión: reconocimiento de voz local con NVIDIA Parakeet TDT 0.6B v3 en la CPU, API de transcripción compatible con OpenAI para ioBroker.assistant, sendTo y una página de prueba en directo",
+        "pl": "Pierwsza wersja: lokalne rozpoznawanie mowy z NVIDIA Parakeet TDT 0.6B v3 na CPU, zgodne z OpenAI API transkrypcji dla ioBroker.assistant, sendTo i strona testowa na żywo",
+        "uk": "Перший випуск: локальне розпізнавання мовлення з NVIDIA Parakeet TDT 0.6B v3 на CPU, сумісний з OpenAI API транскрипції для ioBroker.assistant, sendTo і тестова сторінка",
+        "zh-cn": "首个版本：在 CPU 上使用 NVIDIA Parakeet TDT 0.6B v3 进行本地语音识别，为 ioBroker.assistant 提供兼容 OpenAI 的转录 API、sendTo 和实时测试页面"
+      }
+    },
+    "titleLang": {
+      "en": "AI speech recognition (Parakeet)",
+      "de": "KI-Spracherkennung (Parakeet)",
+      "ru": "ИИ распознавание речи (Parakeet)",
+      "pt": "Reconhecimento de fala IA (Parakeet)",
+      "nl": "AI-spraakherkenning (Parakeet)",
+      "fr": "Reconnaissance vocale IA (Parakeet)",
+      "it": "Riconoscimento vocale IA (Parakeet)",
+      "es": "Reconocimiento de voz IA (Parakeet)",
+      "pl": "Rozpoznawanie mowy AI (Parakeet)",
+      "uk": "ШІ розпізнавання мовлення (Parakeet)",
+      "zh-cn": "AI 语音识别 (Parakeet)"
+    },
+    "desc": {
+      "en": "Local, offline speech recognition with NVIDIA Parakeet on the CPU (25 European languages), with an OpenAI-compatible transcription API",
+      "de": "Lokale Offline-Spracherkennung mit NVIDIA Parakeet auf der CPU (25 europäische Sprachen), mit OpenAI-kompatibler Transkriptions-API",
+      "ru": "Локальное офлайн-распознавание речи с NVIDIA Parakeet на CPU (25 европейских языков) с API транскрипции, совместимым с OpenAI",
+      "pt": "Reconhecimento de fala local e offline com NVIDIA Parakeet na CPU (25 idiomas europeus), com uma API de transcrição compatível com OpenAI",
+      "nl": "Lokale offline spraakherkenning met NVIDIA Parakeet op de CPU (25 Europese talen), met een OpenAI-compatibele transcriptie-API",
+      "fr": "Reconnaissance vocale locale et hors ligne avec NVIDIA Parakeet sur le CPU (25 langues européennes), avec une API de transcription compatible OpenAI",
+      "it": "Riconoscimento vocale locale e offline con NVIDIA Parakeet sulla CPU (25 lingue europee), con un'API di trascrizione compatibile con OpenAI",
+      "es": "Reconocimiento de voz local y sin conexión con NVIDIA Parakeet en la CPU (25 idiomas europeos), con una API de transcripción compatible con OpenAI",
+      "pl": "Lokalne rozpoznawanie mowy offline z NVIDIA Parakeet na CPU (25 języków europejskich), z API transkrypcji zgodnym z OpenAI",
+      "uk": "Локальне офлайн-розпізнавання мовлення з NVIDIA Parakeet на CPU (25 європейських мов) з API транскрипції, сумісним з OpenAI",
+      "zh-cn": "在 CPU 上使用 NVIDIA Parakeet 进行本地离线语音识别（25 种欧洲语言），提供兼容 OpenAI 的转录 API"
+    },
+    "authors": [
+      "oweitman <oweitman@gmx.de>"
+    ],
+    "keywords": [
+      "ai",
+      "speech recognition",
+      "speech-to-text",
+      "stt",
+      "transcription",
+      "parakeet",
+      "whisper",
+      "openai",
+      "offline"
+    ],
+    "licenseInformation": {
+      "type": "free",
+      "license": "MIT"
+    },
+    "platform": "Javascript/Node.js",
+    "mode": "daemon",
+    "loglevel": "info",
+    "icon": "ai-parakeet.svg",
+    "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.ai-parakeet/main/admin/ai-parakeet.svg",
+    "readme": "https://github.com/ioBroker/ioBroker.ai-parakeet/blob/main/README.md",
+    "docs": {
+      "en": [
+        "README.md"
+      ],
+      "de": [
+        "docs/de/README.md"
+      ]
+    },
+    "enabled": true,
+    "compact": false,
+    "messagebox": true,
+    "stopTimeout": 5000,
+    "type": "utility",
+    "connectionType": "local",
+    "dataSource": "push",
+    "tier": 3,
+    "adminUI": {
+      "config": "json"
+    },
+    "localLinks": {
+      "_default": {
+        "link": "%protocol%://%ip%:%port%/",
+        "intro": true,
+        "name": {
+          "en": "Speech recognition test page",
+          "de": "Testseite der Spracherkennung",
+          "ru": "Тестовая страница распознавания речи",
+          "pt": "Página de teste do reconhecimento de fala",
+          "nl": "Testpagina van de spraakherkenning",
+          "fr": "Page de test de la reconnaissance vocale",
+          "it": "Pagina di test del riconoscimento vocale",
+          "es": "Página de prueba del reconocimiento de voz",
+          "pl": "Strona testowa rozpoznawania mowy",
+          "uk": "Тестова сторінка розпізнавання мовлення",
+          "zh-cn": "语音识别测试页面"
+        }
+      }
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=6.0.11"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=7.6.20"
+      }
+    ]
+  },
+  "native": {
+    "bind": "0.0.0.0",
+    "port": 9999,
+    "apiKey": "",
+    "secure": false,
+    "certPublic": "",
+    "certPrivate": "",
+    "certChained": "",
+    "testPage": true,
+    "modelDir": "",
+    "autoDownload": true,
+    "downloadUrl": "https://huggingface.co",
+    "threads": 0,
+    "unloadAfter": 0,
+    "memoryCheck": true,
+    "maxAudioSeconds": 300,
+    "ffmpegPath": "ffmpeg",
+    "useHints": true,
+    "corrections": [
+      {
+        "replacement": "ioBroker",
+        "variants": "iobroker, io broker, eio broker, iobokrer, i o broker, io proker, eoproker, eo proker"
+      }
+    ],
+    "publishText": true,
+    "vadThreshold": 0.008,
+    "partialInterval": 1.5,
+    "silenceSeconds": 0.8,
+    "maxClients": 4
+  },
+  "encryptedNative": [
+    "apiKey"
+  ],
+  "protectedNative": [
+    "apiKey"
+  ],
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "name": "Speech recognition can be used",
+        "type": "boolean",
+        "role": "indicator.connected",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.status",
+      "type": "state",
+      "common": {
+        "name": "Status of the model",
+        "type": "string",
+        "role": "text",
+        "read": true,
+        "write": false,
+        "def": "starting",
+        "states": {
+          "starting": "starting",
+          "downloading": "downloading",
+          "verifying": "verifying",
+          "loading": "loading",
+          "ready": "ready",
+          "idle": "idle (unloaded)",
+          "error": "error"
+        }
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.lastError",
+      "type": "state",
+      "common": {
+        "name": "Last error",
+        "type": "string",
+        "role": "text",
+        "read": true,
+        "write": false,
+        "def": ""
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.modelProgress",
+      "type": "state",
+      "common": {
+        "name": "Download of the model",
+        "type": "number",
+        "role": "value",
+        "unit": "%",
+        "min": 0,
+        "max": 100,
+        "read": true,
+        "write": false,
+        "def": 0
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.endpoint",
+      "type": "state",
+      "common": {
+        "name": "Address of the OpenAI-compatible API",
+        "type": "string",
+        "role": "url",
+        "read": true,
+        "write": false,
+        "def": ""
+      },
+      "native": {}
+    },
+    {
+      "_id": "stats",
+      "type": "channel",
+      "common": {
+        "name": "Statistics"
+      },
+      "native": {}
+    },
+    {
+      "_id": "stats.lastText",
+      "type": "state",
+      "common": {
+        "name": "Last recognized text",
+        "type": "string",
+        "role": "text",
+        "read": true,
+        "write": false,
+        "def": ""
+      },
+      "native": {}
+    },
+    {
+      "_id": "stats.lastAudioSeconds",
+      "type": "state",
+      "common": {
+        "name": "Length of the last audio",
+        "type": "number",
+        "role": "value",
+        "unit": "s",
+        "read": true,
+        "write": false,
+        "def": 0
+      },
+      "native": {}
+    },
+    {
+      "_id": "stats.lastInferenceMs",
+      "type": "state",
+      "common": {
+        "name": "Computing time of the last recognition",
+        "type": "number",
+        "role": "value",
+        "unit": "ms",
+        "read": true,
+        "write": false,
+        "def": 0
+      },
+      "native": {}
+    },
+    {
+      "_id": "stats.lastRtf",
+      "type": "state",
+      "common": {
+        "name": "Real-time factor of the last recognition (computing time / audio length)",
+        "type": "number",
+        "role": "value",
+        "read": true,
+        "write": false,
+        "def": 0
+      },
+      "native": {}
+    },
+    {
+      "_id": "stats.requests",
+      "type": "state",
+      "common": {
+        "name": "Number of recognitions",
+        "type": "number",
+        "role": "value",
+        "read": true,
+        "write": false,
+        "def": 0
+      },
+      "native": {}
+    },
+    {
+      "_id": "stats.queue",
+      "type": "state",
+      "common": {
+        "name": "Waiting requests",
+        "type": "number",
+        "role": "value",
+        "read": true,
+        "write": false,
+        "def": 0
+      },
+      "native": {}
+    }
+  ]
+}

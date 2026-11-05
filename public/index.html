@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parakeet speech recognition</title>
+  <link rel="stylesheet" href="style.css"><script type="module" src="app.js"></script>
+</head>
+<body><main>
+  <p class="eyebrow">IOBROKER.AI-PARAKEET · CPU / ONNX</p>
+  <h1 data-i18n="title">Live speech recognition</h1>
+  <p data-i18n="intro">German, English and 23 more European languages. The ioBroker host transcribes the audio of your microphone; it is not stored.</p>
+  <div id="key-row" class="key-row" hidden>
+    <label for="key" data-i18n="key">API key</label>
+    <input id="key" type="password" autocomplete="off" spellcheck="false">
+  </div>
+  <div class="controls">
+    <button id="start" disabled data-i18n="start">Start microphone</button>
+    <button id="stop" disabled data-i18n="stop">Stop microphone</button>
+    <button id="clear" data-i18n="clear">Clear text</button>
+  </div>
+  <p id="status" role="status"></p>
+  <label class="correction-option"><input id="corrections" type="checkbox" checked disabled> <span data-i18n="applyCorrections">Apply the correction dictionary</span></label>
+  <p id="correction-status" class="note"></p>
+  <label for="transcript" id="transcript-label"></label>
+  <textarea id="transcript" readonly></textarea>
+  <label for="original"><span data-i18n="original">Original recognition</span> <span data-i18n="originalHint">· unchanged output of the model for comparison</span></label>
+  <textarea id="original" readonly></textarea>
+  <p id="metrics"></p>
+  <p class="note" data-i18n="note">When you stop the microphone, the remaining audio is still processed. Intermediate text may change until the sentence is finished.</p>
+</main></body>
+</html>
