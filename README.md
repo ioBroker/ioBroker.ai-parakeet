@@ -181,6 +181,10 @@ The adapter is licensed under the MIT license. The model [nvidia/parakeet-tdt-0.
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
+- (@GermanBluefox) Updated packages
+
 ### 0.1.2 (2026-11-05)
 
 - (@GermanBluefox) Published via npm trusted publishing
