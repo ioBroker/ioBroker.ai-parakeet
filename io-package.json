@@ -1,9 +1,9 @@
 {
   "common": {
     "name": "ai-parakeet",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "news": {
-      "NEXT": {
+      "0.1.1": {
         "en": "Initial release: local speech recognition with NVIDIA Parakeet TDT 0.6B v3 on the CPU, OpenAI-compatible transcription API for ioBroker.assistant, sendTo and a live test page",
         "de": "Erste Version: lokale Spracherkennung mit NVIDIA Parakeet TDT 0.6B v3 auf der CPU, OpenAI-kompatible Transkriptions-API für ioBroker.assistant, sendTo und eine Live-Testseite",
         "ru": "Первый выпуск: локальное распознавание речи с NVIDIA Parakeet TDT 0.6B v3 на CPU, совместимый с OpenAI API транскрипции для ioBroker.assistant, sendTo и тестовая страница",
