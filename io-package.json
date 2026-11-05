@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "ai-parakeet",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "news": {
+      "0.1.2": {
+        "en": "Published via npm trusted publishing",
+        "de": "Publiziert über NPM Trusted Publishing",
+        "ru": "Опубликовано через доверенную публикацию npm",
+        "pt": "Publicado via npm trusted publishing",
+        "nl": "Gepubliceerd via npm trusted publishing",
+        "fr": "Publié via NPM Trusted Publishing",
+        "it": "Pubblicato con npm trusted publishing",
+        "es": "Publicado vía npm Trusted Publishing",
+        "pl": "Opublikowane przez npm Trusted Publishing",
+        "uk": "Опубліковано через довірену публікацію npm",
+        "zh-cn": "通过 npm 可信发布发布"
+      },
       "0.1.1": {
         "en": "Initial release: local speech recognition with NVIDIA Parakeet TDT 0.6B v3 on the CPU, OpenAI-compatible transcription API for ioBroker.assistant, sendTo and a live test page",
         "de": "Erste Version: lokale Spracherkennung mit NVIDIA Parakeet TDT 0.6B v3 auf der CPU, OpenAI-kompatible Transkriptions-API für ioBroker.assistant, sendTo und eine Live-Testseite",

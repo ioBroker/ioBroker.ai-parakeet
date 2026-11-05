@@ -177,6 +177,14 @@ The adapter is licensed under the MIT license. The model [nvidia/parakeet-tdt-0.
 -->
 
 ## Changelog
+<!--
+    Placeholder for the next version (at the beginning of the line):
+    ### **WORK IN PROGRESS**
+-->
+### 0.1.2 (2026-11-05)
+
+- (@GermanBluefox) Published via npm trusted publishing
+
 ### 0.1.1 (2026-11-05)
 
 - (oweitman) Initial release: local speech recognition with NVIDIA Parakeet TDT 0.6B v3, OpenAI-compatible API, sendTo, live test of the microphone in the instance settings, test page with live streaming, correction dictionary, download of a static ffmpeg for MP3, OGG, M4A and WebM
