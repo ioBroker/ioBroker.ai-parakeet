@@ -7,9 +7,10 @@ import { join } from 'node:path';
 import { WebSocketServer, WebSocket, type RawData } from 'ws';
 
 import { RequestError, SAMPLE_RATE } from './audio';
-import { AudioSession, type SessionOptions } from './audioSession';
+import type { SessionOptions } from './audioSession';
 import type { EngineLogger } from './engine';
 import { formatResponse, needsSegments, parseResponseFormat } from './formats';
+import { correctionInfo, LiveStream } from './liveStream';
 import { MODEL } from './modelFiles';
 import { getBoundary, parseMultipart } from './multipart';
 import type { JobResult, Owner } from './scheduler';
@@ -17,7 +18,6 @@ import type { Transcriber } from './transcriber';
 
 /** Same limit as the OpenAI API has. 5 minutes of 48 kHz stereo WAV are 58 MB, so it is a bit higher */
 const MAX_BODY_BYTES = 64 * 1024 * 1024;
-const MAX_STREAM_MINUTES = 30;
 
 export interface ApiServerOptions {
     bind: string;
@@ -29,6 +29,8 @@ export interface ApiServerOptions {
     /** Directory of the test page */
     publicDir: string;
     maxClients: number;
+    /** Live tests of other transports (sendTo of admin): they count for `maxClients` too */
+    otherClients?: () => number;
     session: SessionOptions;
     transcriber: Transcriber;
     /** Status for /health */
@@ -161,7 +163,11 @@ export class ApiServer {
                     // invalid origin
                 }
                 const path = new URL(request.url || '/', 'http://localhost').pathname;
-                if (path !== '/audio' || !sameOrigin || this.clients >= this.options.maxClients) {
+                if (
+                    path !== '/audio' ||
+                    !sameOrigin ||
+                    this.clients + (this.options.otherClients?.() ?? 0) >= this.options.maxClients
+                ) {
                     socket.end('HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\n\r\n');
                     return;
                 }
@@ -211,7 +217,7 @@ export class ApiServer {
 
         if (path === '/health' && request.method === 'GET') {
             const health = this.options.health();
-            const { scheduler, corrector } = this.options.transcriber;
+            const { scheduler } = this.options.transcriber;
             sendJson(response, health.ready ? 200 : 503, {
                 ...health,
                 model: `${MODEL.id} int8`,
@@ -220,7 +226,7 @@ export class ApiServer {
                 clients: this.clients,
                 queued: scheduler.queued,
                 busy: scheduler.isBusy,
-                corrections: { enabled: corrector.size > 0, rules: corrector.size },
+                corrections: correctionInfo(this.options.transcriber),
             });
             return;
         }
@@ -333,13 +339,11 @@ export class ApiServer {
         }
     }
 
-    /** Live streaming of the test page */
+    /** Live streaming of the test page: `hello` (with the key), then Float32 PCM, then `stop` */
     private onStream(socket: WebSocket): void {
         const { transcriber, log } = this.options;
-        let state: 'hello' | 'recording' | 'stopping' | 'closed' = 'hello';
-        let completed = false;
-        let started = 0;
-        let received = 0;
+        let stream: LiveStream | null = null;
+        let rejected = false;
         const send = (data: unknown): void => {
             if (socket.readyState !== WebSocket.OPEN) {
                 return;
@@ -350,81 +354,53 @@ export class ApiServer {
             }
             socket.send(JSON.stringify(data));
         };
-        // Created below: the session and the owner need each other
-        const ref: { audio?: AudioSession } = {};
-        const owner: Owner = {
-            id: `ws-${Math.random().toString(36).slice(2)}`,
-            streaming: true,
-            result(result) {
-                if (state === 'closed') {
-                    return;
-                }
-                send({ type: 'transcript', ...result, correctedText: result.text });
-                if (result.final) {
-                    transcriber.reportResult(result);
-                }
-            },
-            idle() {
-                if (state === 'stopping' && !completed && !transcriber.scheduler.has(owner)) {
-                    completed = true;
-                    send({ type: 'done' });
-                    socket.close(1000);
-                }
-            },
-            fail(error) {
-                if (state === 'closed') {
-                    return;
-                }
-                state = 'closed';
-                ref.audio?.reset();
-                transcriber.scheduler.cancel(owner);
+        const fail = (error: Error): void => {
+            if (stream) {
+                stream.fail(error);
+            } else if (!rejected) {
+                rejected = true;
                 send({ type: 'error', message: error.message });
                 socket.close(1011);
-            },
+            }
         };
-        const session = new AudioSession(job => transcriber.enqueue(owner, job), this.options.session);
-        ref.audio = session;
-        const timer = setTimeout(
-            () => owner.fail(new Error(`The maximal session length is ${MAX_STREAM_MINUTES} minutes`)),
-            MAX_STREAM_MINUTES * 60_000,
-        );
         const helloTimer = setTimeout(() => {
-            if (state === 'hello') {
-                owner.fail(new Error('No hello message'));
+            if (!stream) {
+                fail(new Error('No hello message'));
             }
         }, 10_000);
 
         socket.on('message', (data: RawData, binary: boolean) => {
+            if (rejected) {
+                return;
+            }
             try {
                 if (!binary) {
                     const message = JSON.parse(rawToBuffer(data).toString('utf8')) as { type?: string; key?: string };
-                    if (state === 'hello' && message.type === 'hello') {
+                    if (!stream && message.type === 'hello') {
                         if (this.options.apiKey && !keyMatches(message.key, this.options.apiKey)) {
+                            rejected = true;
                             send({ type: 'error', message: 'Invalid API key', auth: true });
-                            state = 'closed';
                             socket.close(4401);
                             return;
                         }
                         clearTimeout(helloTimer);
-                        state = 'recording';
-                        started = performance.now();
-                        send({
-                            type: 'ready',
-                            sampleRate: SAMPLE_RATE,
-                            corrections: { enabled: transcriber.corrector.size > 0, rules: transcriber.corrector.size },
+                        stream = new LiveStream({
+                            transcriber,
+                            session: this.options.session,
+                            send,
+                            end: ok => socket.close(ok ? 1000 : 1011),
                         });
+                        send({ type: 'ready', sampleRate: SAMPLE_RATE, corrections: correctionInfo(transcriber) });
                         return;
                     }
-                    if (state === 'recording' && message.type === 'stop') {
-                        state = 'stopping';
-                        session.flush();
-                        owner.idle?.();
+                    if (stream && message.type === 'stop') {
+                        stream.stop();
                         return;
                     }
                     throw new Error('Unexpected control message');
                 }
-                if (state !== 'recording') {
-                    throw new Error(state === 'hello' ? 'Send hello first' : 'Recording already stopped');
+                if (!stream) {
+                    throw new Error('Send hello first');
                 }
                 const buffer = rawToBuffer(data);
                 if (!buffer.length || buffer.length % 4) {
@@ -434,22 +410,15 @@ export class ApiServer {
                 for (let i = 0; i < pcm.length; i++) {
                     pcm[i] = buffer.readFloatLE(i * 4);
                 }
-                received += pcm.length;
-                if (received > ((performance.now() - started) / 1000 + 3) * SAMPLE_RATE) {
-                    throw new Error('Audio sent faster than real time');
-                }
-                session.push(pcm);
+                stream.push(pcm);
             } catch (error) {
-                owner.fail(error);
+                fail(error);
             }
         });
         socket.on('error', error => log.debug(`WebSocket: ${error.message}`));
         socket.on('close', () => {
-            state = 'closed';
-            clearTimeout(timer);
             clearTimeout(helloTimer);
-            transcriber.scheduler.cancel(owner);
-            session.reset();
+            stream?.close();
         });
     }
 }

@@ -26,7 +26,10 @@
   "Recognition": "Reconnaissance",
   "Maximal audio length": "Durée audio maximale",
   "Path of ffmpeg": "Chemin de ffmpeg",
-  "For MP3, OGG, M4A and WebM. WAV works without ffmpeg. Empty: only WAV": "Pour MP3, OGG, M4A et WebM. Le WAV fonctionne sans ffmpeg. Vide : uniquement WAV",
+  "Empty: the downloaded ffmpeg, otherwise ffmpeg from the search path. Needed for MP3, OGG, M4A and WebM, WAV works without. Example: /usr/bin/ffmpeg": "Vide : le ffmpeg téléchargé, sinon ffmpeg du chemin de recherche. Nécessaire pour MP3, OGG, M4A et WebM, le WAV fonctionne sans. Exemple : /usr/bin/ffmpeg",
+  "Check ffmpeg": "Vérifier ffmpeg",
+  "Download ffmpeg": "Télécharger ffmpeg",
+  "Downloads a static ffmpeg (ffmpeg-static, 20-30 MB) into the data directory of the instance. It is used when no path is entered.": "Télécharge un ffmpeg statique (ffmpeg-static, 20 à 30 Mo) dans le répertoire de données de l'instance. Il est utilisé quand aucun chemin n'est indiqué.",
   "Use the words of the prompt": "Utiliser les mots du prompt",
   "Names in the \"prompt\" field (ioBroker.assistant sends device and room names) are written as there, e.g. \"io broker\" becomes \"ioBroker\"": "Les noms du champ \"prompt\" (ioBroker.assistant envoie les noms d'appareils et de pièces) sont écrits comme là, p. ex. \"io broker\" devient \"ioBroker\"",
   "Write the recognized text into a state": "Écrire le texte reconnu dans un état",
@@ -34,7 +37,6 @@
   "Replaces wrongly recognized words. Case, spaces and hyphens do not matter, only whole words are replaced.": "Remplace les mots mal reconnus. La casse, les espaces et les traits d'union n'ont pas d'importance, seuls les mots entiers sont remplacés.",
   "Replacement": "Remplacement",
   "Recognized variants, separated by commas": "Variantes reconnues, séparées par des virgules",
-  "Test page": "Page de test",
   "Enable test page": "Activer la page de test",
   "Live recognition of the microphone in the browser, at the address of the server": "Reconnaissance en direct du microphone dans le navigateur, à l'adresse du serveur",
   "Browsers at the same time": "Navigateurs simultanés",
@@ -42,5 +44,11 @@
   "On a Raspberry Pi 2-3 s are better": "Sur un Raspberry Pi, 2-3 s sont préférables",
   "Silence that ends a sentence": "Silence qui termine une phrase",
   "Speech level": "Niveau de parole",
-  "Louder audio counts as speech (0.001 - 0.1)": "Un son plus fort compte comme de la parole (0,001 - 0,1)"
+  "Louder audio counts as speech (0.001 - 0.1)": "Un son plus fort compte comme de la parole (0,001 - 0,1)",
+  "Live test": "Test en direct",
+  "Start the instance to test the recognition": "Démarrez l'instance pour tester la reconnaissance",
+  "The audio goes through the connection of admin: no HTTPS of the server and no API key needed. Admin itself must be opened over HTTPS or on localhost.": "L'audio passe par la connexion d'admin : ni HTTPS du serveur ni clé API ne sont nécessaires. Admin lui-même doit être ouvert en HTTPS ou sur localhost.",
+  "Live recognition": "Reconnaissance en direct",
+  "Test page in the browser": "Page de test dans le navigateur",
+  "Test page and admin together": "Page de test et admin ensemble"
 }

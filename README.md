@@ -13,17 +13,17 @@ Local, offline speech recognition for ioBroker with [NVIDIA Parakeet TDT 0.6B v3
 - **25 European languages**, the language is detected automatically (German, English, French, Italian, Spanish, Dutch, Polish, Russian, Ukrainian, Portuguese and more), with punctuation and capitalization
 - **OpenAI-compatible API** `POST /v1/audio/transcriptions`: everything that can use the OpenAI Whisper API can use this adapter, e.g. [ioBroker.assistant](https://github.com/ioBroker/ioBroker.assistant)
 - **sendTo** for scripts, e.g. to transcribe voice messages
-- **Test page** with live recognition of the microphone in the browser
+- **Live test** of the microphone in the instance settings, and a **test page** with live recognition in the browser
 - **Correction dictionary** for words the model does not know
 
 ## Speed and memory
 
 The model is INT8 quantized (about 670 MB) and needs about **1.1 GB of memory**. Measured times for a command of 3 to 6 seconds:
 
-| Host | CPU threads | Computing time | Real-time factor |
-|---|---|---|---|
-| Raspberry Pi 5 (8 GB), with Frigate running | 3 | 0.5 - 1.1 s | about 0.2 |
-| Intel Core i9-14900HX | 4 | 0.1 - 0.3 s | about 0.03 - 0.05 |
+| Host                                        | CPU threads | Computing time | Real-time factor  |
+|---------------------------------------------|-------------|----------------|-------------------|
+| Raspberry Pi 5 (8 GB), with Frigate running | 3           | 0.5 - 1.1 s    | about 0.2         |
+| Intel Core i9-14900HX                       | 4           | 0.1 - 0.3 s    | about 0.03 - 0.05 |
 
 The real-time factor is the computing time divided by the length of the audio: 0.2 means 10 seconds of speech are recognized in 2 seconds. A Raspberry Pi 4 should work too, but was not measured and is clearly slower. 32-bit systems are not supported.
 
@@ -72,7 +72,7 @@ Answer for `json`: `{"text": "Schalte das Licht im Wohnzimmer ein."}`
 The audio can also be sent directly as body with `Content-Type: audio/wav`, the fields then go into the query string (`?response_format=text`).
 
 - **WAV** (PCM 8/16/24/32 bit or float, any sample rate, mono or stereo) is read directly.
-- **MP3, OGG/Opus, M4A, WebM, FLAC** need [ffmpeg](https://ffmpeg.org/) on the host (`sudo apt install ffmpeg`).
+- **MP3, OGG/Opus, M4A, WebM, FLAC** need [ffmpeg](https://ffmpeg.org/). Either install it on the host (`sudo apt install ffmpeg`), or click **Download ffmpeg** on the tab **Recognition**: it downloads the static ffmpeg of [ffmpeg-static](https://github.com/eugeneware/ffmpeg-static) (20-30 MB, about 80 MB unpacked, checked against a fixed SHA-256) into `iobroker-data/ai-parakeet.0/ffmpeg`, the same as ioBroker.assistant does. It is used at once, without a restart, while no path is entered. ioBroker.assistant sends WAV, so it does not need ffmpeg here.
 - Recordings longer than **Maximal audio length** (default 300 s) are rejected. Recordings longer than 90 s are recognized in windows of 60 s.
 - `GET /v1/models` lists the model, `GET /health` shows the status (without key).
 - `/v1/audio/translations` is not supported: Parakeet only transcribes.
@@ -106,9 +106,28 @@ The answer contains `text` (with corrections), `rawText` (as recognized by the m
 
 `sendTo('ai-parakeet.0', 'getEndpoint', {}, console.log)` returns the address of the API.
 
+## Live test in admin
+
+The tab **Live test** of the instance settings records the microphone right there and shows the recognized text live, with intermediate results, the text with and without the correction dictionary and the computing times. The audio goes through the connection of admin (`sendTo`), not to the server of the adapter: the server needs neither HTTPS nor an API key for it, and it works while the port of the server is blocked. The browser still allows the microphone only if admin itself is opened over HTTPS or on `localhost`; otherwise the tab says so.
+
+The tab is a web component of [`@iobroker/web-components`](https://github.com/ioBroker/web-components) (`admin/webcomponents/ai-parakeet-live.json`) and needs an admin that shows them. Other hosts of web components can show it as well; its setting **Instance** selects the instance.
+
+The live test sends 16-bit audio in messages of about 0.2 s (about 32 KB/s) and gets the new results with every answer:
+
+```js
+sendTo('ai-parakeet.0', 'live', { action: 'start' });                   // → { id, sampleRate, corrections }
+sendTo('ai-parakeet.0', 'live', { action: 'audio', id, seq: 1, pcm });  // pcm: 16 kHz mono 16-bit LE as base64 → { events }
+sendTo('ai-parakeet.0', 'live', { action: 'stop', id, seq: 2 });        // → { events }
+sendTo('ai-parakeet.0', 'live', { action: 'poll', id });                // → { events }, until an event "done" or "error"
+```
+
+A session without a message for 15 s is dropped.
+
 ## Test page
 
 With the option **Enable test page**, the server shows a page at `http://<host>:9999/` that sends the audio of the microphone to the adapter and shows the recognized text live, with intermediate results. Browsers allow the microphone only on HTTPS pages or on `localhost`: enable **HTTPS** in the instance settings and select a certificate, or open the page through a reverse proxy with HTTPS.
+
+The button **Open test page** in the instance settings uses the host name under which the browser reaches admin, if admin runs on the same host and is not behind a reverse proxy. If admin is opened as `http://localhost:8081`, the test page opens as `http://localhost:9999/` and the microphone works without HTTPS; a host name also matches the certificate better than the IP address. The status in the instance settings warns if the browser will block the microphone at the address of the test page, and the test page itself says so, too.
 
 The page uses a simple level gate to find the end of a sentence (**Silence that ends a sentence**). On a Raspberry Pi an interval of 2-3 s for the intermediate results is better, because every intermediate result recognizes the whole sentence again.
 
@@ -128,7 +147,7 @@ Words that the model regularly recognizes wrongly can be replaced. Each row has 
 | Unload after idle minutes | 0 | Frees the memory when the model is not used. Loading it again takes a few seconds |
 | Check free memory | on | Does not load the model with less than 1.1 GB of free memory |
 | Maximal audio length | 300 s | |
-| Path of ffmpeg | `ffmpeg` | For other formats than WAV |
+| Path of ffmpeg | empty | For other formats than WAV. Empty: the downloaded ffmpeg, else `ffmpeg` from the search path. Buttons **Check ffmpeg** and **Download ffmpeg** |
 
 ## States
 
@@ -161,7 +180,7 @@ The adapter is licensed under the MIT license. The model [nvidia/parakeet-tdt-0.
 
 ### **WORK IN PROGRESS**
 
-- (oweitman) Initial release: local speech recognition with NVIDIA Parakeet TDT 0.6B v3, OpenAI-compatible API, sendTo, test page with live streaming, correction dictionary
+- (oweitman) Initial release: local speech recognition with NVIDIA Parakeet TDT 0.6B v3, OpenAI-compatible API, sendTo, live test of the microphone in the instance settings, test page with live streaming, correction dictionary, download of a static ffmpeg for MP3, OGG, M4A and WebM
 
 ## License
 

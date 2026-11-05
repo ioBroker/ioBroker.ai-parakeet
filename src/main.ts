@@ -1,16 +1,26 @@
+import { execFile } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
 import { isAbsolute, join } from 'node:path';
+import { promisify } from 'node:util';
 
-import { Adapter, type AdapterOptions, getAbsoluteDefaultDataDir } from '@iobroker/adapter-core';
+import {
+    Adapter,
+    type AdapterOptions,
+    getAbsoluteDefaultDataDir,
+    getAbsoluteInstanceDataDir,
+} from '@iobroker/adapter-core';
 
 import { ApiServer } from './lib/apiServer';
 import { pcm16ToFloat, resample, RequestError, sanitize } from './lib/audio';
 import { createCorrector } from './lib/corrections';
 import { Engine, type EngineState } from './lib/engine';
+import { downloadFfmpegStatic, ffmpegStaticPath } from './lib/ffmpegStatic';
 import { translate, type TextId } from './lib/i18n';
+import { LiveSessions } from './lib/liveSessions';
 import { checkModel, downloadModel, MODEL, MODEL_SIZE, verifyModel } from './lib/modelFiles';
-import { selectLanAddress } from './lib/network';
+import { directAdminHost, isSecureContextUrl, selectLanAddress } from './lib/network';
 import type { JobResult } from './lib/scheduler';
 import { Transcriber } from './lib/transcriber';
 import type { AiParakeetConfig } from './types';
@@ -52,12 +62,20 @@ function toBuffer(value: unknown): Buffer | undefined {
     return undefined;
 }
 
+/** The `path` field that the ffmpeg buttons send from the form, undefined if there is none */
+function formPath(message: unknown): string | undefined {
+    const path = (message as { path?: unknown } | undefined)?.path;
+    return typeof path === 'string' ? path : undefined;
+}
+
 export class AiParakeetAdapter extends Adapter {
     declare config: AiParakeetConfig;
 
     private engine: Engine | null = null;
     private transcriber: Transcriber | null = null;
     private server: ApiServer | null = null;
+    /** Live test of admin over sendTo; works without the server, e.g. while its port is used */
+    private live: LiveSessions | null = null;
     private abort = new AbortController();
 
     private systemLanguage = 'en';
@@ -70,6 +88,8 @@ export class AiParakeetAdapter extends Adapter {
     private status: Status = 'starting';
     private requests = 0;
     private lastQueue = -1;
+    /** A running "Download ffmpeg": a second click waits for the same download */
+    private ffmpegDownload: Promise<string> | null = null;
 
     public constructor(options: Partial<AdapterOptions> = {}) {
         super({
@@ -119,11 +139,18 @@ export class AiParakeetAdapter extends Adapter {
             engine: this.engine,
             corrector,
             maxAudioSeconds,
-            ffmpegPath: (cfg.ffmpegPath ?? 'ffmpeg').trim(),
+            ffmpegPath: () => this.ffmpegBin(),
             useHints: cfg.useHints !== false,
             unavailable: () => this.unavailableReason(),
             onResult: result => this.onResult(result),
             onQueue: queued => this.onQueue(queued),
+        });
+
+        this.live = new LiveSessions({
+            transcriber: this.transcriber,
+            session: this.sessionOptions(),
+            maxClients: this.maxClients(),
+            otherClients: () => this.server?.clients ?? 0,
         });
 
         await this.startServer();
@@ -131,6 +158,21 @@ export class AiParakeetAdapter extends Adapter {
     }
 
     // ---------------------------------------------------------------- server
+
+    /** How the live tests (test page and admin) cut the microphone into sentences */
+    private sessionOptions(): { threshold: number; interval: number; silence: number } {
+        const cfg = this.config;
+        return {
+            threshold: num(cfg.vadThreshold, 0.008, 0.0001, 1),
+            interval: num(cfg.partialInterval, 1.5, 0.5, 30),
+            silence: num(cfg.silenceSeconds, 0.8, 0.2, 10),
+        };
+    }
+
+    /** Live tests at the same time, of the test page and of admin together */
+    private maxClients(): number {
+        return Math.round(num(this.config.maxClients, 4, 1, 64));
+    }
 
     private async startServer(): Promise<void> {
         const cfg = this.config;
@@ -158,12 +200,9 @@ export class AiParakeetAdapter extends Adapter {
             apiKey: (cfg.apiKey || '').trim(),
             testPage: cfg.testPage !== false,
             publicDir: join(__dirname, '..', 'public'),
-            maxClients: Math.round(num(cfg.maxClients, 4, 1, 64)),
-            session: {
-                threshold: num(cfg.vadThreshold, 0.008, 0.0001, 1),
-                interval: num(cfg.partialInterval, 1.5, 0.5, 30),
-                silence: num(cfg.silenceSeconds, 0.8, 0.2, 10),
-            },
+            maxClients: this.maxClients(),
+            otherClients: () => this.live?.size ?? 0,
+            session: this.sessionOptions(),
             transcriber: this.transcriber!,
             health: () => ({
                 ready: this.status === 'ready' || this.status === 'idle',
@@ -202,8 +241,33 @@ export class AiParakeetAdapter extends Adapter {
         return host.includes(':') ? `[${host}]` : host;
     }
 
-    private baseUrl(): string {
-        return `${this.config.secure ? 'https' : 'http'}://${this.publicHost()}:${this.port}`;
+    private baseUrl(host = this.publicHost()): string {
+        return `${this.config.secure ? 'https' : 'http'}://${host}:${this.port}`;
+    }
+
+    /**
+     * Address of the test page for the browser that shows admin. If the browser reaches this host directly,
+     * the page gets the same host name as admin: "localhost" gives the microphone without HTTPS, and a
+     * name matches the certificate better than the IP address. Otherwise the address in the network.
+     *
+     * @param adminUrl the address of admin in the browser (`_origin` of the button, `_href` of the status)
+     * @param from the admin instance that asks
+     */
+    private async testPageUrl(adminUrl: unknown, from: string | undefined): Promise<string> {
+        let host: string | undefined;
+        // only if the server listens on all addresses, otherwise only the configured one works
+        if (WILDCARD_ADDRESSES.includes((this.config.bind || '').trim()) && from?.startsWith('system.adapter.admin.')) {
+            try {
+                const admin = await this.getForeignObjectAsync(from);
+                // admin on another host: its host name points to that host
+                if (admin?.common?.host === this.host) {
+                    host = directAdminHost(adminUrl, admin?.native?.port);
+                }
+            } catch {
+                // use the address in the network
+            }
+        }
+        return `${this.baseUrl(host)}/`;
     }
 
     // ---------------------------------------------------------------- model
@@ -345,7 +409,26 @@ export class AiParakeetAdapter extends Adapter {
         return translate(this.systemLanguage, id, ...args);
     }
 
-    private statusHtml(): string {
+    /** The test page in the status: link, and a warning if the browser does not allow the microphone there */
+    private testPageHtml(url: string): string {
+        if (this.config.testPage === false) {
+            return escapeHtml(this.t('testPageOff'));
+        }
+        const link = `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a>`;
+        if (isSecureContextUrl(url)) {
+            return link;
+        }
+        const local = `http://localhost:${this.port}/`;
+        return `${link}<br><span style="color:#ed6c02">⚠ ${escapeHtml(this.t('testPageInsecure', local))}</span>`;
+    }
+
+    /**
+     * Status in the configuration dialog
+     *
+     * @param adminUrl the address of admin in the browser, if admin sends it
+     * @param from the admin instance that asks
+     */
+    private async statusHtml(adminUrl: unknown, from: string | undefined): Promise<string> {
         const statusText: Record<Status, string> = {
             starting: this.t('starting'),
             downloading: this.t('downloading', this.progress),
@@ -363,12 +446,7 @@ export class AiParakeetAdapter extends Adapter {
         const rows: [string, string][] = [
             [this.t('status'), `<span style="color:${color}">${escapeHtml(statusText[this.status])}</span>`],
             [this.t('endpoint'), `<code>${escapeHtml(base)}/v1/audio/transcriptions</code>`],
-            [
-                this.t('testPage'),
-                this.config.testPage !== false
-                    ? `<a href="${escapeHtml(base)}/" target="_blank" rel="noopener">${escapeHtml(base)}/</a>`
-                    : escapeHtml(this.t('testPageOff')),
-            ],
+            [this.t('testPage'), this.testPageHtml(await this.testPageUrl(adminUrl, from))],
             [this.t('modelDir'), `<code>${escapeHtml(this.modelDir)}</code>`],
             [this.t('threads'), escapeHtml(this.engine?.threads)],
             [this.t('queue'), escapeHtml(this.transcriber?.scheduler.queued ?? 0)],
@@ -450,7 +528,8 @@ export class AiParakeetAdapter extends Adapter {
                     response = await this.transcribeMessage(obj.message);
                     break;
                 case 'status':
-                    response = this.statusHtml();
+                    // message = { href } with the address of admin in the browser (admin with `_href`)
+                    response = await this.statusHtml((obj.message as { href?: unknown } | null)?.href, obj.from);
                     break;
                 case 'getEndpoint':
                     response = {
@@ -460,13 +539,31 @@ export class AiParakeetAdapter extends Adapter {
                     };
                     break;
                 case 'openTestPage':
+                    // admin sends { _origin, _originIp } with the address of admin in the browser
                     response =
                         this.config.testPage !== false && this.serverRunning
-                            ? { openUrl: `${this.baseUrl()}/`, window: '_blank' }
+                            ? {
+                                  openUrl: await this.testPageUrl(
+                                      (obj.message as { _origin?: unknown } | null)?._origin,
+                                      obj.from,
+                                  ),
+                                  window: '_blank',
+                              }
                             : { error: this.t(this.serverRunning ? 'testPageDisabled' : 'notRunning') };
+                    break;
+                case 'live':
+                    // live test of admin, see LiveSessions
+                    response = this.live ? this.live.handle(obj.message) : { error: this.t('notReady') };
                     break;
                 case 'generateApiKey':
                     response = { native: { apiKey: `sk-iob-${randomBytes(24).toString('base64url')}` } };
+                    break;
+                case 'testFfmpeg':
+                    // message = { path } with the (unsaved) path of the form
+                    response = await this.testFfmpeg(formPath(obj.message) ?? this.config.ffmpegPath ?? '');
+                    break;
+                case 'downloadFfmpeg':
+                    response = await this.downloadFfmpeg(formPath(obj.message) ?? this.config.ffmpegPath ?? '');
                     break;
                 default:
                     response = { error: `Unknown command ${obj.command}` };
@@ -477,11 +574,90 @@ export class AiParakeetAdapter extends Adapter {
         this.sendTo(obj.from, obj.command, response as ioBroker.MessagePayload, obj.callback);
     }
 
+    // ---------------------------------------------------------------- ffmpeg
+
+    /** The ffmpeg binary: the configured path, else the downloaded one, else `ffmpeg` from the search path */
+    private ffmpegBin(): string {
+        return this.config.ffmpegPath?.trim() || this.downloadedFfmpeg() || 'ffmpeg';
+    }
+
+    /**
+     * The static ffmpeg of "Download ffmpeg", '' if there is none. Looked up for every file (one `stat`),
+     * so a download is used and a deleted file falls back to the search path without a restart.
+     */
+    private downloadedFfmpeg(): string {
+        const file = ffmpegStaticPath(this.instanceDataDir());
+        return existsSync(file) ? file : '';
+    }
+
+    private instanceDataDir(): string {
+        try {
+            return getAbsoluteInstanceDataDir(this);
+        } catch {
+            return join(getAbsoluteDefaultDataDir(), this.namespace);
+        }
+    }
+
+    /**
+     * "Check ffmpeg": runs it and returns its version
+     *
+     * @param path the path from the (unsaved) form, '' = downloaded or from the search path
+     */
+    private async testFfmpeg(path: string): Promise<{ result?: string; error?: string }> {
+        const bin = path.trim() || this.downloadedFfmpeg() || 'ffmpeg';
+        try {
+            const { stdout } = await promisify(execFile)(bin, ['-version'], {
+                timeout: 10_000,
+                maxBuffer: 4 * 1024 * 1024,
+                windowsHide: true,
+            });
+            const version = stdout
+                .split(/\r?\n/)[0]
+                .replace(/\s+Copyright.*$/i, '')
+                .trim();
+            return { result: `${version} (${bin})` };
+        } catch (e) {
+            const error = e as NodeJS.ErrnoException;
+            return {
+                error:
+                    error.code === 'ENOENT'
+                        ? `${bin} not found${path.trim() ? '' : ' in the search path'}: install ffmpeg, download it or enter the full path`
+                        : `${bin} failed: ${error.message}`,
+            };
+        }
+    }
+
+    /**
+     * "Download ffmpeg": the static build of ffmpeg-static into the data dir, then the same check as
+     * "Check ffmpeg". It is used from now on, unless a path is entered.
+     *
+     * @param configuredPath the path from the (unsaved) form
+     */
+    private async downloadFfmpeg(configuredPath: string): Promise<{ result?: string; error?: string }> {
+        let file: string;
+        try {
+            this.ffmpegDownload ??= downloadFfmpegStatic(this.instanceDataDir(), {
+                log: this.log,
+                signal: this.abort.signal,
+            }).finally(() => (this.ffmpegDownload = null));
+            file = await this.ffmpegDownload;
+        } catch (e) {
+            this.log.warn(`Download of ffmpeg failed: ${e.message}`);
+            return { error: `Download failed: ${e.message}` };
+        }
+        const check = await this.testFfmpeg(file);
+        if (check.error || !configuredPath.trim()) {
+            return check;
+        }
+        return { result: `${check.result}: not used while a path to ffmpeg is entered` };
+    }
+
     // ---------------------------------------------------------------- unload
 
     private async onUnload(callback: () => void): Promise<void> {
         try {
             this.abort.abort();
+            this.live?.closeAll();
             this.transcriber?.scheduler.cancelAll(new Error('The adapter stops'));
             await this.server?.stop();
             await this.engine?.stop();

@@ -26,7 +26,10 @@
   "Recognition": "Herkenning",
   "Maximal audio length": "Maximale audiolengte",
   "Path of ffmpeg": "Pad van ffmpeg",
-  "For MP3, OGG, M4A and WebM. WAV works without ffmpeg. Empty: only WAV": "Voor MP3, OGG, M4A en WebM. WAV werkt zonder ffmpeg. Leeg: alleen WAV",
+  "Empty: the downloaded ffmpeg, otherwise ffmpeg from the search path. Needed for MP3, OGG, M4A and WebM, WAV works without. Example: /usr/bin/ffmpeg": "Leeg: de gedownloade ffmpeg, anders ffmpeg uit het zoekpad. Nodig voor MP3, OGG, M4A en WebM, WAV werkt zonder. Voorbeeld: /usr/bin/ffmpeg",
+  "Check ffmpeg": "ffmpeg controleren",
+  "Download ffmpeg": "ffmpeg downloaden",
+  "Downloads a static ffmpeg (ffmpeg-static, 20-30 MB) into the data directory of the instance. It is used when no path is entered.": "Downloadt een statische ffmpeg (ffmpeg-static, 20-30 MB) naar de gegevensmap van de instantie. Die wordt gebruikt als er geen pad is ingevuld.",
   "Use the words of the prompt": "Woorden uit de prompt gebruiken",
   "Names in the \"prompt\" field (ioBroker.assistant sends device and room names) are written as there, e.g. \"io broker\" becomes \"ioBroker\"": "Namen uit het veld \"prompt\" (ioBroker.assistant stuurt apparaat- en kamernamen) worden geschreven zoals daar, bijv. \"io broker\" wordt \"ioBroker\"",
   "Write the recognized text into a state": "Herkende tekst naar een state schrijven",
@@ -34,7 +37,6 @@
   "Replaces wrongly recognized words. Case, spaces and hyphens do not matter, only whole words are replaced.": "Vervangt verkeerd herkende woorden. Hoofdletters, spaties en koppeltekens maken niet uit, alleen hele woorden worden vervangen.",
   "Replacement": "Vervanging",
   "Recognized variants, separated by commas": "Herkende varianten, gescheiden door komma's",
-  "Test page": "Testpagina",
   "Enable test page": "Testpagina inschakelen",
   "Live recognition of the microphone in the browser, at the address of the server": "Live herkenning van de microfoon in de browser, op het adres van de server",
   "Browsers at the same time": "Browsers tegelijk",
@@ -42,5 +44,11 @@
   "On a Raspberry Pi 2-3 s are better": "Op een Raspberry Pi is 2-3 s beter",
   "Silence that ends a sentence": "Stilte die een zin beëindigt",
   "Speech level": "Spraakniveau",
-  "Louder audio counts as speech (0.001 - 0.1)": "Luider geluid telt als spraak (0,001 - 0,1)"
+  "Louder audio counts as speech (0.001 - 0.1)": "Luider geluid telt als spraak (0,001 - 0,1)",
+  "Live test": "Live-test",
+  "Start the instance to test the recognition": "Start de instantie om de herkenning te testen",
+  "The audio goes through the connection of admin: no HTTPS of the server and no API key needed. Admin itself must be opened over HTTPS or on localhost.": "De audio gaat via de verbinding van admin: geen HTTPS van de server en geen API-sleutel nodig. Admin zelf moet via HTTPS of op localhost geopend zijn.",
+  "Live recognition": "Live-herkenning",
+  "Test page in the browser": "Testpagina in de browser",
+  "Test page and admin together": "Testpagina en admin samen"
 }

@@ -7,7 +7,7 @@ Lokale Offline-Spracherkennung für ioBroker mit [NVIDIA Parakeet TDT 0.6B v3](h
 - **25 europäische Sprachen**, die Sprache wird automatisch erkannt (Deutsch, Englisch, Französisch, Italienisch, Spanisch, Niederländisch, Polnisch, Russisch, Ukrainisch, Portugiesisch und weitere), mit Satzzeichen und Groß-/Kleinschreibung
 - **OpenAI-kompatible API** `POST /v1/audio/transcriptions`: Alles, was die Whisper-API von OpenAI nutzen kann, kann auch diesen Adapter nutzen, z. B. [ioBroker.assistant](https://github.com/ioBroker/ioBroker.assistant)
 - **sendTo** für Skripte, z. B. um Sprachnachrichten zu transkribieren
-- **Testseite** mit Live-Erkennung des Mikrofons im Browser
+- **Live-Test** des Mikrofons in den Instanz-Einstellungen und eine **Testseite** mit Live-Erkennung im Browser
 - **Korrekturwörterbuch** für Wörter, die das Modell nicht kennt
 
 ## Geschwindigkeit und Speicher
@@ -66,7 +66,7 @@ Antwort bei `json`: `{"text": "Schalte das Licht im Wohnzimmer ein."}`
 Das Audio kann auch direkt als Body mit `Content-Type: audio/wav` geschickt werden, die Felder stehen dann im Query-String (`?response_format=text`).
 
 - **WAV** (PCM 8/16/24/32 Bit oder Float, beliebige Abtastrate, mono oder stereo) wird direkt gelesen.
-- **MP3, OGG/Opus, M4A, WebM, FLAC** brauchen [ffmpeg](https://ffmpeg.org/) auf dem Host (`sudo apt install ffmpeg`).
+- **MP3, OGG/Opus, M4A, WebM, FLAC** brauchen [ffmpeg](https://ffmpeg.org/). Entweder auf dem Host installieren (`sudo apt install ffmpeg`) oder im Reiter **Erkennung** auf **ffmpeg herunterladen** klicken: Das lädt das statische ffmpeg von [ffmpeg-static](https://github.com/eugeneware/ffmpeg-static) (20–30 MB, entpackt etwa 80 MB, geprüft mit fester SHA-256) nach `iobroker-data/ai-parakeet.0/ffmpeg`, so wie ioBroker.assistant. Es wird sofort ohne Neustart benutzt, solange kein Pfad eingetragen ist. ioBroker.assistant schickt WAV und braucht hier kein ffmpeg.
 - Aufnahmen über der **maximalen Audiolänge** (Standard 300 s) werden abgelehnt. Aufnahmen über 90 s werden in Fenstern von 60 s erkannt.
 - `GET /v1/models` listet das Modell, `GET /health` zeigt den Status (ohne Schlüssel).
 - `/v1/audio/translations` wird nicht unterstützt: Parakeet transkribiert nur.
@@ -100,9 +100,28 @@ Die Antwort enthält `text` (mit Korrekturen), `rawText` (wie vom Modell erkannt
 
 `sendTo('ai-parakeet.0', 'getEndpoint', {}, console.log)` liefert die Adresse der API.
 
+## Live-Test im Admin
+
+Der Tab **Live-Test** der Instanz-Einstellungen nimmt das Mikrofon direkt dort auf und zeigt den erkannten Text live an, mit Zwischenergebnissen, dem Text mit und ohne Korrekturwörterbuch und den Rechenzeiten. Das Audio läuft über die Verbindung des Admins (`sendTo`), nicht zum Server des Adapters: Der Server braucht dafür weder HTTPS noch einen API-Schlüssel, und es funktioniert auch, wenn der Port des Servers belegt ist. Das Mikrofon erlaubt der Browser trotzdem nur, wenn der Admin selbst über HTTPS oder auf `localhost` geöffnet ist; sonst sagt der Tab das.
+
+Der Tab ist eine Web-Komponente von [`@iobroker/web-components`](https://github.com/ioBroker/web-components) (`admin/webcomponents/ai-parakeet-live.json`) und braucht einen Admin, der sie anzeigt. Andere Hosts von Web-Komponenten können sie ebenfalls zeigen; ihre Einstellung **Instanz** wählt die Instanz.
+
+Der Live-Test schickt 16-Bit-Audio in Nachrichten von etwa 0,2 s (etwa 32 KB/s) und bekommt mit jeder Antwort die neuen Ergebnisse:
+
+```js
+sendTo('ai-parakeet.0', 'live', { action: 'start' });                   // → { id, sampleRate, corrections }
+sendTo('ai-parakeet.0', 'live', { action: 'audio', id, seq: 1, pcm });  // pcm: 16 kHz mono 16 Bit LE als base64 → { events }
+sendTo('ai-parakeet.0', 'live', { action: 'stop', id, seq: 2 });        // → { events }
+sendTo('ai-parakeet.0', 'live', { action: 'poll', id });                // → { events }, bis ein Ereignis "done" oder "error" kommt
+```
+
+Eine Sitzung ohne Nachricht für 15 s wird verworfen.
+
 ## Testseite
 
 Mit der Option **Testseite aktivieren** zeigt der Server unter `http://<host>:9999/` eine Seite, die das Mikrofon-Audio an den Adapter schickt und den erkannten Text live anzeigt, mit Zwischenergebnissen. Browser erlauben das Mikrofon nur auf HTTPS-Seiten oder auf `localhost`: In den Instanz-Einstellungen **HTTPS** aktivieren und ein Zertifikat wählen, oder die Seite über einen Reverse-Proxy mit HTTPS öffnen.
+
+Der Button **Testseite öffnen** in den Instanz-Einstellungen nimmt den Hostnamen, unter dem der Browser den Admin erreicht, wenn der Admin auf demselben Host läuft und nicht hinter einem Reverse-Proxy steht. Ist der Admin als `http://localhost:8081` geöffnet, öffnet sich die Testseite als `http://localhost:9999/` und das Mikrofon funktioniert ohne HTTPS; ein Hostname passt außerdem besser zum Zertifikat als die IP-Adresse. Der Status in den Instanz-Einstellungen warnt, wenn der Browser das Mikrofon unter der Adresse der Testseite sperren wird, und die Testseite selbst sagt es ebenfalls.
 
 Die Seite erkennt das Satzende über einen einfachen Pegel (**Stille, die einen Satz beendet**). Auf einem Raspberry Pi ist ein Intervall von 2-3 s für Zwischenergebnisse besser, weil jedes Zwischenergebnis den ganzen Satz neu erkennt.
 
@@ -122,7 +141,7 @@ Wörter, die das Modell regelmäßig falsch erkennt, lassen sich ersetzen. Jede 
 | Entladen nach Leerlauf-Minuten | 0 | Gibt den Speicher frei, wenn das Modell nicht genutzt wird. Erneutes Laden dauert einige Sekunden |
 | Freien Speicher prüfen | an | Lädt das Modell nicht bei weniger als 1,1 GB freiem Speicher |
 | Maximale Audiolänge | 300 s | |
-| Pfad von ffmpeg | `ffmpeg` | Für andere Formate als WAV |
+| Pfad von ffmpeg | leer | Für andere Formate als WAV. Leer: das heruntergeladene ffmpeg, sonst `ffmpeg` aus dem Suchpfad. Knöpfe **ffmpeg prüfen** und **ffmpeg herunterladen** |
 
 ## Datenpunkte
 

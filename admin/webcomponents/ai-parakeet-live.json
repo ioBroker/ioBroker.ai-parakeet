@@ -1,0 +1,35 @@
+{
+    "$schema": "https://raw.githubusercontent.com/ioBroker/web-components/main/schemas/manifest.json",
+    "manifestVersion": 1,
+    "tag": "ai-parakeet-live",
+    "name": {
+        "en": "Live speech recognition",
+        "de": "Live-Spracherkennung"
+    },
+    "description": {
+        "en": "Records the microphone and shows the text that ai-parakeet recognizes, live. The audio goes through the connection of the host, so the server of the adapter needs no HTTPS.",
+        "de": "Nimmt das Mikrofon auf und zeigt live den Text, den ai-parakeet erkennt. Das Audio läuft über die Verbindung des Hosts, der Server des Adapters braucht daher kein HTTPS."
+    },
+    "module": "ai-parakeet-live.js",
+    "size": {
+        "width": 800,
+        "height": 560
+    },
+    "settings": {
+        "type": "panel",
+        "items": {
+            "instance": {
+                "type": "instance",
+                "adapter": "ai-parakeet",
+                "label": {
+                    "en": "Instance",
+                    "de": "Instanz"
+                },
+                "help": {
+                    "en": "Empty: the instance whose settings are open, else the first one",
+                    "de": "Leer: die Instanz, deren Einstellungen offen sind, sonst die erste"
+                }
+            }
+        }
+    }
+}

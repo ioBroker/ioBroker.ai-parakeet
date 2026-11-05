@@ -9,7 +9,8 @@ const TEXTS = {
     original: 'Original recognition', originalHint: '· unchanged output of the model for comparison',
     note: 'When you stop the microphone, the remaining audio is still processed. Intermediate text may change until the sentence is finished.',
     checking: 'Checking the server…',
-    needsSecure: 'The microphone needs a current browser and HTTPS (or localhost). Enable HTTPS in the instance settings.',
+    needsSecure: 'The browser blocks the microphone: this page is opened over HTTP and not on localhost. Enable HTTPS in the instance settings (tab "Server"), or open {local} in a browser on the ioBroker host.',
+    needsBrowser: 'This browser cannot record the microphone (getUserMedia or AudioWorklet is missing). Use a current browser.',
     ready: 'Ready · CPU · {threads} thread(s) · {clients} browser(s) connected',
     idle: 'Ready · the model is loaded with the first sentence',
     loading: 'The server loads the model…',
@@ -47,7 +48,8 @@ const TEXTS = {
     original: 'Originalerkennung', originalHint: '· unveränderte Modellausgabe zum Vergleich',
     note: 'Nach dem Stoppen wird das restliche Audio noch verarbeitet. Vorläufiger Text kann sich ändern, bis der Satz abgeschlossen ist.',
     checking: 'Server wird geprüft…',
-    needsSecure: 'Das Mikrofon braucht einen aktuellen Browser und HTTPS (oder localhost). Aktiviere HTTPS in den Instanz-Einstellungen.',
+    needsSecure: 'Der Browser sperrt das Mikrofon: Diese Seite ist über HTTP und nicht auf localhost geöffnet. Aktiviere HTTPS in den Instanz-Einstellungen (Tab „Server“) oder öffne {local} in einem Browser auf dem ioBroker-Host.',
+    needsBrowser: 'Dieser Browser kann das Mikrofon nicht aufnehmen (getUserMedia oder AudioWorklet fehlt). Verwende einen aktuellen Browser.',
     ready: 'Bereit · CPU · {threads} Thread(s) · {clients} Browser verbunden',
     idle: 'Bereit · das Modell wird mit dem ersten Satz geladen',
     loading: 'Der Server lädt das Modell…',
@@ -120,9 +122,11 @@ async function health() {
   if (active || checking) return;
   checking = true;
   try {
-    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia || !window.AudioWorkletNode) {
-      throw new Error(t('needsSecure'));
+    // Without a secure context the browser hides getUserMedia and AudioWorklet: HTTPS or localhost is needed
+    if (!window.isSecureContext) {
+      throw new Error(t('needsSecure', { local: `http://localhost${location.port ? `:${location.port}` : ''}/` }));
     }
+    if (!navigator.mediaDevices?.getUserMedia || !window.AudioWorkletNode) throw new Error(t('needsBrowser'));
     const response = await fetch('health');
     const data = await response.json();
     needsKey = !!data.auth;

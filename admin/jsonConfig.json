@@ -22,6 +22,7 @@
                     "type": "textSendTo",
                     "container": "html",
                     "command": "status",
+                    "jsonData": "{\"href\":\"${_href}\"}",
                     "hidden": "!_alive",
                     "xs": 12,
                     "sm": 12,
@@ -221,12 +222,39 @@
                 "ffmpegPath": {
                     "type": "text",
                     "label": "Path of ffmpeg",
-                    "help": "For MP3, OGG, M4A and WebM. WAV works without ffmpeg. Empty: only WAV",
+                    "help": "Empty: the downloaded ffmpeg, otherwise ffmpeg from the search path. Needed for MP3, OGG, M4A and WebM, WAV works without. Example: /usr/bin/ffmpeg",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 5,
+                    "xl": 5
+                },
+                "_testFfmpeg": {
+                    "type": "sendTo",
+                    "command": "testFfmpeg",
+                    "label": "Check ffmpeg",
+                    "variant": "outlined",
+                    "jsonData": "{\"path\":\"${data.ffmpegPath}\"}",
                     "xs": 12,
                     "sm": 6,
-                    "md": 4,
-                    "lg": 3,
-                    "xl": 3
+                    "md": 3,
+                    "lg": 2,
+                    "xl": 2
+                },
+                "_downloadFfmpeg": {
+                    "type": "sendTo",
+                    "command": "downloadFfmpeg",
+                    "label": "Download ffmpeg",
+                    "title": "Downloads a static ffmpeg (ffmpeg-static, 20-30 MB) into the data directory of the instance. It is used when no path is entered.",
+                    "variant": "outlined",
+                    "showProcess": true,
+                    "jsonData": "{\"path\":\"${data.ffmpegPath}\"}",
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 3,
+                    "lg": 2,
+                    "xl": 2
                 },
                 "useHints": {
                     "type": "checkbox",
@@ -297,24 +325,47 @@
         },
         "_testPage": {
             "type": "panel",
-            "label": "Test page",
+            "label": "Live test",
             "items": {
-                "testPage": {
-                    "type": "checkbox",
-                    "label": "Enable test page",
-                    "help": "Live recognition of the microphone in the browser, at the address of the server",
+                "_liveNotAlive": {
+                    "type": "infoBox",
+                    "text": "Start the instance to test the recognition",
+                    "boxType": "warning",
+                    "closeable": false,
+                    "hidden": "_alive",
                     "xs": 12,
                     "sm": 12,
-                    "md": 6,
-                    "lg": 4,
-                    "xl": 4
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "_live": {
+                    "type": "custom",
+                    "webComponent": "webcomponents/ai-parakeet-live.json",
+                    "settings": {
+                        "instance": "ai-parakeet.${_instance}"
+                    },
+                    "height": 560,
+                    "help": "The audio goes through the connection of admin: no HTTPS of the server and no API key needed. Admin itself must be opened over HTTPS or on localhost.",
+                    "hidden": "!_alive",
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
+                },
+                "_headerLiveSettings": {
+                    "type": "header",
+                    "text": "Live recognition",
+                    "size": 3,
+                    "newLine": true
                 },
                 "maxClients": {
                     "type": "number",
                     "label": "Browsers at the same time",
+                    "help": "Test page and admin together",
                     "min": 1,
                     "max": 64,
-                    "hidden": "!data.testPage",
                     "newLine": true,
                     "xs": 12,
                     "sm": 6,
@@ -330,7 +381,6 @@
                     "max": 30,
                     "step": 0.1,
                     "help": "On a Raspberry Pi 2-3 s are better",
-                    "hidden": "!data.testPage",
                     "xs": 12,
                     "sm": 6,
                     "md": 3,
@@ -344,7 +394,6 @@
                     "min": 0.2,
                     "max": 10,
                     "step": 0.1,
-                    "hidden": "!data.testPage",
                     "xs": 12,
                     "sm": 6,
                     "md": 3,
@@ -358,12 +407,28 @@
                     "min": 0.0001,
                     "max": 1,
                     "step": 0.001,
-                    "hidden": "!data.testPage",
                     "xs": 12,
                     "sm": 6,
                     "md": 3,
                     "lg": 2,
                     "xl": 2
+                },
+                "_headerTestPage": {
+                    "type": "header",
+                    "text": "Test page in the browser",
+                    "size": 3,
+                    "newLine": true
+                },
+                "testPage": {
+                    "type": "checkbox",
+                    "label": "Enable test page",
+                    "help": "Live recognition of the microphone in the browser, at the address of the server",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
                 }
             }
         }

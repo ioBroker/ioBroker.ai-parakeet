@@ -10,8 +10,8 @@ export interface TranscriberOptions {
     engine: EngineLike;
     corrector: Corrector;
     maxAudioSeconds: number;
-    /** '' = only WAV */
-    ffmpegPath: string;
+    /** Path of ffmpeg, asked for every file (a downloaded ffmpeg is used without a restart). '' = only WAV */
+    ffmpegPath: () => string;
     /** Use the words of the prompt to fix their spelling */
     useHints: boolean;
     /** Returns an error text while the model cannot be used (e.g. it is being downloaded) */
@@ -47,6 +47,11 @@ export class Transcriber {
 
     public get maxAudioSeconds(): number {
         return this.options.maxAudioSeconds;
+    }
+
+    /** Why the model cannot be used at the moment (e.g. it is being downloaded), undefined if it can */
+    public get unavailableReason(): string | undefined {
+        return this.options.unavailable();
     }
 
     private async run(job: Job): Promise<Omit<JobResult, 'queueMs' | 'audioSeconds' | 'segment' | 'final'>> {
@@ -110,7 +115,7 @@ export class Transcriber {
     /** Transcribes an audio file (WAV, or anything ffmpeg reads) */
     public async transcribeFile(file: Buffer, options: TranscribeOptions = {}): Promise<JobResult> {
         this.checkAvailable();
-        const pcm = await decodeAudio(file, this.options.ffmpegPath, this.options.maxAudioSeconds);
+        const pcm = await decodeAudio(file, this.options.ffmpegPath(), this.options.maxAudioSeconds);
         return this.transcribePcm(pcm, options);
     }
 

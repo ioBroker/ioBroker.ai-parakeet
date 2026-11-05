@@ -26,7 +26,10 @@
   "Recognition": "Распознавание",
   "Maximal audio length": "Максимальная длина аудио",
   "Path of ffmpeg": "Путь к ffmpeg",
-  "For MP3, OGG, M4A and WebM. WAV works without ffmpeg. Empty: only WAV": "Для MP3, OGG, M4A и WebM. WAV работает без ffmpeg. Пусто: только WAV",
+  "Empty: the downloaded ffmpeg, otherwise ffmpeg from the search path. Needed for MP3, OGG, M4A and WebM, WAV works without. Example: /usr/bin/ffmpeg": "Пусто: загруженный ffmpeg, иначе ffmpeg из пути поиска. Нужен для MP3, OGG, M4A и WebM, WAV работает без него. Пример: /usr/bin/ffmpeg",
+  "Check ffmpeg": "Проверить ffmpeg",
+  "Download ffmpeg": "Загрузить ffmpeg",
+  "Downloads a static ffmpeg (ffmpeg-static, 20-30 MB) into the data directory of the instance. It is used when no path is entered.": "Загружает статический ffmpeg (ffmpeg-static, 20–30 МБ) в каталог данных экземпляра. Используется, если путь не указан.",
   "Use the words of the prompt": "Использовать слова из prompt",
   "Names in the \"prompt\" field (ioBroker.assistant sends device and room names) are written as there, e.g. \"io broker\" becomes \"ioBroker\"": "Имена из поля \"prompt\" (ioBroker.assistant отправляет названия устройств и комнат) пишутся так же, как там, например \"io broker\" становится \"ioBroker\"",
   "Write the recognized text into a state": "Записывать распознанный текст в состояние",
@@ -34,7 +37,6 @@
   "Replaces wrongly recognized words. Case, spaces and hyphens do not matter, only whole words are replaced.": "Заменяет неправильно распознанные слова. Регистр, пробелы и дефисы не важны, заменяются только целые слова.",
   "Replacement": "Замена",
   "Recognized variants, separated by commas": "Распознанные варианты через запятую",
-  "Test page": "Тестовая страница",
   "Enable test page": "Включить тестовую страницу",
   "Live recognition of the microphone in the browser, at the address of the server": "Распознавание микрофона в браузере в реальном времени по адресу сервера",
   "Browsers at the same time": "Браузеров одновременно",
@@ -42,5 +44,11 @@
   "On a Raspberry Pi 2-3 s are better": "На Raspberry Pi лучше 2-3 с",
   "Silence that ends a sentence": "Тишина, завершающая фразу",
   "Speech level": "Уровень речи",
-  "Louder audio counts as speech (0.001 - 0.1)": "Более громкий звук считается речью (0,001 - 0,1)"
+  "Louder audio counts as speech (0.001 - 0.1)": "Более громкий звук считается речью (0,001 - 0,1)",
+  "Live test": "Живой тест",
+  "Start the instance to test the recognition": "Запустите экземпляр, чтобы проверить распознавание",
+  "The audio goes through the connection of admin: no HTTPS of the server and no API key needed. Admin itself must be opened over HTTPS or on localhost.": "Аудио передаётся через соединение admin: HTTPS сервера и API-ключ не нужны. Сам admin должен быть открыт по HTTPS или на localhost.",
+  "Live recognition": "Распознавание в реальном времени",
+  "Test page in the browser": "Тестовая страница в браузере",
+  "Test page and admin together": "Тестовая страница и admin вместе"
 }

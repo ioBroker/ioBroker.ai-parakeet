@@ -19,6 +19,10 @@ const TEXTS = {
     endpoint: { en: 'OpenAI-compatible API', de: 'OpenAI-kompatible API' },
     testPage: { en: 'Test page', de: 'Testseite' },
     testPageOff: { en: 'disabled', de: 'deaktiviert' },
+    testPageInsecure: {
+        en: 'At this address the browser blocks the microphone: it allows it only with HTTPS or on localhost. Enable HTTPS in the tab "Server", or open %s in a browser on the ioBroker host.',
+        de: 'Unter dieser Adresse sperrt der Browser das Mikrofon: Er erlaubt es nur mit HTTPS oder auf localhost. Aktivieren Sie HTTPS im Tab "Server" oder öffnen Sie %s in einem Browser auf dem ioBroker-Host.',
+    },
     queue: { en: 'Waiting requests', de: 'Wartende Anfragen' },
     assistantTitle: { en: 'Use it in ioBroker.assistant', de: 'Verwendung in ioBroker.assistant' },
     assistantText: {
@@ -32,6 +36,10 @@ const TEXTS = {
     notRunning: {
         en: 'The server is not running. Look into the log of the instance.',
         de: 'Der Server läuft nicht. Sehen Sie im Log der Instanz nach.',
+    },
+    notReady: {
+        en: 'The instance is still starting. Try again in a moment.',
+        de: 'Die Instanz startet noch. Versuchen Sie es gleich noch einmal.',
     },
     testPageDisabled: {
         en: 'The test page is disabled in the instance settings.',

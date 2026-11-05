@@ -10,6 +10,7 @@ import { pathToFileURL } from 'node:url';
 import type { InferenceSession } from 'onnxruntime-node';
 
 import type { InferenceRequest, InferenceResponse } from './lib/protocol';
+import { joinTokens } from './lib/tokenText';
 
 /** Longer audio is transcribed in windows, which needs much less memory */
 const WINDOW_FROM_SECONDS = 90;
@@ -75,8 +76,12 @@ async function loadModel(modelDir: string, threads: number): Promise<Model> {
         joinerSession = await ort.InferenceSession.create(join(modelDir, 'decoder_joint-model.int8.onnx'), options);
         // The type declarations of parakeet.js 1.4.4 miss the parameters of the constructor
         const Parakeet = ParakeetModel as unknown as new (config: Record<string, unknown>) => ParakeetLike;
+        const tokenizer = new ParakeetTokenizer(tokens);
+        // decode() of parakeet.js removes the spaces before words in Cyrillic and other non-ASCII letters
+        tokenizer.decode = (ids: number[]): string =>
+            joinTokens(ids.filter(id => id !== tokenizer.blankId && tokens[id] !== undefined).map(id => tokens[id]));
         const parakeet = new Parakeet({
-            tokenizer: new ParakeetTokenizer(tokens),
+            tokenizer,
             encoderSession,
             joinerSession,
             preprocessor: new JsPreprocessor({ nMels: 128 }),

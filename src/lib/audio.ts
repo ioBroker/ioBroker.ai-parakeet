@@ -218,7 +218,7 @@ export function decodeWithFfmpeg(
             reject(
                 error.code === 'ENOENT'
                     ? new RequestError(
-                          `Only WAV is supported without ffmpeg. "${ffmpegPath}" was not found: install ffmpeg on the ioBroker host or set its path in the instance settings.`,
+                          `Only WAV is supported without ffmpeg. "${ffmpegPath}" was not found: install ffmpeg on the ioBroker host, or download it or enter its path in the instance settings (tab Recognition).`,
                           415,
                           'unsupported_format',
                       )
@@ -268,7 +268,7 @@ export async function decodeAudio(buffer: Buffer, ffmpegPath: string, maxSeconds
         samples = await decodeWithFfmpeg(buffer, ffmpegPath, maxSeconds);
     } else {
         throw new RequestError(
-            'Only WAV is supported. Set the path of ffmpeg in the instance settings for MP3, OGG, M4A or WebM.',
+            'Only WAV is supported. For MP3, OGG, M4A or WebM download ffmpeg or enter its path in the instance settings (tab Recognition).',
             415,
             'unsupported_format',
         );

@@ -40,7 +40,7 @@ async function startServer(
         engine,
         corrector: createCorrector([{ replacement: 'ioBroker', variants: 'io broker' }]),
         maxAudioSeconds: 20,
-        ffmpegPath: '',
+        ffmpegPath: () => '',
         useHints: true,
         unavailable,
         onResult: result => results.push(result),
