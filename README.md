@@ -181,7 +181,7 @@ The adapter is licensed under the MIT license. The model [nvidia/parakeet-tdt-0.
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.1.3 (2026-11-05)
 
 - (@GermanBluefox) Updated packages
 
