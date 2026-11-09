@@ -3,6 +3,7 @@ import { createReadStream } from 'node:fs';
 import { mkdir, open, readFile, rename, rm, stat, statfs, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
+import { adapterTimers } from './timers';
 
 /**
  * Parakeet TDT 0.6B v3 (NVIDIA, CC-BY-4.0), converted to ONNX with INT8 weights.
@@ -244,7 +245,7 @@ async function downloadPart(
     const controller = new AbortController();
     const abort = (): void => controller.abort(signal?.reason);
     signal?.addEventListener('abort', abort, { once: true });
-    let stall = setTimeout(() => controller.abort(new Error('no data for 60 s')), STALL_MS);
+    let stall = adapterTimers.setTimeout(() => controller.abort(new Error('no data for 60 s')), STALL_MS);
     const handle = await open(part, offset ? 'a' : 'w');
     try {
         const response = await fetch(url, {
@@ -263,8 +264,8 @@ async function downloadPart(
         }
         let received = offset;
         for await (const chunk of response.body as unknown as AsyncIterable<Uint8Array>) {
-            clearTimeout(stall);
-            stall = setTimeout(() => controller.abort(new Error('no data for 60 s')), STALL_MS);
+            adapterTimers.clearTimeout(stall);
+            stall = adapterTimers.setTimeout(() => controller.abort(new Error('no data for 60 s')), STALL_MS);
             await handle.write(chunk);
             received += chunk.length;
             if (received > size) {
@@ -279,7 +280,7 @@ async function downloadPart(
         // the reason of an abort is more helpful than "This operation was aborted"
         throw controller.signal.aborted && controller.signal.reason instanceof Error ? controller.signal.reason : error;
     } finally {
-        clearTimeout(stall);
+        adapterTimers.clearTimeout(stall);
         signal?.removeEventListener('abort', abort);
         await handle.close();
     }

@@ -33,6 +33,7 @@
   "Use the words of the prompt": "Використовувати слова з prompt",
   "Names in the \"prompt\" field (ioBroker.assistant sends device and room names) are written as there, e.g. \"io broker\" becomes \"ioBroker\"": "Назви з поля \"prompt\" (ioBroker.assistant надсилає назви пристроїв і кімнат) пишуться так само, як там, наприклад \"io broker\" стає \"ioBroker\"",
   "Write the recognized text into a state": "Записувати розпізнаний текст у стан",
+  "State: stats.lastText": "Стан: stats.lastText",
   "Correction dictionary": "Словник виправлень",
   "Replaces wrongly recognized words. Case, spaces and hyphens do not matter, only whole words are replaced.": "Замінює неправильно розпізнані слова. Регістр, пробіли й дефіси не важливі, замінюються лише цілі слова.",
   "Replacement": "Заміна",

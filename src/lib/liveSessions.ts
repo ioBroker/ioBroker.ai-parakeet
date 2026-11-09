@@ -4,6 +4,7 @@ import { pcm16ToFloat, SAMPLE_RATE } from './audio';
 import type { SessionOptions } from './audioSession';
 import { correctionInfo, LiveStream, type LiveEvent } from './liveStream';
 import type { Transcriber } from './transcriber';
+import { adapterTimers } from './timers';
 
 /** A session without a message for so long is dropped: the browser was closed */
 export const LIVE_IDLE_TIMEOUT_MS = 15_000;
@@ -132,7 +133,7 @@ export class LiveSessions {
             }),
         };
         this.sessions.set(id, session);
-        this.timer ??= setInterval(() => this.sweep(), 5_000);
+        this.timer ??= adapterTimers.setInterval(() => this.sweep(), 5_000);
         this.timer.unref?.();
         return { id, sampleRate: SAMPLE_RATE, corrections: correctionInfo(transcriber) };
     }
@@ -185,7 +186,7 @@ export class LiveSessions {
 
     private stopTimer(): void {
         if (this.timer) {
-            clearInterval(this.timer);
+            adapterTimers.clearInterval(this.timer);
             this.timer = null;
         }
     }

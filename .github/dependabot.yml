@@ -1,14 +1,28 @@
+# Cooldown delays the updates of npm dependencies by 7 days, security updates are processed immediately.
+# Cooldown is not supported for the github-actions ecosystem.
+# The schedule is random on purpose: a fixed day would start all adapters of the organization at the same time.
 version: 2
 updates:
   - package-ecosystem: npm
     directory: '/'
     schedule:
-      interval: monthly
+      interval: cron
+      cronjob: '38 2 23 * *'
+      timezone: Europe/Berlin
     open-pull-requests-limit: 10
     versioning-strategy: increase
+    cooldown:
+      default-days: 7
+    ignore:
+      # @types/node follows the minimal supported Node.js version
+      - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'
 
   - package-ecosystem: github-actions
     directory: '/'
     schedule:
-      interval: monthly
+      interval: cron
+      cronjob: '38 2 23 * *'
+      timezone: Europe/Berlin
     open-pull-requests-limit: 10

@@ -33,6 +33,7 @@
   "Use the words of the prompt": "Use the words of the prompt",
   "Names in the \"prompt\" field (ioBroker.assistant sends device and room names) are written as there, e.g. \"io broker\" becomes \"ioBroker\"": "Names in the \"prompt\" field (ioBroker.assistant sends device and room names) are written as there, e.g. \"io broker\" becomes \"ioBroker\"",
   "Write the recognized text into a state": "Write the recognized text into a state",
+  "State: stats.lastText": "State: stats.lastText",
   "Correction dictionary": "Correction dictionary",
   "Replaces wrongly recognized words. Case, spaces and hyphens do not matter, only whole words are replaced.": "Replaces wrongly recognized words. Case, spaces and hyphens do not matter, only whole words are replaced.",
   "Replacement": "Replacement",

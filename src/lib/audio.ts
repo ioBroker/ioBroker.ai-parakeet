@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { adapterTimers } from './timers';
 
 /** The model works with 16 kHz mono */
 export const SAMPLE_RATE = 16_000;
@@ -197,7 +198,7 @@ export function decodeWithFfmpeg(
         let size = 0;
         let stderr = '';
         let failure: Error | undefined;
-        const timer = setTimeout(() => {
+        const timer = adapterTimers.setTimeout(() => {
             failure = new RequestError('ffmpeg took too long to convert the audio', 400);
             child.kill('SIGKILL');
         }, timeoutMs);
@@ -214,7 +215,7 @@ export function decodeWithFfmpeg(
             stderr = (stderr + chunk.toString()).slice(-2000);
         });
         child.on('error', (error: NodeJS.ErrnoException) => {
-            clearTimeout(timer);
+            adapterTimers.clearTimeout(timer);
             reject(
                 error.code === 'ENOENT'
                     ? new RequestError(
@@ -226,7 +227,7 @@ export function decodeWithFfmpeg(
             );
         });
         child.on('close', code => {
-            clearTimeout(timer);
+            adapterTimers.clearTimeout(timer);
             if (failure) {
                 reject(failure);
             } else if (code !== 0) {

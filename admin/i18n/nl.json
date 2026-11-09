@@ -33,6 +33,7 @@
   "Use the words of the prompt": "Woorden uit de prompt gebruiken",
   "Names in the \"prompt\" field (ioBroker.assistant sends device and room names) are written as there, e.g. \"io broker\" becomes \"ioBroker\"": "Namen uit het veld \"prompt\" (ioBroker.assistant stuurt apparaat- en kamernamen) worden geschreven zoals daar, bijv. \"io broker\" wordt \"ioBroker\"",
   "Write the recognized text into a state": "Herkende tekst naar een state schrijven",
+  "State: stats.lastText": "Datapunt: stats.lastText",
   "Correction dictionary": "Correctiewoordenboek",
   "Replaces wrongly recognized words. Case, spaces and hyphens do not matter, only whole words are replaced.": "Vervangt verkeerd herkende woorden. Hoofdletters, spaties en koppeltekens maken niet uit, alleen hele woorden worden vervangen.",
   "Replacement": "Vervanging",

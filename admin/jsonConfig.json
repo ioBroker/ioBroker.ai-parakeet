@@ -270,7 +270,7 @@
                 "publishText": {
                     "type": "checkbox",
                     "label": "Write the recognized text into a state",
-                    "help": "stats.lastText",
+                    "help": "State: stats.lastText",
                     "xs": 12,
                     "sm": 12,
                     "md": 6,

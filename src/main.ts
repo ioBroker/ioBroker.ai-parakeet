@@ -22,6 +22,7 @@ import { LiveSessions } from './lib/liveSessions';
 import { checkModel, downloadModel, MODEL, MODEL_SIZE, verifyModel } from './lib/modelFiles';
 import { directAdminHost, isSecureContextUrl, selectLanAddress } from './lib/network';
 import type { JobResult } from './lib/scheduler';
+import { adapterTimers } from './lib/timers';
 import { Transcriber } from './lib/transcriber';
 import type { AiParakeetConfig } from './types';
 
@@ -99,6 +100,7 @@ export class AiParakeetAdapter extends Adapter {
             unload: callback => this.onUnload(callback),
             message: obj => this.onMessage(obj),
         });
+        adapterTimers.use(this);
     }
 
     private async onReady(): Promise<void> {
