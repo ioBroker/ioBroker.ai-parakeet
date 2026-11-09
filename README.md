@@ -181,7 +181,7 @@ The adapter is licensed under the MIT license. The model [nvidia/parakeet-tdt-0.
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.1.4 (2026-11-09)
 
 - (@GermanBluefox) Timers of the libraries are cleared when the adapter stops. Fixed the findings of the repository checker
 

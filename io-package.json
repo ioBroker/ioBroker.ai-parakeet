@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "ai-parakeet",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "news": {
+      "0.1.4": {
+        "en": "Timers of the libraries are cleared when the adapter stops. Fixed the findings of the repository checker",
+        "de": "Die Timer der Bibliotheken werden gelöscht, wenn der Adapter stoppt. Die Befunde des Repository-Checkers sind behoben",
+        "ru": "Таймеры библиотек удаляются при остановке адаптера. Исправлены результаты проверки репозитория",
+        "pt": "Os temporizadores das bibliotecas são apagados quando o adaptador para. Corrigidos os resultados do verificador de repositório",
+        "nl": "De timers van de bibliotheken worden gewist wanneer de adapter stopt. De bevindingen van de repository-checker zijn opgelost",
+        "fr": "Les minuteries des bibliothèques sont effacées à l'arrêt de l'adaptateur. Correction des résultats du vérificateur de dépôt",
+        "it": "I timer delle librerie vengono cancellati quando l'adattatore si ferma. Corretti i risultati del controllo del repository",
+        "es": "Los temporizadores de las bibliotecas se borran cuando el adaptador se detiene. Corregidos los resultados del comprobador de repositorios",
+        "pl": "Czasomierze bibliotek są czyszczone po zatrzymaniu adaptera. Naprawiono wyniki kontrolera repozytorium",
+        "uk": "Таймери бібліотек очищаються, коли адаптер зупиняється. Виправлені висновки перевірки сховища",
+        "zh-cn": "当适配器停止时，库的计时器将被清除。修复了存储库检查器的发现"
+      },
       "0.1.3": {
         "en": "Updated packages",
         "de": "Neue Pakete",

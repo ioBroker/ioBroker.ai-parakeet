@@ -1,6 +1,6 @@
 {
   "name": "iobroker.ai-parakeet",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Local speech recognition with NVIDIA Parakeet TDT 0.6B v3 on the CPU: OpenAI-compatible transcription API, sendTo and a live test page",
   "author": {
     "name": "oweitman",
