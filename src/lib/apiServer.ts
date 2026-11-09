@@ -15,6 +15,7 @@ import { MODEL } from './modelFiles';
 import { getBoundary, parseMultipart } from './multipart';
 import type { JobResult, Owner } from './scheduler';
 import type { Transcriber } from './transcriber';
+import { adapterTimers } from './timers';
 
 /** Same limit as the OpenAI API has. 5 minutes of 48 kHz stereo WAV are 58 MB, so it is a bit higher */
 const MAX_BODY_BYTES = 64 * 1024 * 1024;
@@ -363,7 +364,7 @@ export class ApiServer {
                 socket.close(1011);
             }
         };
-        const helloTimer = setTimeout(() => {
+        const helloTimer = adapterTimers.setTimeout(() => {
             if (!stream) {
                 fail(new Error('No hello message'));
             }
@@ -383,7 +384,7 @@ export class ApiServer {
                             socket.close(4401);
                             return;
                         }
-                        clearTimeout(helloTimer);
+                        adapterTimers.clearTimeout(helloTimer);
                         stream = new LiveStream({
                             transcriber,
                             session: this.options.session,
@@ -417,7 +418,7 @@ export class ApiServer {
         });
         socket.on('error', error => log.debug(`WebSocket: ${error.message}`));
         socket.on('close', () => {
-            clearTimeout(helloTimer);
+            adapterTimers.clearTimeout(helloTimer);
             stream?.close();
         });
     }

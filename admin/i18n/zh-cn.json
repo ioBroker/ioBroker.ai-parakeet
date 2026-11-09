@@ -33,6 +33,7 @@
   "Use the words of the prompt": "使用 prompt 中的词语",
   "Names in the \"prompt\" field (ioBroker.assistant sends device and room names) are written as there, e.g. \"io broker\" becomes \"ioBroker\"": "\"prompt\" 字段中的名称（ioBroker.assistant 会发送设备和房间名称）按原样书写，例如 \"io broker\" 变为 \"ioBroker\"",
   "Write the recognized text into a state": "将识别的文本写入状态",
+  "State: stats.lastText": "状态:stats.lastText",
   "Correction dictionary": "纠错词典",
   "Replaces wrongly recognized words. Case, spaces and hyphens do not matter, only whole words are replaced.": "替换识别错误的词语。不区分大小写、空格和连字符，只替换完整的词。",
   "Replacement": "替换为",

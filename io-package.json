@@ -109,6 +109,7 @@
     "connectionType": "local",
     "dataSource": "push",
     "tier": 3,
+    "nogit": true,
     "adminUI": {
       "config": "json"
     },

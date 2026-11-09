@@ -2,6 +2,7 @@ import { SAMPLE_RATE } from './audio';
 import { AudioSession, type SessionOptions } from './audioSession';
 import type { JobResult, Owner } from './scheduler';
 import type { Transcriber } from './transcriber';
+import { adapterTimers } from './timers';
 
 export const MAX_STREAM_MINUTES = 30;
 
@@ -54,7 +55,7 @@ export class LiveStream {
             fail: (error: Error): void => this.fail(error),
         };
         this.session = new AudioSession(job => transcriber.enqueue(this.owner, job), options.session);
-        this.timer = setTimeout(
+        this.timer = adapterTimers.setTimeout(
             () => this.fail(new Error(`The maximal session length is ${MAX_STREAM_MINUTES} minutes`)),
             MAX_STREAM_MINUTES * 60_000,
         );
@@ -125,7 +126,7 @@ export class LiveStream {
 
     private finish(): void {
         this.state = 'closed';
-        clearTimeout(this.timer);
+        adapterTimers.clearTimeout(this.timer);
         this.session.reset();
         // without a reason: the owner is not told again
         this.options.transcriber.scheduler.cancel(this.owner);

@@ -33,6 +33,7 @@
   "Use the words of the prompt": "Usa le parole del prompt",
   "Names in the \"prompt\" field (ioBroker.assistant sends device and room names) are written as there, e.g. \"io broker\" becomes \"ioBroker\"": "I nomi del campo \"prompt\" (ioBroker.assistant invia i nomi di dispositivi e stanze) vengono scritti come lì, ad es. \"io broker\" diventa \"ioBroker\"",
   "Write the recognized text into a state": "Scrivi il testo riconosciuto in uno stato",
+  "State: stats.lastText": "Stato: stats.lastText",
   "Correction dictionary": "Dizionario delle correzioni",
   "Replaces wrongly recognized words. Case, spaces and hyphens do not matter, only whole words are replaced.": "Sostituisce le parole riconosciute in modo errato. Maiuscole, spazi e trattini non contano, vengono sostituite solo parole intere.",
   "Replacement": "Sostituzione",

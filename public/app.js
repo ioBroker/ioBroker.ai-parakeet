@@ -142,7 +142,7 @@ async function health() {
   } catch (error) { startButton.disabled = true; status.textContent = error.message; }
   finally { checking = false; }
 }
-void health(); setInterval(health, 5000);
+void health(); window.setInterval(health, 5000);
 
 async function releaseMicrophone(session) {
   session.stream?.getTracks().forEach(track => track.stop());
@@ -151,7 +151,7 @@ async function releaseMicrophone(session) {
 }
 async function cleanup(session) {
   if (active !== session) return;
-  clearTimeout(session.timeout);
+  window.clearTimeout(session.timeout);
   session.finished = true;
   await releaseMicrophone(session);
   if (session.socket && session.socket.readyState < WebSocket.CLOSING) session.socket.close();
@@ -194,7 +194,7 @@ startButton.onclick = async () => {
     url.protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
     const socket = session.socket = new WebSocket(url);
     socket.binaryType = 'arraybuffer';
-    session.timeout = setTimeout(() => void fail(session, new Error(t('noAnswer'))), 15000);
+    session.timeout = window.setTimeout(() => void fail(session, new Error(t('noAnswer'))), 15000);
     socket.onopen = () => socket.send(JSON.stringify({ type: 'hello', key: keyInput.value.trim() || undefined }));
     socket.onerror = () => void fail(session, new Error(t('wsFailed')));
     socket.onclose = () => {
@@ -205,7 +205,7 @@ startButton.onclick = async () => {
         const message = JSON.parse(data);
         if (message.type === 'ready') {
           setCorrectionStatus(message.corrections);
-          clearTimeout(session.timeout);
+          window.clearTimeout(session.timeout);
           session.node = new AudioWorkletNode(session.context, 'capture');
           session.node.port.onmessage = ({ data: audio }) => {
             if (audio.stopped) { session.flushed?.(); return; }
@@ -248,15 +248,15 @@ async function stopRecording(session) {
   status.textContent = t('stopping');
   try {
     await new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error(t('stopFailed'))), 3000);
-      session.flushed = () => { clearTimeout(timeout); resolve(); };
+      const timeout = window.setTimeout(() => reject(new Error(t('stopFailed'))), 3000);
+      session.flushed = () => { window.clearTimeout(timeout); resolve(); };
       session.node.port.postMessage('stop');
     });
     await releaseMicrophone(session);
     if (session.socket.readyState !== WebSocket.OPEN) throw new Error(t('lostOnStop'));
     session.socket.send(JSON.stringify({ type: 'stop' }));
-    clearTimeout(session.timeout);
-    session.timeout = setTimeout(() => void fail(session, new Error(t('finishTimeout'))), 120000);
+    window.clearTimeout(session.timeout);
+    session.timeout = window.setTimeout(() => void fail(session, new Error(t('finishTimeout'))), 120000);
   } catch (error) { await fail(session, error); }
 }
 stopButton.onclick = () => { if (active) void stopRecording(active); };

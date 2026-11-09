@@ -4,6 +4,7 @@ import { join } from 'node:path';
 
 import type { InferenceRequest, InferenceResponse } from './protocol';
 import type { Segment } from './scheduler';
+import { adapterTimers } from './timers';
 
 /** The process needs about 1.1 GB with 12-second windows, measured on a Raspberry Pi 5 */
 export const REQUIRED_MEMORY_MB = 1100;
@@ -144,7 +145,7 @@ export class Engine {
                     return;
                 }
                 settled = true;
-                clearTimeout(timers.load);
+                adapterTimers.clearTimeout(timers.load);
                 if (error) {
                     this.lastFailure = Date.now();
                     this.setState('error', error.message);
@@ -157,7 +158,7 @@ export class Engine {
                     resolve();
                 }
             };
-            timers.load = setTimeout(
+            timers.load = adapterTimers.setTimeout(
                 () => finish(new Error(`The model did not load within ${LOAD_TIMEOUT_MS / 60_000} minutes`)),
                 LOAD_TIMEOUT_MS,
             );
@@ -175,7 +176,7 @@ export class Engine {
                         return;
                     }
                     this.pending.delete(message.id);
-                    clearTimeout(job.timer);
+                    adapterTimers.clearTimeout(job.timer);
                     this.touch();
                     if (message.type === 'error') {
                         job.reject(new Error(message.message));
@@ -196,7 +197,7 @@ export class Engine {
                 }
                 const error = new Error(`The inference process ended (${reason})`);
                 for (const [id, job] of this.pending) {
-                    clearTimeout(job.timer);
+                    adapterTimers.clearTimeout(job.timer);
                     job.reject(error);
                     this.pending.delete(id);
                 }
@@ -221,11 +222,11 @@ export class Engine {
     /** Restarts the timer that unloads the model when it is idle */
     private touch(): void {
         if (this.idleTimer) {
-            clearTimeout(this.idleTimer);
+            adapterTimers.clearTimeout(this.idleTimer);
             this.idleTimer = null;
         }
         if (this.options.unloadAfterMs > 0) {
-            this.idleTimer = setTimeout(() => {
+            this.idleTimer = adapterTimers.setTimeout(() => {
                 if (!this.pending.size && this.state === 'ready') {
                     this.options.log.info('Unloading the model after the idle time');
                     void this.stop();
@@ -250,7 +251,7 @@ export class Engine {
         // Even a slow CPU needs less than 3 times the audio length. A process that needs longer hangs.
         const timeoutMs = 30_000 + (pcm.length / 16000) * 3000;
         return new Promise<EngineResult>((resolve, reject) => {
-            const timer = setTimeout(() => {
+            const timer = adapterTimers.setTimeout(() => {
                 this.pending.delete(id);
                 const error = new Error(`The transcription took longer than ${Math.round(timeoutMs / 1000)} s`);
                 this.options.log.error(`${error.message}. Restarting the inference process.`);
@@ -259,7 +260,7 @@ export class Engine {
             }, timeoutMs);
             this.pending.set(id, { resolve, reject, timer });
             if (this.idleTimer) {
-                clearTimeout(this.idleTimer);
+                adapterTimers.clearTimeout(this.idleTimer);
                 this.idleTimer = null;
             }
             this.send({ type: 'transcribe', id, pcm, segments });
@@ -276,7 +277,7 @@ export class Engine {
     /** Ends the process and frees its memory */
     public async stop(): Promise<void> {
         if (this.idleTimer) {
-            clearTimeout(this.idleTimer);
+            adapterTimers.clearTimeout(this.idleTimer);
             this.idleTimer = null;
         }
         const child = this.child;
@@ -288,12 +289,12 @@ export class Engine {
             return;
         }
         await new Promise<void>(resolve => {
-            const timer = setTimeout(() => {
+            const timer = adapterTimers.setTimeout(() => {
                 this.kill();
                 resolve();
             }, 2000);
             child.once('exit', () => {
-                clearTimeout(timer);
+                adapterTimers.clearTimeout(timer);
                 resolve();
             });
             try {
