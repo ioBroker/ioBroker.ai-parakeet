@@ -2,6 +2,7 @@ import { AudioRingBuffer, RATE, VoiceActivityDetector, type VadOptions } from '.
 import { ParakeetClient, type LiveAnswer, type LiveEvent } from './parakeet';
 import { OnnxWakewordEngine, type WakewordEngine } from './wakeword';
 import { createTextProcessor, type ProcessorMode, type ProcessorStatus, type ProcessorType, type TextProcessor } from './processors';
+import { BrowserSpeechOutput } from './speech';
 
 export type Phase = 'disabled' | 'initializing' | 'listening' | 'activated' | 'recording' | 'processing' | 'result' | 'error';
 export type Mode = 'wakeword' | 'ptt' | 'combined';
@@ -17,6 +18,7 @@ export interface WidgetOptions extends VadOptions {
     processorType: ProcessorType; processorInstance: string; processorMode: ProcessorMode;
     forwardInstance: string; forwardCommand: string;
     maxChatMessages: number;
+    speechEnabled: boolean; speechLanguage: string; speechVoiceURI: string;
 }
 export interface VoiceResult { text: string; timestamp: number; source: string; sessionId: string; final: true }
 export interface ChatMessage {
@@ -55,8 +57,10 @@ export class VoiceControlService {
     private activeAt = 0;
     private processor?: TextProcessor;
     private processorKey = '';
+    private speechActive = false;
 
-    constructor(private readonly createEngine: () => WakewordEngine = () => new OnnxWakewordEngine()) {}
+    constructor(private readonly createEngine: () => WakewordEngine = () => new OnnxWakewordEngine(),
+        private readonly speech = new BrowserSpeechOutput()) {}
 
     subscribe(listener: Listener): () => void {
         this.listeners.add(listener);
@@ -66,12 +70,21 @@ export class VoiceControlService {
     get state(): Snapshot { return this.snapshot; }
     updateDeliveryOptions(options: WidgetOptions): void {
         if (!this.options || !this.snapshot.enabled) return;
+        if (this.options.speechEnabled && !options.speechEnabled) {
+            this.speech.cancel();
+            this.speechActive = false;
+            this.wakeQueue = [];
+            this.ring?.clear();
+            this.engine?.reset();
+        }
         this.options = { ...this.options,
             processorType: options.processorType, processorInstance: options.processorInstance,
             processorMode: options.processorMode, forwardInstance: options.forwardInstance,
             forwardCommand: options.forwardCommand, resultState: options.resultState,
             statusState: options.statusState, errorState: options.errorState,
-            maxChatMessages: options.maxChatMessages };
+            maxChatMessages: options.maxChatMessages,
+            speechEnabled: options.speechEnabled, speechLanguage: options.speechLanguage,
+            speechVoiceURI: options.speechVoiceURI };
         this.trimChat();
     }
     setChatLimit(value: number): void {
@@ -169,6 +182,7 @@ export class VoiceControlService {
         if (this.snapshot.enabled || this.snapshot.phase === 'initializing') this.fail(new Error(message));
     }
     private async release(): Promise<void> {
+        this.speech.cancel(); this.speechActive = false;
         this.wakeQueue = []; this.afterWake = [];
         const client = this.client; this.client = undefined;
         const cancel = client?.cancel();
@@ -196,6 +210,10 @@ export class VoiceControlService {
             this.publish({ level: Math.min(1, Math.sqrt(Math.sqrt(samples.reduce((a, b) => a + b * b, 0) / samples.length)) * 2.5) });
         }
         const phase = this.snapshot.phase;
+        if (phase === 'listening' && this.speechActive) {
+            this.ring?.clear();
+            return;
+        }
         if (phase === 'listening' && this.engine) {
             this.wakeQueue.push(samples);
             if (this.wakeQueue.length > 12) this.wakeQueue.shift();
@@ -298,6 +316,18 @@ export class VoiceControlService {
                 }
                 const reply = await this.processor!.process(text);
                 this.updateChat(pendingId, { text: reply.text, status: reply.status });
+                const speechOptions = this.options;
+                if (speechOptions?.speechEnabled && this.snapshot.enabled && reply.text.trim()) {
+                    const spoken = await this.speech.speak(reply.text, speechOptions.speechLanguage, active => {
+                        this.speechActive = active;
+                        this.wakeQueue = [];
+                        this.ring?.clear();
+                        this.engine?.reset();
+                    }, speechOptions.speechVoiceURI);
+                    if (spoken === 'unavailable' && this.snapshot.enabled) {
+                        this.publish({ error: `Speech voice unavailable for ${speechOptions.speechVoiceURI || speechOptions.speechLanguage}` });
+                    }
+                }
             } catch (error) {
                 this.updateChat(pendingId, { text: (error as Error).message, status: 'error' });
                 this.publish({ error: (error as Error).message });

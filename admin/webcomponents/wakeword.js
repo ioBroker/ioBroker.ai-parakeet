@@ -2846,12 +2846,45 @@ var vr = class {
 function yr(e, t, n, r) {
 	if (e === "smart-text2command") return new vr(t, n, r);
 }
-// src/service.ts
-var br = (e) => {
+// src/speech.ts
+var br = () => window.speechSynthesis?.getVoices() || [], xr = class {
+	utterance;
+	activity;
+	generation = 0;
+	async speak(e, t, n, r = "") {
+		let i = window.speechSynthesis;
+		if (!e.trim() || !i || typeof SpeechSynthesisUtterance > "u") return "unavailable";
+		this.cancel();
+		let a = ++this.generation, o = t.toLowerCase(), s = o.split("-")[0], c = br();
+		if (c.length || (await new Promise((e) => {
+			let t = () => {
+				clearTimeout(n), i.removeEventListener("voiceschanged", t), e();
+			}, n = window.setTimeout(t, 1500);
+			i.addEventListener("voiceschanged", t), i.getVoices().length && t();
+		}), c = br()), a !== this.generation) return "cancelled";
+		let l = r ? c.find((e) => e.voiceURI === r || e.name === r) : c.filter((e) => e.localService === !0).find((e) => e.lang.toLowerCase() === o) || c.filter((e) => e.localService === !0).find((e) => e.lang.toLowerCase().split("-")[0] === s);
+		if (!l) return "unavailable";
+		let u = new SpeechSynthesisUtterance(e);
+		u.voice = l, u.lang = l.lang;
+		let d = () => {
+			a === this.generation && (this.utterance = void 0, this.activity = void 0, n(!1));
+		};
+		u.onend = d, u.onerror = d, this.utterance = u, this.activity = n, n(!0);
+		try {
+			return i.speak(u), "spoken";
+		} catch {
+			return d(), "unavailable";
+		}
+	}
+	cancel() {
+		++this.generation, this.utterance && (this.utterance.onend = null, this.utterance.onerror = null, this.utterance = void 0, this.activity?.(!1), this.activity = void 0, window.speechSynthesis?.cancel());
+	}
+}, Sr = (e) => {
 	let t = Number(e);
 	return Number.isFinite(t) ? Math.max(1, Math.min(200, Math.floor(t))) : 50;
 }, Q = new class {
 	createEngine;
+	speech;
 	listeners = /* @__PURE__ */ new Set();
 	snapshot = {
 		phase: "disabled",
@@ -2881,8 +2914,9 @@ var br = (e) => {
 	activeAt = 0;
 	processor;
 	processorKey = "";
-	constructor(e = () => new hr()) {
-		this.createEngine = e;
+	speechActive = !1;
+	constructor(e = () => new hr(), t = new xr()) {
+		this.createEngine = e, this.speech = t;
 	}
 	subscribe(e) {
 		return this.listeners.add(e), e(this.snapshot), () => {
@@ -2893,7 +2927,7 @@ var br = (e) => {
 		return this.snapshot;
 	}
 	updateDeliveryOptions(e) {
-		this.options && this.snapshot.enabled && (this.options = {
+		this.options && this.snapshot.enabled && (this.options.speechEnabled && !e.speechEnabled && (this.speech.cancel(), this.speechActive = !1, this.wakeQueue = [], this.ring?.clear(), this.engine?.reset()), this.options = {
 			...this.options,
 			processorType: e.processorType,
 			processorInstance: e.processorInstance,
@@ -2903,11 +2937,14 @@ var br = (e) => {
 			resultState: e.resultState,
 			statusState: e.statusState,
 			errorState: e.errorState,
-			maxChatMessages: e.maxChatMessages
+			maxChatMessages: e.maxChatMessages,
+			speechEnabled: e.speechEnabled,
+			speechLanguage: e.speechLanguage,
+			speechVoiceURI: e.speechVoiceURI
 		}, this.trimChat());
 	}
 	setChatLimit(e) {
-		this.chatRetentionLimit = br(e), this.trimChat();
+		this.chatRetentionLimit = Sr(e), this.trimChat();
 	}
 	chatRetentionLimit = 50;
 	trimChat() {
@@ -3014,7 +3051,7 @@ var br = (e) => {
 		(this.snapshot.enabled || this.snapshot.phase === "initializing") && this.fail(Error(e));
 	}
 	async release() {
-		this.wakeQueue = [], this.afterWake = [];
+		this.speech.cancel(), this.speechActive = !1, this.wakeQueue = [], this.afterWake = [];
 		let e = this.client;
 		this.client = void 0;
 		let t = e?.cancel();
@@ -3032,7 +3069,7 @@ var br = (e) => {
 		let t = Date.now();
 		t - this.lastLevelAt >= 100 && (this.lastLevelAt = t, this.publish({ level: Math.min(1, Math.sqrt(Math.sqrt(e.reduce((e, t) => e + t * t, 0) / e.length)) * 2.5) }));
 		let n = this.snapshot.phase;
-		n === "listening" && this.engine ? (this.wakeQueue.push(e), this.wakeQueue.length > 12 && this.wakeQueue.shift(), this.pumpWake()) : n === "activated" ? (this.afterWake.push(e), this.afterWake.length > 100 && this.fail(/* @__PURE__ */ Error("Audio start is too slow"))) : n === "recording" && this.record(e);
+		n === "listening" && this.speechActive ? this.ring?.clear() : n === "listening" && this.engine ? (this.wakeQueue.push(e), this.wakeQueue.length > 12 && this.wakeQueue.shift(), this.pumpWake()) : n === "activated" ? (this.afterWake.push(e), this.afterWake.length > 100 && this.fail(/* @__PURE__ */ Error("Audio start is too slow"))) : n === "recording" && this.record(e);
 	}
 	async pumpWake() {
 		if (!this.pumping && this.engine) {
@@ -3141,6 +3178,10 @@ var br = (e) => {
 					text: a.text,
 					status: a.status
 				});
+				let o = this.options;
+				o?.speechEnabled && this.snapshot.enabled && a.text.trim() && await this.speech.speak(a.text, o.speechLanguage, (e) => {
+					this.speechActive = e, this.wakeQueue = [], this.ring?.clear(), this.engine?.reset();
+				}, o.speechVoiceURI) === "unavailable" && this.snapshot.enabled && this.publish({ error: `Speech voice unavailable for ${o.speechVoiceURI || o.speechLanguage}` });
 			} catch (e) {
 				this.updateChat(t, {
 					text: e.message,
@@ -3178,10 +3219,10 @@ var br = (e) => {
 			level: 0
 		});
 	}
-}(), xr = "\n:host { display:block; width:100%; height:100%; color:inherit; font:inherit; }\n* { box-sizing:border-box; }\n.wakeword { width:100%; height:100%; min-height:0; display:flex; flex-direction:column; padding:var(--wakeword-padding, 16px); background:transparent; color:inherit; font:inherit; text-align:inherit; overflow:auto; }\n.wakeword.with-chat { overflow:hidden; }\n.top { display:flex; align-items:center; gap:16px; }\n.mic { width:64px; height:64px; border:0; border-radius:50%; background:color-mix(in srgb, currentColor 12%, transparent); color:inherit; font:inherit; cursor:pointer; display:grid; place-items:center; flex:none; }\n.mic.on { background:var(--wake-accent, var(--iob-primary, #2563eb)); color:var(--iob-primary-contrast, #fff); box-shadow:0 0 0 5px color-mix(in srgb, var(--wake-accent, var(--iob-primary, #2563eb)) 18%, transparent); }\n.mic:disabled { opacity:.55; cursor:default; }\n.mic svg { width:34px; height:34px; fill:currentColor; }\n.status { display:flex; flex-direction:column; gap:4px; min-width:0; }\n.status strong { font-weight:inherit; }\n.status small { opacity:.7; }\n.meter { height:5px; background:color-mix(in srgb,currentColor 15%,transparent); border-radius:99px; margin-top:16px; overflow:hidden; }\n.meter span { display:block; height:100%; background:var(--wake-accent, var(--iob-primary, #2563eb)); transition:width .1s linear; }\n.text { margin:14px 0 0; overflow-wrap:anywhere; }\n.with-chat .text { max-height:3em; overflow-y:auto; }\n.error { color:var(--iob-error, #dc2626); margin:12px 0 0; }\n.chat { flex:1 1 0; min-height:0; margin-top:12px; padding:8px; overflow-y:auto; overscroll-behavior:contain; border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); }\n.chat-content { min-height:100%; }\n.chat-entry { max-width:90%; margin:0 0 10px; padding:6px 9px; border-radius:var(--iob-border-radius, 6px); background:var(--iob-paper, rgba(128,128,128,.08)); overflow-wrap:anywhere; }\n.chat-entry.user { margin-left:auto; background:color-mix(in srgb, var(--wake-accent, var(--iob-primary, #2563eb)) 14%, transparent); }\n.chat-entry.error { color:var(--iob-error, #dc2626); }\n.chat-entry p { margin:3px 0 0; white-space:pre-wrap; }\n.chat-source { font-size:.8em; opacity:.7; }\n.chat-empty { margin:0; opacity:.65; }\n.actions { display:flex; gap:8px; margin-top:14px; }\n.actions button { border:1px solid var(--wake-accent, var(--iob-primary, #2563eb)); color:var(--wake-accent, var(--iob-primary, #2563eb)); background:transparent; border-radius:var(--iob-border-radius, 6px); padding:6px 12px; cursor:pointer; font:inherit; }\n.actions button:disabled { opacity:.5; }\n.compact { padding:var(--wakeword-padding, 8px); }\n.compact .mic { width:42px; height:42px; }\n.compact .mic svg { width:25px; height:25px; }\n.compact .meter { margin-top:8px; }\n@media (prefers-reduced-motion:reduce) { .meter span { transition:none; } }\n", Sr = (e, t) => {
+}(), Cr = "\n:host { display:block; width:100%; height:100%; color:inherit; font:inherit; }\n* { box-sizing:border-box; }\n.wakeword { width:100%; height:100%; min-height:0; display:flex; flex-direction:column; padding:var(--wakeword-padding, 16px); background:transparent; color:inherit; font:inherit; text-align:inherit; overflow:auto; }\n.wakeword.with-chat { overflow:hidden; }\n.top { display:flex; align-items:center; gap:16px; }\n.mic { width:64px; height:64px; border:0; border-radius:50%; background:color-mix(in srgb, currentColor 12%, transparent); color:inherit; font:inherit; cursor:pointer; display:grid; place-items:center; flex:none; }\n.mic.on { background:var(--wake-accent, var(--iob-primary, #2563eb)); color:var(--iob-primary-contrast, #fff); box-shadow:0 0 0 5px color-mix(in srgb, var(--wake-accent, var(--iob-primary, #2563eb)) 18%, transparent); }\n.mic:disabled { opacity:.55; cursor:default; }\n.mic svg { width:34px; height:34px; fill:currentColor; }\n.status { display:flex; flex-direction:column; gap:4px; min-width:0; }\n.status strong { font-weight:inherit; }\n.status small { opacity:.7; }\n.meter { height:5px; background:color-mix(in srgb,currentColor 15%,transparent); border-radius:99px; margin-top:16px; overflow:hidden; }\n.meter span { display:block; height:100%; background:var(--wake-accent, var(--iob-primary, #2563eb)); transition:width .1s linear; }\n.text { margin:14px 0 0; overflow-wrap:anywhere; }\n.with-chat .text { max-height:3em; overflow-y:auto; }\n.error { color:var(--iob-error, #dc2626); margin:12px 0 0; }\n.chat { flex:1 1 0; min-height:0; margin-top:12px; padding:8px; overflow-y:auto; overscroll-behavior:contain; border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); }\n.chat-content { min-height:100%; }\n.chat-entry { max-width:90%; margin:0 0 10px; padding:6px 9px; border-radius:var(--iob-border-radius, 6px); background:var(--iob-paper, rgba(128,128,128,.08)); overflow-wrap:anywhere; }\n.chat-entry.user { margin-left:auto; background:color-mix(in srgb, var(--wake-accent, var(--iob-primary, #2563eb)) 14%, transparent); }\n.chat-entry.error { color:var(--iob-error, #dc2626); }\n.chat-entry p { margin:3px 0 0; white-space:pre-wrap; }\n.chat-source { font-size:.8em; opacity:.7; }\n.chat-empty { margin:0; opacity:.65; }\n.actions { display:flex; gap:8px; margin-top:14px; }\n.actions button { border:1px solid var(--wake-accent, var(--iob-primary, #2563eb)); color:var(--wake-accent, var(--iob-primary, #2563eb)); background:transparent; border-radius:var(--iob-border-radius, 6px); padding:6px 12px; cursor:pointer; font:inherit; }\n.actions button:disabled { opacity:.5; }\n.compact { padding:var(--wakeword-padding, 8px); }\n.compact .mic { width:42px; height:42px; }\n.compact .mic svg { width:25px; height:25px; }\n.compact .meter { margin-top:8px; }\n@media (prefers-reduced-motion:reduce) { .meter span { transition:none; } }\n", wr = (e, t) => {
 	let n = (e || `${t}.0`).replace(/^system\.adapter\./, "");
 	return RegExp(`^${t.replaceAll("-", "\\-")}\\.\\d+$`).test(n) ? n : `${t}.0`;
-}, $ = (e, t) => Number.isFinite(Number(e)) ? Number(e) : t, Cr = (e) => {
+}, $ = (e, t) => Number.isFinite(Number(e)) ? Number(e) : t, Tr = (e) => {
 	let t = (e || "").replace(/^system\.adapter\./, "");
 	return /^smart-text2command\.\d+$/.test(t) ? t : "";
 };
@@ -3194,7 +3235,7 @@ pe("iob-wakeword", class extends fe {
 	constructor() {
 		super();
 		let t = this.attachShadow({ mode: "open" }), n = document.createElement("style");
-		n.textContent = xr;
+		n.textContent = Cr;
 		let r = document.createElement("div");
 		r.style.height = "100%", t.append(n, r), this.#e = e(r);
 	}
@@ -3202,13 +3243,13 @@ pe("iob-wakeword", class extends fe {
 		this.#t?.(), this.#t = void 0, this.#n = !1, this.#r = null, super.disconnectedCallback();
 	}
 	getStateIds(e) {
-		return [`system.adapter.${Sr(e.parakeet, "ai-parakeet")}.alive`];
+		return [`system.adapter.${wr(e.parakeet, "ai-parakeet")}.alive`];
 	}
 	render() {
 		this.#t ||= Q.subscribe((e) => {
 			this.#i = e, this.#s();
 		}), Q.setChatLimit(this.settings.maxChatMessages ?? 50), this.editMode && Q.state.enabled && Q.disable(), !this.editMode && this.socket && Q.updateDeliveryOptions(this.#a());
-		let e = Sr(this.settings.parakeet, "ai-parakeet");
+		let e = wr(this.settings.parakeet, "ai-parakeet");
 		if (this.states[`system.adapter.${e}.alive`]?.val === !1 && Q.connectionLost("Adapter is not running"), this.socket !== this.#r) {
 			let e = this.#r;
 			if (this.#r = this.socket, this.#n = !1, e && Q.state.enabled) {
@@ -3223,7 +3264,7 @@ pe("iob-wakeword", class extends fe {
 	#a() {
 		let e = this.settings;
 		return {
-			parakeet: Sr(e.parakeet, "ai-parakeet"),
+			parakeet: wr(e.parakeet, "ai-parakeet"),
 			mode: e.mode || "wakeword",
 			microphone: e.microphone || "",
 			ringBufferMs: $(e.ringBufferMs, 1e3),
@@ -3240,11 +3281,14 @@ pe("iob-wakeword", class extends fe {
 			statusState: e.statusState || "",
 			errorState: e.errorState || "",
 			processorType: e.processorType === "smart-text2command" ? "smart-text2command" : "none",
-			processorInstance: Cr(e.processorInstance),
+			processorInstance: Tr(e.processorInstance),
 			processorMode: e.processorMode === "analyze" ? "analyze" : "execute",
 			forwardInstance: e.forwardInstance || "",
 			forwardCommand: e.forwardCommand || "",
-			maxChatMessages: br(e.maxChatMessages)
+			maxChatMessages: Sr(e.maxChatMessages),
+			speechEnabled: !!e.speechEnabled,
+			speechLanguage: this.#o(),
+			speechVoiceURI: e.speechVoiceURI === "custom" ? (e.speechVoiceCustom || "").trim() || "(voice not specified)" : e.speechVoiceURI || ""
 		};
 	}
 	#o() {
@@ -3259,7 +3303,7 @@ pe("iob-wakeword", class extends fe {
 			compact: !!this.settings.compact,
 			showText: this.settings.showText !== !1,
 			showChat: !!this.settings.showChat,
-			maxChatMessages: br(this.settings.maxChatMessages),
+			maxChatMessages: Sr(this.settings.maxChatMessages),
 			accentColor: r,
 			fontSize: n,
 			editMode: this.editMode,

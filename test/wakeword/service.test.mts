@@ -10,6 +10,7 @@ const options: WidgetOptions = {
     activationTone: false, completionTone: false, showInterim: true,
     resultState: '', statusState: '', errorState: '', forwardInstance: '', forwardCommand: '',
     processorType: 'none', processorInstance: '', processorMode: 'execute', maxChatMessages: 50,
+    speechEnabled: false, speechLanguage: 'de', speechVoiceURI: '',
 };
 
 test('shared service sends no audio before activation and releases the last widget microphone', async () => {
@@ -170,4 +171,48 @@ test('chat keeps only the configured number of newest messages and trims when re
     assert.deepEqual(service.state.chat.map(message => message.text), ['third', 'fourth']);
     await deliver('fifth', 'fifth');
     assert.deepEqual(service.state.chat.map(message => message.text), ['fourth', 'fifth']);
+});
+
+test('processor reply is spoken only when browser speech is enabled', async () => {
+    const spoken: string[] = [];
+    const service = new VoiceControlService();
+    Reflect.set(service, 'speech', {
+        speak: async (text: string) => { spoken.push(text); return 'spoken'; }, cancel: () => {},
+    });
+    Reflect.set(service, 'snapshot', { ...service.state, enabled: true });
+    Reflect.set(service, 'socket', {
+        sendTo: async () => ({ status: 'success', response: 'Licht eingeschaltet' }), setState: async () => undefined,
+    });
+    Reflect.set(service, 'options', { ...options, processorType: 'smart-text2command',
+        processorInstance: 'smart-text2command.0' });
+    const deliver = (service as unknown as { deliver(text: string, sessionId: string): Promise<void> }).deliver.bind(service);
+    await deliver('Licht an', 'one');
+    assert.deepEqual(spoken, []);
+    Reflect.set(service, 'options', { ...options, processorType: 'smart-text2command',
+        processorInstance: 'smart-text2command.0', speechEnabled: true });
+    await deliver('Licht an', 'two');
+    assert.deepEqual(spoken, ['Licht eingeschaltet']);
+});
+
+test('disabling speech during a pending processor reply prevents playback', async () => {
+    let resolveReply!: (value: unknown) => void;
+    const reply = new Promise<unknown>(resolve => { resolveReply = resolve; });
+    let spoken = false;
+    let cancelled = false;
+    const service = new VoiceControlService();
+    Reflect.set(service, 'speech', {
+        speak: async () => { spoken = true; return 'spoken'; }, cancel: () => { cancelled = true; },
+    });
+    Reflect.set(service, 'snapshot', { ...service.state, enabled: true });
+    Reflect.set(service, 'socket', { sendTo: async () => reply, setState: async () => undefined });
+    const enabled = { ...options, processorType: 'smart-text2command' as const,
+        processorInstance: 'smart-text2command.0', speechEnabled: true };
+    Reflect.set(service, 'options', enabled);
+    const deliver = (service as unknown as { deliver(text: string, sessionId: string): Promise<void> }).deliver.bind(service);
+    const pending = deliver('Licht an', 'one');
+    service.updateDeliveryOptions({ ...enabled, speechEnabled: false });
+    resolveReply({ status: 'success', response: 'Licht eingeschaltet' });
+    await pending;
+    assert.equal(cancelled, true);
+    assert.equal(spoken, false);
 });

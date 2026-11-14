@@ -16,6 +16,7 @@ interface Settings {
     errorState?: string; forwardInstance?: string; forwardCommand?: string;
     processorType?: 'none' | 'smart-text2command'; processorInstance?: string;
     processorMode?: 'analyze' | 'execute'; showChat?: boolean; maxChatMessages?: number;
+    speechEnabled?: boolean; speechVoiceURI?: string; speechVoiceCustom?: string;
 }
 const instance = (value: string | undefined, adapter: string): string => {
     const id = (value || `${adapter}.0`).replace(/^system\.adapter\./, '');
@@ -96,6 +97,10 @@ class WakewordElement extends IobWebComponent<Settings> {
             processorMode: s.processorMode === 'analyze' ? 'analyze' : 'execute',
             forwardInstance: s.forwardInstance || '', forwardCommand: s.forwardCommand || '',
             maxChatMessages: chatLimit(s.maxChatMessages),
+            speechEnabled: !!s.speechEnabled,
+            speechLanguage: this.#language(),
+            speechVoiceURI: s.speechVoiceURI === 'custom' ? (s.speechVoiceCustom || '').trim() || '(voice not specified)'
+                : (s.speechVoiceURI || ''),
         };
     }
     #language(): 'de' | 'en' {

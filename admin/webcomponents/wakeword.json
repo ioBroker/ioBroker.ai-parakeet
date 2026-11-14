@@ -320,6 +320,56 @@
         "min": 1,
         "max": 200
       },
+      "speechEnabled": {
+        "type": "checkbox",
+        "default": false,
+        "label": {
+          "en": "Speak processor replies with a browser voice",
+          "de": "Antworten mit Browserstimme vorlesen"
+        }
+      },
+      "speechVoiceURI": {
+        "type": "select",
+        "default": "",
+        "label": {
+          "en": "Speech voice",
+          "de": "Sprachausgabe-Stimme"
+        },
+        "hidden": "!data.speechEnabled",
+        "options": [
+          {
+            "value": "",
+            "label": {
+              "en": "Automatic (local)",
+              "de": "Automatisch (lokal)"
+            }
+          },
+          {
+            "value": "Google Deutsch",
+            "label": "Google Deutsch (remote)"
+          },
+          {
+            "value": "custom",
+            "label": {
+              "en": "Other browser voice",
+              "de": "Andere Browserstimme"
+            }
+          }
+        ]
+      },
+      "speechVoiceCustom": {
+        "type": "text",
+        "default": "",
+        "label": {
+          "en": "Voice name or URI (as shown by the browser)",
+          "de": "Stimmenname oder URI (laut Browser)"
+        },
+        "hidden": "!data.speechEnabled || data.speechVoiceURI !== 'custom'",
+        "help": {
+          "en": "Enter a voice available in the browser used by the VIS page. A remote voice may transmit reply text to its provider.",
+          "de": "Eine im Browser der VIS-Seite verfügbare Stimme eintragen. Eine Remote-Stimme kann den Antworttext an ihren Anbieter übertragen."
+        }
+      },
       "forwardInstance": {
         "type": "text",
         "default": "",

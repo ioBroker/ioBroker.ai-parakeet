@@ -51,6 +51,12 @@ describe('VIS-2 wake word web component', () => {
         assert.equal(manifest.settings.items.showChat.type, 'checkbox');
         assert.equal(manifest.settings.items.maxChatMessages.type, 'number');
         assert.equal(manifest.settings.items.maxChatMessages.default, 50);
+        assert.equal(manifest.settings.items.speechEnabled.type, 'checkbox');
+        assert.equal(manifest.settings.items.speechEnabled.default, false);
+        assert.equal(manifest.settings.items.speechVoiceURI.type, 'select');
+        assert.ok(manifest.settings.items.speechVoiceURI.options.some((option: { value: string; label: string }) =>
+            option.value === 'Google Deutsch' && option.label.includes('(remote)')));
+        assert.equal(manifest.settings.items.speechVoiceCustom.type, 'text');
         for (const file of [manifest.module, 'wakeword-capture.js', 'models/io_broker.onnx']) {
             assert.ok(existsSync(join(DIR, file)), file);
         }

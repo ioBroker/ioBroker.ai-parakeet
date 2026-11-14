@@ -1,6 +1,13 @@
 import './WakewordElement';
 import { voiceService, type ChatMessage } from './service';
 
+const synthesis = new EventTarget() as SpeechSynthesis & { getVoices: () => SpeechSynthesisVoice[] };
+synthesis.getVoices = () => [
+    { name: 'Local German', lang: 'de-DE', voiceURI: 'local-de', localService: true } as SpeechSynthesisVoice,
+    { name: 'Remote German', lang: 'de-DE', voiceURI: 'remote-de', localService: false } as SpeechSynthesisVoice,
+];
+Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: synthesis });
+
 let micCalls = 0;
 Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: {
     getUserMedia: async () => { micCalls++; throw new Error('Mic must stay off in the editor'); },
@@ -11,7 +18,7 @@ const element = document.createElement('iob-wakeword') as HTMLElement & {
     settings: Record<string, unknown>;
 };
 element.editMode = true;
-element.settings = { autoStart: true, parakeet: 'ai-parakeet.0', fontSize: 16, showChat: true };
+element.settings = { autoStart: true, parakeet: 'ai-parakeet.0', fontSize: 16, showChat: true, speechEnabled: true };
 const widget = document.createElement('div');
 widget.className = 'vis-widget';
 Object.assign(widget.style, {
@@ -29,6 +36,7 @@ document.head.append(projectStyle);
 setTimeout(async () => {
     const button = element.shadowRoot?.querySelector('button.mic') as HTMLButtonElement | null;
     const chat = element.shadowRoot?.querySelector('[part="chat"]') as HTMLElement | null;
+    const noVoicePicker = !element.shadowRoot?.querySelector('.voice-picker');
     const content = element.shadowRoot?.querySelector('.wakeword') as HTMLElement | null;
     const status = element.shadowRoot?.querySelector('.status strong') as HTMLElement | null;
     const contentStyle = content && getComputedStyle(content);
@@ -37,7 +45,7 @@ setTimeout(async () => {
     const initialFontSize = contentStyle?.fontSize;
     widget.style.fontSize = '30px';
     const updatedFontSize = content && getComputedStyle(content).fontSize;
-    const cssOkay = button?.disabled && micCalls === 0 && !!chat &&
+    const cssOkay = button?.disabled && micCalls === 0 && !!chat && noVoicePicker &&
         initialFontSize === '28px' && updatedFontSize === '30px' &&
         contentStyle?.color === 'rgb(17, 34, 51)' &&
         contentStyle.fontStyle === 'italic' && statusStyle?.fontWeight === '700' &&
@@ -64,8 +72,8 @@ setTimeout(async () => {
     const okay = cssOkay && initialScroll && afterReply && afterResize;
     document.body.dataset.result = okay ? 'pass' : 'fail';
     document.querySelector('#result')!.textContent = okay
-        ? 'PASS: chat stays at bottom after commands, reply and resize; microphone stays off in editor'
-        : `FAIL: css=${cssOkay}, initialScroll=${initialScroll}, afterReply=${afterReply}, afterResize=${afterResize}, resizeObserver=${typeof ResizeObserver}, height=${beforeResizeHeight}/${chat?.clientHeight}, scrollHeight=${chat?.scrollHeight}, scrollTop=${chat?.scrollTop}`;
+        ? 'PASS: voice picker is absent, chat stays at bottom, microphone stays off in editor'
+        : `FAIL: css=${cssOkay}, noVoicePicker=${noVoicePicker}, initialScroll=${initialScroll}, afterReply=${afterReply}, afterResize=${afterResize}, resizeObserver=${typeof ResizeObserver}, height=${beforeResizeHeight}/${chat?.clientHeight}, scrollHeight=${chat?.scrollHeight}, scrollTop=${chat?.scrollTop}`;
     widget.remove();
     projectStyle.remove();
 }, 500);
