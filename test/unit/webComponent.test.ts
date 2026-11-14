@@ -46,6 +46,11 @@ describe('VIS-2 wake word web component', () => {
         assert.equal(manifest.tag, 'iob-wakeword');
         assert.equal(manifest.settings.items.parakeet.adapter, 'ai-parakeet');
         assert.equal(manifest.settings.items.wakewordAdapter, undefined);
+        assert.equal(manifest.settings.items.processorInstance.type, 'instance');
+        assert.equal(manifest.settings.items.processorInstance.adapter, 'smart-text2command');
+        assert.equal(manifest.settings.items.showChat.type, 'checkbox');
+        assert.equal(manifest.settings.items.maxChatMessages.type, 'number');
+        assert.equal(manifest.settings.items.maxChatMessages.default, 50);
         for (const file of [manifest.module, 'wakeword-capture.js', 'models/io_broker.onnx']) {
             assert.ok(existsSync(join(DIR, file)), file);
         }

@@ -247,6 +247,79 @@
           "de": "Fehler-Datenpunkt (optional)"
         }
       },
+      "processorType": {
+        "type": "select",
+        "default": "none",
+        "label": {
+          "en": "Text processor",
+          "de": "Textverarbeitung"
+        },
+        "options": [
+          {
+            "value": "none",
+            "label": {
+              "en": "None",
+              "de": "Keine"
+            }
+          },
+          {
+            "value": "smart-text2command",
+            "label": "smart-text2command"
+          }
+        ]
+      },
+      "processorInstance": {
+        "type": "instance",
+        "adapter": "smart-text2command",
+        "label": {
+          "en": "Processor instance",
+          "de": "Instanz für Textverarbeitung"
+        },
+        "hidden": "data.processorType !== 'smart-text2command'"
+      },
+      "processorMode": {
+        "type": "select",
+        "default": "execute",
+        "label": {
+          "en": "Processing mode",
+          "de": "Verarbeitungsmodus"
+        },
+        "hidden": "data.processorType !== 'smart-text2command'",
+        "options": [
+          {
+            "value": "execute",
+            "label": {
+              "en": "Execute approved commands",
+              "de": "Freigegebene Befehle ausführen"
+            }
+          },
+          {
+            "value": "analyze",
+            "label": {
+              "en": "Analyze only",
+              "de": "Nur analysieren"
+            }
+          }
+        ]
+      },
+      "showChat": {
+        "type": "checkbox",
+        "default": false,
+        "label": {
+          "en": "Show conversation",
+          "de": "Chatverlauf anzeigen"
+        }
+      },
+      "maxChatMessages": {
+        "type": "number",
+        "label": {
+          "en": "Chat messages to keep",
+          "de": "Nachrichten im Chat behalten"
+        },
+        "default": 50,
+        "min": 1,
+        "max": 200
+      },
       "forwardInstance": {
         "type": "text",
         "default": "",

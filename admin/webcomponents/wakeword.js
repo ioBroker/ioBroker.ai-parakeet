@@ -1,54 +1,54 @@
-import { createRoot as e, jsx as t, jsxs as n } from "../../../lib/esm/react-19.js";
+import { createRoot as e, memo as t, useLayoutEffect as n, useRef as r, jsx as i, jsxs as a } from "../../../lib/esm/react-19.js";
 // \0rolldown/runtime.js
-var r = /* @__PURE__ */ ((e) => typeof require < "u" ? require : typeof Proxy < "u" ? new Proxy(e, { get: (e, t) => (typeof require < "u" ? require : e)[t] }) : e)(function(e) {
+var o = /* @__PURE__ */ ((e) => typeof require < "u" ? require : typeof Proxy < "u" ? new Proxy(e, { get: (e, t) => (typeof require < "u" ? require : e)[t] }) : e)(function(e) {
 	if (typeof require < "u") return require.apply(this, arguments);
 	throw Error("Calling `require` for \"" + e + "\" in an environment that doesn't expose the `require` function. See https://rolldown.rs/in-depth/bundling-cjs#require-external-modules for more details.");
-}), i = "iob-dialog-close";
-function a(e) {
+}), s = "iob-dialog-close";
+function c(e) {
 	return !!e.form;
 }
 // ../node_modules/@iobroker/web-components/build/manifest.js
-var o = [
+var l = [
 	"header",
 	"staticText",
 	"divider"
 ];
-function s(e, t) {
+function u(e, t) {
 	return e == null ? "" : typeof e == "object" ? e[t] || e.en || Object.values(e).find((e) => !!e) || "" : String(e);
 }
 // ../node_modules/@iobroker/web-components/build/settings.js
-function c(e) {
+function d(e) {
 	let t = {};
-	for (let [n, r] of Object.entries(e.items || {})) r && !o.includes(r.type) && (t[n] = r.type);
+	for (let [n, r] of Object.entries(e.items || {})) r && !l.includes(r.type) && (t[n] = r.type);
 	return t;
 }
-function l(e) {
+function f(e) {
 	return typeof e == "string" ? e : typeof e == "number" || typeof e == "boolean" ? e.toString() : JSON.stringify(e);
 }
-function u(e, t) {
+function p(e, t) {
 	if (t != null) switch (e) {
 		case "number":
 		case "slider": {
 			if (typeof t == "number") return Number.isFinite(t) ? t : void 0;
-			let e = l(t).trim().replace(",", ".");
+			let e = f(t).trim().replace(",", ".");
 			if (!e) return;
 			let n = Number(e);
 			return Number.isFinite(n) ? n : void 0;
 		}
 		case "checkbox": return t === !0 || t === "true" || t === 1 || t === "1";
-		default: return l(t);
+		default: return f(t);
 	}
 }
-function d(e, t) {
+function m(e, t) {
 	let n = {};
 	for (let [r, i] of Object.entries(e)) {
-		let e = u(i, t[r]);
+		let e = p(i, t[r]);
 		e !== void 0 && (n[r] = e);
 	}
 	return n;
 }
 // ../node_modules/@iobroker/web-components/build/theme.js
-var f = "\"Roboto\", \"Helvetica\", \"Arial\", sans-serif", p = Object.freeze({
+var h = "\"Roboto\", \"Helvetica\", \"Arial\", sans-serif", g = Object.freeze({
 	type: "light",
 	primary: "#3399CC",
 	primaryContrast: "#FFFFFF",
@@ -63,10 +63,10 @@ var f = "\"Roboto\", \"Helvetica\", \"Arial\", sans-serif", p = Object.freeze({
 	warning: "#ED6C02",
 	info: "#0288D1",
 	success: "#2E7D32",
-	fontFamily: f,
+	fontFamily: h,
 	fontSize: 14,
 	borderRadius: 4
-}), m = Object.freeze({
+}), _ = Object.freeze({
 	type: "dark",
 	primary: "#4DABF5",
 	primaryContrast: "rgba(0, 0, 0, 0.87)",
@@ -81,10 +81,10 @@ var f = "\"Roboto\", \"Helvetica\", \"Arial\", sans-serif", p = Object.freeze({
 	warning: "#FFA726",
 	info: "#29B6F6",
 	success: "#66BB6A",
-	fontFamily: f,
+	fontFamily: h,
 	fontSize: 14,
 	borderRadius: 4
-}), h = [
+}), v = [
 	"primary",
 	"primaryContrast",
 	"secondary",
@@ -99,37 +99,37 @@ var f = "\"Roboto\", \"Helvetica\", \"Arial\", sans-serif", p = Object.freeze({
 	"info",
 	"success",
 	"fontFamily"
-], g = ["fontSize", "borderRadius"];
-function _(e) {
-	return { ...e === "dark" ? m : p };
+], y = ["fontSize", "borderRadius"];
+function ee(e) {
+	return { ...e === "dark" ? _ : g };
 }
-function v(e) {
-	if (!e || typeof e != "object") return _(typeof e == "string" ? e : "light");
-	let t = e, n = _(typeof t.type == "string" ? t.type : "light");
-	for (let e of h) {
+function b(e) {
+	if (!e || typeof e != "object") return ee(typeof e == "string" ? e : "light");
+	let t = e, n = ee(typeof t.type == "string" ? t.type : "light");
+	for (let e of v) {
 		let r = t[e];
 		typeof r == "string" && r.trim() && (n[e] = r.trim());
 	}
-	for (let e of g) {
+	for (let e of y) {
 		let r = t[e], i = typeof r == "string" ? parseFloat(r) : r;
 		typeof i == "number" && Number.isFinite(i) && i >= 0 && (n[e] = i);
 	}
 	return n;
 }
-function y(e, t) {
-	return e.type === t.type && h.every((n) => e[n] === t[n]) && g.every((n) => e[n] === t[n]);
+function te(e, t) {
+	return e.type === t.type && v.every((n) => e[n] === t[n]) && y.every((n) => e[n] === t[n]);
 }
-function b(e) {
+function ne(e) {
 	return `--iob-${e.replace(/[A-Z]/g, (e) => `-${e.toLowerCase()}`)}`;
 }
 function x(e) {
 	let t = {};
-	for (let n of h) t[b(n)] = e[n];
-	for (let n of g) t[b(n)] = `${e[n]}px`;
+	for (let n of v) t[ne(n)] = e[n];
+	for (let n of y) t[ne(n)] = `${e[n]}px`;
 	return t["color-scheme"] = e.type, t;
 }
 // ../node_modules/@iobroker/web-components/build/nativeDialog.js
-var ee = {
+var re = {
 	ok: {
 		en: "OK",
 		"zh-cn": "确定"
@@ -160,8 +160,8 @@ var ee = {
 		uk: "Закрити",
 		"zh-cn": "关闭"
 	}
-}, te = "\ndialog {\n    box-sizing: border-box;\n    width: 480px;\n    max-width: calc(100vw - 32px);\n    max-height: calc(100vh - 32px);\n    padding: 0;\n    border: 0;\n    border-radius: calc(var(--iob-border-radius) * 2);\n    background: var(--iob-paper);\n    color: var(--iob-text);\n    font-family: var(--iob-font-family);\n    font-size: var(--iob-font-size);\n    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);\n}\n/* as the dialogs of MUI: a dark paper gets lighter the higher it lies */\ndialog.dark { background-image: linear-gradient(rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.16)); }\ndialog::backdrop { background: rgba(0, 0, 0, 0.5); }\ndialog:focus { outline: none; }\nform { display: flex; flex-direction: column; height: 100%; max-height: inherit; margin: 0; }\nheader { display: flex; align-items: center; gap: 8px; padding: 12px 8px 12px 16px; font-size: 1.15em; font-weight: 500; }\nheader span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.body { flex: 1; min-height: 0; padding: 0 16px 16px; overflow: auto; display: flex; flex-direction: column; gap: 12px; }\nfooter { display: flex; justify-content: flex-end; gap: 8px; padding: 0 16px 16px; }\nbutton { font: inherit; padding: 6px 16px; border-radius: var(--iob-border-radius); border: 1px solid var(--iob-primary); background: transparent; color: var(--iob-primary); cursor: pointer; }\nbutton.primary { background: var(--iob-primary); color: var(--iob-primary-contrast); }\nbutton.close { border: 0; padding: 2px 8px; font-size: 1.4em; line-height: 1; color: var(--iob-text-secondary); }\nlabel { display: flex; flex-direction: column; gap: 4px; }\nlabel.check { flex-direction: row; align-items: center; gap: 8px; }\ninput, select, textarea { font: inherit; accent-color: var(--iob-primary); }\n.help { color: var(--iob-text-secondary); font-size: 0.85em; }\nh3 { margin: 4px 0 0; font-size: 1em; }\np { margin: 0; }\nhr { width: 100%; border: 0; border-top: 1px solid var(--iob-divider); margin: 0; }\n[hidden] { display: none !important; }\n";
-function S(e) {
+}, ie = "\ndialog {\n    box-sizing: border-box;\n    width: 480px;\n    max-width: calc(100vw - 32px);\n    max-height: calc(100vh - 32px);\n    padding: 0;\n    border: 0;\n    border-radius: calc(var(--iob-border-radius) * 2);\n    background: var(--iob-paper);\n    color: var(--iob-text);\n    font-family: var(--iob-font-family);\n    font-size: var(--iob-font-size);\n    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);\n}\n/* as the dialogs of MUI: a dark paper gets lighter the higher it lies */\ndialog.dark { background-image: linear-gradient(rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.16)); }\ndialog::backdrop { background: rgba(0, 0, 0, 0.5); }\ndialog:focus { outline: none; }\nform { display: flex; flex-direction: column; height: 100%; max-height: inherit; margin: 0; }\nheader { display: flex; align-items: center; gap: 8px; padding: 12px 8px 12px 16px; font-size: 1.15em; font-weight: 500; }\nheader span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n.body { flex: 1; min-height: 0; padding: 0 16px 16px; overflow: auto; display: flex; flex-direction: column; gap: 12px; }\nfooter { display: flex; justify-content: flex-end; gap: 8px; padding: 0 16px 16px; }\nbutton { font: inherit; padding: 6px 16px; border-radius: var(--iob-border-radius); border: 1px solid var(--iob-primary); background: transparent; color: var(--iob-primary); cursor: pointer; }\nbutton.primary { background: var(--iob-primary); color: var(--iob-primary-contrast); }\nbutton.close { border: 0; padding: 2px 8px; font-size: 1.4em; line-height: 1; color: var(--iob-text-secondary); }\nlabel { display: flex; flex-direction: column; gap: 4px; }\nlabel.check { flex-direction: row; align-items: center; gap: 8px; }\ninput, select, textarea { font: inherit; accent-color: var(--iob-primary); }\n.help { color: var(--iob-text-secondary); font-size: 0.85em; }\nh3 { margin: 4px 0 0; font-size: 1em; }\np { margin: 0; }\nhr { width: 100%; border: 0; border-top: 1px solid var(--iob-divider); margin: 0; }\n[hidden] { display: none !important; }\n";
+function ae(e) {
 	if (!e) return null;
 	try {
 		let t = Function("data", `return (${e});`);
@@ -176,45 +176,45 @@ function S(e) {
 		return null;
 	}
 }
-function ne(e) {
+function oe(e) {
 	return typeof e == "string" ? e : typeof e == "number" || typeof e == "boolean" ? String(e) : "";
 }
-function re(e) {
+function se(e) {
 	let { input: t, setting: n } = e;
 	if (t) return t instanceof HTMLInputElement && t.type === "checkbox" ? t.checked : t instanceof HTMLSelectElement ? n.options?.[t.selectedIndex]?.value : t.value;
 }
-function ie(e, t, n, r, i) {
+function ce(e, t, n, r, i) {
 	let a = {
 		name: t,
 		setting: n,
 		box: e.createElement("div"),
-		hidden: S(n.hidden),
-		disabled: S(n.disabled)
-	}, o = s(n.label, i);
+		hidden: ae(n.hidden),
+		disabled: ae(n.disabled)
+	}, o = u(n.label, i);
 	switch (n.type) {
-		case "header": return a.box = e.createElement("h3"), a.box.textContent = s(n.text, i) || o, a;
-		case "staticText": return a.box = e.createElement("p"), a.box.textContent = s(n.text, i) || o, a;
+		case "header": return a.box = e.createElement("h3"), a.box.textContent = u(n.text, i) || o, a;
+		case "staticText": return a.box = e.createElement("p"), a.box.textContent = u(n.text, i) || o, a;
 		case "divider": return a.box = e.createElement("hr"), a;
 	}
-	let c = e.createElement("label");
-	a.box = c;
-	let l = e.createElement("span");
-	if (l.textContent = o || t, n.type === "checkbox") {
+	let s = e.createElement("label");
+	a.box = s;
+	let c = e.createElement("span");
+	if (c.textContent = o || t, n.type === "checkbox") {
 		let t = e.createElement("input");
-		t.type = "checkbox", t.checked = r === !0 || r === "true", c.className = "check", c.append(t, l), a.input = t;
+		t.type = "checkbox", t.checked = r === !0 || r === "true", s.className = "check", s.append(t, c), a.input = t;
 	} else if (n.type === "select") {
 		let t = e.createElement("select");
 		for (let r of n.options || []) {
 			let n = e.createElement("option");
-			n.textContent = s(r.label, i), t.append(n);
+			n.textContent = u(r.label, i), t.append(n);
 		}
-		let o = (n.options || []).findIndex((e) => String(e.value) === ne(r));
-		t.selectedIndex = o === -1 ? 0 : o, c.append(l, t), a.input = t;
+		let o = (n.options || []).findIndex((e) => String(e.value) === oe(r));
+		t.selectedIndex = o === -1 ? 0 : o, s.append(c, t), a.input = t;
 	} else if (n.type === "text" && (n.minRows || 1) > 1) {
 		let t = e.createElement("textarea");
-		t.rows = n.minRows || 2, t.value = ne(r), c.append(l, t), a.input = t;
+		t.rows = n.minRows || 2, t.value = oe(r), s.append(c, t), a.input = t;
 	} else {
-		let t = e.createElement("input"), i = ne(r);
+		let t = e.createElement("input"), i = oe(r);
 		switch (n.type) {
 			case "number":
 			case "slider":
@@ -230,75 +230,75 @@ function ie(e, t, n, r, i) {
 		}
 		if (t.value = i, t.type === "range") {
 			let n = e.createElement("output");
-			n.textContent = t.value, t.addEventListener("input", () => n.textContent = t.value), l.append(": ", n);
+			n.textContent = t.value, t.addEventListener("input", () => n.textContent = t.value), c.append(": ", n);
 		}
-		c.append(l, t), a.input = t;
+		s.append(c, t), a.input = t;
 	}
 	if (n.help) {
 		let t = e.createElement("span");
-		t.className = "help", t.textContent = s(n.help, i), c.append(t);
+		t.className = "help", t.textContent = u(n.help, i), s.append(t);
 	}
 	return a;
 }
-function ae(e, t = {}) {
-	let n = t.lang || "en", r = document, o = (e) => ee[e][n] || ee[e].en || e, l = r.createElement("div");
-	l.setAttribute("data-iob-dialog", "");
-	let u = l.attachShadow({ mode: "open" }), f = r.createElement("style");
-	f.textContent = te;
-	let p = r.createElement("dialog"), m = v(t.theme);
-	p.className = m.type === "dark" ? "dark" : "";
-	for (let [e, t] of Object.entries(x(m))) p.style.setProperty(e, t);
-	e.width && (p.style.width = `${e.width}px`), e.height && (p.style.height = `${e.height}px`);
+function le(e, t = {}) {
+	let n = t.lang || "en", r = document, i = (e) => re[e][n] || re[e].en || e, a = r.createElement("div");
+	a.setAttribute("data-iob-dialog", "");
+	let o = a.attachShadow({ mode: "open" }), l = r.createElement("style");
+	l.textContent = ie;
+	let f = r.createElement("dialog"), p = b(t.theme);
+	f.className = p.type === "dark" ? "dark" : "";
+	for (let [e, t] of Object.entries(x(p))) f.style.setProperty(e, t);
+	e.width && (f.style.width = `${e.width}px`), e.height && (f.style.height = `${e.height}px`);
 	let h = r.createElement("form"), g = r.createElement("header"), _ = r.createElement("span");
-	_.textContent = s(e.title, n);
-	let y = r.createElement("button");
-	y.type = "button", y.className = "close", y.title = o("close"), y.setAttribute("aria-label", o("close")), y.textContent = "×", g.append(_, y);
-	let b = r.createElement("div");
-	return b.className = "body", h.append(g, b), p.append(h), u.append(f, p), new Promise((t) => {
-		let f = !1, m = (e) => {
-			f || (f = !0, p.open && p.close(), l.remove(), t(e));
+	_.textContent = u(e.title, n);
+	let v = r.createElement("button");
+	v.type = "button", v.className = "close", v.title = i("close"), v.setAttribute("aria-label", i("close")), v.textContent = "×", g.append(_, v);
+	let y = r.createElement("div");
+	return y.className = "body", h.append(g, y), f.append(h), o.append(l, f), new Promise((t) => {
+		let l = !1, p = (e) => {
+			l || (l = !0, f.open && f.close(), a.remove(), t(e));
 		};
-		if (y.addEventListener("click", () => m(null)), p.addEventListener("close", () => m(null)), h.addEventListener("submit", (e) => e.preventDefault()), a(e)) {
-			let t = {}, i = [];
-			for (let [t, a] of Object.entries(e.form.items || {})) {
-				let o = e.data?.[t] ?? a.default, s = ie(r, t, a, o, n);
-				i.push(s), b.append(s.box);
+		if (v.addEventListener("click", () => p(null)), f.addEventListener("close", () => p(null)), h.addEventListener("submit", (e) => e.preventDefault()), c(e)) {
+			let t = {}, a = [];
+			for (let [t, i] of Object.entries(e.form.items || {})) {
+				let o = e.data?.[t] ?? i.default, s = ce(r, t, i, o, n);
+				a.push(s), y.append(s.box);
 			}
-			let a = () => {
-				for (let e of i) e.input && (t[e.name] = re(e));
+			let o = () => {
+				for (let e of a) e.input && (t[e.name] = se(e));
 				return t;
-			}, l = () => {
-				let e = a();
-				for (let t of i) t.box.hidden = t.hidden ? t.hidden(e) : !1, t.input && (t.input.disabled = t.disabled ? t.disabled(e) : !1);
+			}, s = () => {
+				let e = o();
+				for (let t of a) t.box.hidden = t.hidden ? t.hidden(e) : !1, t.input && (t.input.disabled = t.disabled ? t.disabled(e) : !1);
 			};
-			h.addEventListener("input", l), h.addEventListener("change", l), l();
-			let u = i.find((e) => e.input && !e.box.hidden && !e.input.disabled);
-			u?.input && (u.input.autofocus = !0);
-			let f = r.createElement("footer"), p = r.createElement("button");
-			p.type = "button", p.textContent = s(e.cancel, n) || o("cancel"), p.addEventListener("click", () => m(null));
+			h.addEventListener("input", s), h.addEventListener("change", s), s();
+			let c = a.find((e) => e.input && !e.box.hidden && !e.input.disabled);
+			c?.input && (c.input.autofocus = !0);
+			let l = r.createElement("footer"), f = r.createElement("button");
+			f.type = "button", f.textContent = u(e.cancel, n) || i("cancel"), f.addEventListener("click", () => p(null));
 			let g = r.createElement("button");
-			g.type = "submit", g.className = "primary", g.textContent = s(e.ok, n) || o("ok"), f.append(p, g), h.append(f), h.addEventListener("submit", () => m(d(c(e.form), a())));
-		} else b.append(e.element), p.addEventListener(i, (e) => m(e.detail ?? null));
-		r.body.append(l), p.showModal(), u.activeElement && u.activeElement !== y || (p.tabIndex = -1, p.focus());
+			g.type = "submit", g.className = "primary", g.textContent = u(e.ok, n) || i("ok"), l.append(f, g), h.append(l), h.addEventListener("submit", () => p(m(d(e.form), o())));
+		} else y.append(e.element), f.addEventListener(s, (e) => p(e.detail ?? null));
+		r.body.append(a), f.showModal(), o.activeElement && o.activeElement !== v || (f.tabIndex = -1, f.focus());
 	});
 }
 // ../node_modules/@iobroker/web-components/build/element.js
-function oe(e) {
+function ue(e) {
 	return [...new Set(e.filter((e) => typeof e == "string" && !!e))];
 }
-var se = [
+var de = [
 	"socket",
 	"dialogs",
 	"theme",
 	"editMode",
 	"settings",
 	"value"
-], ce = class extends HTMLElement {
+], fe = class extends HTMLElement {
 	states = {};
 	objects = {};
 	#e = null;
 	#t = {};
-	#n = v("light");
+	#n = b("light");
 	#r = !1;
 	#i = null;
 	#a = void 0;
@@ -326,8 +326,8 @@ var se = [
 		return this.#n;
 	}
 	set theme(e) {
-		let t = v(e);
-		y(t, this.#n) || (this.#n = t, this.#u(), this.#_());
+		let t = b(e);
+		te(t, this.#n) || (this.#n = t, this.#u(), this.#_());
 	}
 	get editMode() {
 		return this.#r;
@@ -349,7 +349,7 @@ var se = [
 		e !== this.#a && (this.#a = e, this.#_());
 	}
 	connectedCallback() {
-		for (let e of se) if (Object.prototype.hasOwnProperty.call(this, e)) {
+		for (let e of de) if (Object.prototype.hasOwnProperty.call(this, e)) {
 			let t = this[e];
 			delete this[e], this[e] = t;
 		}
@@ -368,7 +368,7 @@ var se = [
 		return this.#e?.systemLang || "en";
 	}
 	text(e) {
-		return s(e, this.systemLang);
+		return u(e, this.systemLang);
 	}
 	setState(e, t) {
 		return this.#e && !this.#r ? this.#e.setState(e, t) : Promise.resolve();
@@ -386,18 +386,18 @@ var se = [
 	}
 	async openDialog(e) {
 		if (this.#r) return null;
-		let t = this.#i ? await this.#i.open(e) : await ae(e, {
+		let t = this.#i ? await this.#i.open(e) : await le(e, {
 			lang: this.systemLang,
 			theme: this.#n
 		});
-		return a(e) ? t && typeof t == "object" ? d(c(e.form), t) : null : t ?? null;
+		return c(e) ? t && typeof t == "object" ? m(d(e.form), t) : null : t ?? null;
 	}
 	#u() {
 		for (let [e, t] of Object.entries(x(this.#n))) this.style.setProperty(e, t);
 	}
 	#d() {
 		if (!this.isConnected) return;
-		let e = this.#e, t = e ? oe(this.getStateIds(this.#t)) : [], n = e ? oe(this.getObjectIds(this.#t)) : [];
+		let e = this.#e, t = e ? ue(this.getStateIds(this.#t)) : [], n = e ? ue(this.getObjectIds(this.#t)) : [];
 		this.#o && this.#o.socket !== e && this.#g();
 		let r = this.#o?.states || [], i = this.#o?.objects || [], a = r.filter((e) => !t.includes(e)), o = i.filter((e) => !n.includes(e)), s = t.filter((e) => !r.includes(e)), c = n.filter((e) => !i.includes(e));
 		e && a.length && e.unsubscribeState(a, this.#c), e && o.length && this.#h(e, o);
@@ -442,12 +442,12 @@ var se = [
 		}));
 	}
 };
-function le(e, t) {
+function pe(e, t) {
 	let n = typeof e == "string" ? e : e.tag;
 	customElements.get(n) || customElements.define(n, t);
 }
 // src/WakewordView.tsx
-var ue = "M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3m5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72z", de = {
+var me = "M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3m5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72z", he = {
 	de: {
 		disabled: "Mikrofon aus",
 		initializing: "Initialisierung…",
@@ -461,7 +461,11 @@ var ue = "M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1
 		off: "Mikrofon aktivieren",
 		ptt: "Sprechen",
 		stop: "Aufnahme beenden",
-		editor: "Mikrofon im Editor deaktiviert"
+		editor: "Mikrofon im Editor deaktiviert",
+		chat: "Gesprächsverlauf",
+		you: "Du",
+		pending: "Antwort wird verarbeitet…",
+		empty: "Noch keine erkannten Texte"
 	},
 	en: {
 		disabled: "Microphone off",
@@ -476,80 +480,128 @@ var ue = "M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1
 		off: "Enable microphone",
 		ptt: "Speak",
 		stop: "Finish recording",
-		editor: "Microphone disabled in editor"
+		editor: "Microphone disabled in editor",
+		chat: "Conversation",
+		you: "You",
+		pending: "Processing reply…",
+		empty: "No recognized text yet"
 	}
-};
-function fe(e) {
-	let { snapshot: r } = e, i = de[e.language], a = r.enabled;
-	return /* @__PURE__ */ n("div", {
+}, ge = t(function({ messages: e, language: t, maxMessages: o }) {
+	let s = r(null), c = r(null), l = () => {
+		s.current && (s.current.scrollTop = s.current.scrollHeight);
+	};
+	n(l, [e, o]), n(() => {
+		if (!s.current || !c.current || typeof ResizeObserver > "u") return;
+		let e = new ResizeObserver(l);
+		e.observe(s.current), e.observe(c.current);
+		let t = s.current.getRootNode(), n = t instanceof ShadowRoot ? t.host.closest(".vis-widget") : null, r = n ? new MutationObserver(l) : null;
+		return n && r && r.observe(n, {
+			attributes: !0,
+			attributeFilter: ["style", "class"]
+		}), () => {
+			e.disconnect(), r?.disconnect();
+		};
+	}, []);
+	let u = he[t];
+	return /* @__PURE__ */ i("section", {
+		part: "chat",
+		className: "chat",
+		"aria-label": u.chat,
+		role: "log",
+		ref: s,
+		children: /* @__PURE__ */ i("div", {
+			className: "chat-content",
+			ref: c,
+			children: e.length ? e.slice(-o).map((e) => /* @__PURE__ */ a("div", {
+				part: e.role === "user" ? "chat-user" : "chat-reply",
+				className: `chat-entry ${e.role} ${e.status || ""}`,
+				children: [/* @__PURE__ */ i("span", {
+					className: "chat-source",
+					children: e.role === "user" ? u.you : e.source || "smart-text2command"
+				}), /* @__PURE__ */ i("p", { children: e.status === "pending" ? u.pending : e.text })]
+			}, e.id)) : /* @__PURE__ */ i("p", {
+				className: "chat-empty",
+				children: u.empty
+			})
+		})
+	});
+});
+function _e(e) {
+	let { snapshot: t } = e, n = he[e.language], r = t.enabled;
+	return /* @__PURE__ */ a("div", {
 		part: "content",
-		className: `wakeword ${e.compact ? "compact" : ""}`,
+		className: `wakeword ${e.compact ? "compact" : ""} ${e.showChat ? "with-chat" : ""}`,
 		style: {
 			...e.accentColor ? { "--wake-accent": e.accentColor } : {},
 			...e.fontSize ? { fontSize: e.fontSize } : {}
 		},
 		children: [
-			/* @__PURE__ */ n("div", {
+			/* @__PURE__ */ a("div", {
 				className: "top",
-				children: [/* @__PURE__ */ t("button", {
+				children: [/* @__PURE__ */ i("button", {
 					type: "button",
 					part: "microphone",
-					className: `mic ${a ? "on" : ""}`,
-					"aria-pressed": a,
-					"aria-label": a ? i.on : i.off,
-					title: a ? i.on : i.off,
-					disabled: e.editMode || r.phase === "initializing",
+					className: `mic ${r ? "on" : ""}`,
+					"aria-pressed": r,
+					"aria-label": r ? n.on : n.off,
+					title: r ? n.on : n.off,
+					disabled: e.editMode || t.phase === "initializing",
 					onClick: e.onToggle,
-					children: /* @__PURE__ */ t("svg", {
+					children: /* @__PURE__ */ i("svg", {
 						viewBox: "0 0 24 24",
 						"aria-hidden": "true",
-						children: /* @__PURE__ */ t("path", { d: ue })
+						children: /* @__PURE__ */ i("path", { d: me })
 					})
-				}), /* @__PURE__ */ n("div", {
+				}), /* @__PURE__ */ a("div", {
 					part: "status",
 					className: "status",
-					children: [/* @__PURE__ */ t("strong", { children: e.editMode ? i.editor : i[r.phase] }), r.wakeword && !e.compact ? /* @__PURE__ */ t("small", { children: r.wakeword }) : null]
+					children: [/* @__PURE__ */ i("strong", { children: e.editMode ? n.editor : n[t.phase] }), t.wakeword && !e.compact ? /* @__PURE__ */ i("small", { children: t.wakeword }) : null]
 				})]
 			}),
-			/* @__PURE__ */ t("div", {
+			/* @__PURE__ */ i("div", {
 				part: "meter",
 				className: "meter",
 				role: "meter",
 				"aria-label": "Microphone level",
-				"aria-valuenow": Math.round(r.level * 100),
+				"aria-valuenow": Math.round(t.level * 100),
 				"aria-valuemin": 0,
 				"aria-valuemax": 100,
-				children: /* @__PURE__ */ t("span", { style: { width: `${Math.round(r.level * 100)}%` } })
+				children: /* @__PURE__ */ i("span", { style: { width: `${Math.round(t.level * 100)}%` } })
 			}),
-			e.showText && r.text && !e.compact ? /* @__PURE__ */ t("p", {
+			e.showText && t.text && !e.compact && (!e.showChat || t.phase !== "result") ? /* @__PURE__ */ i("p", {
 				part: "transcript",
 				className: "text",
-				children: r.text
+				children: t.text
 			}) : null,
-			r.error && !e.compact ? /* @__PURE__ */ t("p", {
+			t.error && !e.compact ? /* @__PURE__ */ i("p", {
 				className: "error",
 				role: "alert",
-				children: r.error
+				children: t.error
 			}) : null,
-			(e.mode === "ptt" || e.mode === "combined") && !e.editMode ? /* @__PURE__ */ n("div", {
+			e.showChat ? /* @__PURE__ */ i(ge, {
+				messages: t.chat,
+				language: e.language,
+				maxMessages: e.maxChatMessages
+			}) : null,
+			(e.mode === "ptt" || e.mode === "combined") && !e.editMode ? /* @__PURE__ */ a("div", {
 				className: "actions",
-				children: [/* @__PURE__ */ t("button", {
+				children: [/* @__PURE__ */ i("button", {
 					type: "button",
 					onClick: e.onPtt,
-					disabled: r.phase === "initializing" || r.phase === "processing" || r.phase === "recording",
-					children: i.ptt
-				}), r.phase === "recording" ? /* @__PURE__ */ t("button", {
+					disabled: t.phase === "initializing" || t.phase === "processing" || t.phase === "recording",
+					children: n.ptt
+				}), t.phase === "recording" ? /* @__PURE__ */ i("button", {
 					type: "button",
 					onClick: e.onStop,
-					children: i.stop
+					children: n.stop
 				}) : null]
 			}) : null
 		]
 	});
 }
 // src/audio.ts
-var pe = 16e3;
-function me(e) {
+var ve = 16e3;
+function ye(e) {
 	let t = new Uint8Array(e.length * 2), n = new DataView(t.buffer);
 	for (let t = 0; t < e.length; t++) {
 		let r = Math.max(-1, Math.min(1, e[t]));
@@ -559,13 +611,13 @@ function me(e) {
 	for (let e = 0; e < t.length; e += 32768) r += String.fromCharCode(...t.subarray(e, e + 32768));
 	return btoa(r);
 }
-function he(e) {
+function be(e) {
 	if (!e.length) return 0;
 	let t = 0;
 	for (let n of e) t += n * n;
 	return Math.sqrt(t / e.length);
 }
-var ge = class {
+var xe = class {
 	maxSamples;
 	chunks = [];
 	count = 0;
@@ -586,7 +638,7 @@ var ge = class {
 	clear() {
 		this.chunks = [], this.count = 0;
 	}
-}, _e = class {
+}, Se = class {
 	options;
 	elapsed = 0;
 	speechMs = 0;
@@ -595,10 +647,10 @@ var ge = class {
 		this.options = e;
 	}
 	push(e) {
-		let t = e.length / pe * 1e3;
-		return this.elapsed += t, he(e) >= this.options.threshold ? (this.speechMs += t, this.silence = 0) : this.speechMs >= this.options.minSpeechMs && (this.silence += t), this.elapsed >= this.options.maxRecordMs || this.speechMs >= this.options.minSpeechMs && this.silence >= this.options.silenceMs ? "done" : this.speechMs < this.options.minSpeechMs && this.elapsed >= this.options.noSpeechMs ? "no-speech" : "continue";
+		let t = e.length / ve * 1e3;
+		return this.elapsed += t, be(e) >= this.options.threshold ? (this.speechMs += t, this.silence = 0) : this.speechMs >= this.options.minSpeechMs && (this.silence += t), this.elapsed >= this.options.maxRecordMs || this.speechMs >= this.options.minSpeechMs && this.silence >= this.options.silenceMs ? "done" : this.speechMs < this.options.minSpeechMs && this.elapsed >= this.options.noSpeechMs ? "no-speech" : "continue";
 	}
-}, ve = class {
+}, Ce = class {
 	call;
 	onEvent;
 	onFailure;
@@ -657,7 +709,7 @@ var ge = class {
 				action: "audio",
 				id: this.id,
 				seq: ++this.seq,
-				pcm: me(t)
+				pcm: ye(t)
 			};
 		} else this.stopping && !this.stopSent ? (this.stopSent = !0, e = {
 			action: "stop",
@@ -686,32 +738,32 @@ var ge = class {
 			id: this.id
 		}).catch(() => {}));
 	}
-}, ye = Object.defineProperty, be = Object.getOwnPropertyDescriptor, xe = Object.getOwnPropertyNames, Se = Object.prototype.hasOwnProperty, Ce = ((e) => typeof r < "u" ? r : typeof Proxy < "u" ? new Proxy(e, { get: (e, t) => (typeof r < "u" ? r : e)[t] }) : e)(function(e) {
-	if (typeof r < "u") return r.apply(this, arguments);
+}, we = Object.defineProperty, Te = Object.getOwnPropertyDescriptor, Ee = Object.getOwnPropertyNames, De = Object.prototype.hasOwnProperty, Oe = ((e) => typeof o < "u" ? o : typeof Proxy < "u" ? new Proxy(e, { get: (e, t) => (typeof o < "u" ? o : e)[t] }) : e)(function(e) {
+	if (typeof o < "u") return o.apply(this, arguments);
 	throw Error("Dynamic require of \"" + e + "\" is not supported");
-}), C = (e, t, n) => () => {
+}), S = (e, t, n) => () => {
 	if (n) throw n[0];
 	try {
 		return e && (t = e(e = 0)), t;
 	} catch (e) {
 		throw n = [e], e;
 	}
-}, we = (e, t) => {
-	for (var n in t) ye(e, n, {
+}, ke = (e, t) => {
+	for (var n in t) we(e, n, {
 		get: t[n],
 		enumerable: !0
 	});
-}, Te = (e, t, n, r) => {
-	if (t && typeof t == "object" || typeof t == "function") for (let i of xe(t)) !Se.call(e, i) && i !== n && ye(e, i, {
+}, Ae = (e, t, n, r) => {
+	if (t && typeof t == "object" || typeof t == "function") for (let i of Ee(t)) !De.call(e, i) && i !== n && we(e, i, {
 		get: () => t[i],
-		enumerable: !(r = be(t, i)) || r.enumerable
+		enumerable: !(r = Te(t, i)) || r.enumerable
 	});
 	return e;
-}, Ee = (e) => Te(ye({}, "__esModule", { value: !0 }), e), w, T, De, Oe, ke, Ae, je, Me = C(() => {
-	w = /* @__PURE__ */ new Map(), T = [], De = /* @__PURE__ */ new WeakMap(), Oe = (e, t, n) => {
+}, je = (e) => Ae(we({}, "__esModule", { value: !0 }), e), C, w, Me, Ne, Pe, Fe, Ie, Le = S(() => {
+	C = /* @__PURE__ */ new Map(), w = [], Me = /* @__PURE__ */ new WeakMap(), Ne = (e, t, n) => {
 		if (t && typeof t.init == "function" && typeof t.createInferenceSessionHandler == "function") {
-			let r = w.get(e);
-			if (r === void 0) w.set(e, {
+			let r = C.get(e);
+			if (r === void 0) C.set(e, {
 				backend: t,
 				priority: n
 			});
@@ -720,17 +772,17 @@ var ge = class {
 				if (r.priority === n && r.backend !== t) throw Error(`cannot register backend "${e}" using priority ${n}`);
 			}
 			if (n >= 0) {
-				let t = T.indexOf(e);
-				t !== -1 && T.splice(t, 1);
-				for (let t = 0; t < T.length; t++) if (w.get(T[t]).priority <= n) {
-					T.splice(t, 0, e);
+				let t = w.indexOf(e);
+				t !== -1 && w.splice(t, 1);
+				for (let t = 0; t < w.length; t++) if (C.get(w[t]).priority <= n) {
+					w.splice(t, 0, e);
 					return;
 				}
-				T.push(e);
+				w.push(e);
 			}
 		} else throw TypeError("not a valid backend");
-	}, ke = async (e) => {
-		let t = w.get(e);
+	}, Pe = async (e) => {
+		let t = C.get(e);
 		if (!t) return "backend not found.";
 		if (t.initialized) return t.backend;
 		if (t.aborted) return t.error;
@@ -738,8 +790,8 @@ var ge = class {
 			let n = !!t.initPromise;
 			try {
 				if (!n) {
-					let n = t.backend, r = De.get(n);
-					t.initPromise = r ? r.then(async () => n.init(e), async () => n.init(e)) : n.init(e), De.set(n, t.initPromise);
+					let n = t.backend, r = Me.get(n);
+					t.initPromise = r ? r.then(async () => n.init(e), async () => n.init(e)) : n.init(e), Me.set(n, t.initPromise);
 				}
 				return await t.initPromise, t.initialized = !0, t.backend;
 			} catch (e) {
@@ -748,10 +800,10 @@ var ge = class {
 				delete t.initPromise;
 			}
 		}
-	}, Ae = async (e) => {
-		let t = e.executionProviders || [], n = t.map((e) => typeof e == "string" ? e : e.name), r = n.length === 0 ? T : n, i, a = [], o = /* @__PURE__ */ new Set();
+	}, Fe = async (e) => {
+		let t = e.executionProviders || [], n = t.map((e) => typeof e == "string" ? e : e.name), r = n.length === 0 ? w : n, i, a = [], o = /* @__PURE__ */ new Set();
 		for (let e of r) {
-			let t = await ke(e);
+			let t = await Pe(e);
 			typeof t == "string" ? a.push({
 				name: e,
 				err: t
@@ -761,11 +813,11 @@ var ge = class {
 		for (let { name: e, err: t } of a) n.includes(e) && console.warn(`removing requested execution provider "${e}" from session options because it is not available: ${t}`);
 		let s = t.filter((e) => o.has(typeof e == "string" ? e : e.name));
 		return [i, new Proxy(e, { get: (e, t) => t === "executionProviders" ? s : Reflect.get(e, t) })];
-	}, je = async () => {
+	}, Ie = async () => {
 		let e = [];
-		for (let t of T) {
-			if (typeof w.get(t).backend.createLoraAdapterHandler != "function") continue;
-			let n = await ke(t);
+		for (let t of w) {
+			if (typeof C.get(t).backend.createLoraAdapterHandler != "function") continue;
+			let n = await Pe(t);
 			if (typeof n != "string") return n;
 			e.push({
 				name: t,
@@ -775,16 +827,16 @@ var ge = class {
 		let t = e.length === 0 ? "" : ` ERR: ${e.map((e) => `[${e.name}] ${e.err}`).join(", ")}`;
 		throw Error(`no available backend supports LoRA adapters.${t}`);
 	};
-}), Ne = C(() => {
-	Me();
-}), Pe, Fe = C(() => {
-	Pe = "1.31.1";
-}), Ie, E, Le = C(() => {
-	Fe(), Ie = "warning", E = {
+}), Re = S(() => {
+	Le();
+}), ze, Be = S(() => {
+	ze = "1.31.1";
+}), Ve, T, He = S(() => {
+	Be(), Ve = "warning", T = {
 		wasm: {},
 		webgl: {},
 		webgpu: {},
-		versions: { common: Pe },
+		versions: { common: ze },
 		set logLevel(e) {
 			if (e !== void 0) {
 				if (typeof e != "string" || [
@@ -794,53 +846,53 @@ var ge = class {
 					"error",
 					"fatal"
 				].indexOf(e) === -1) throw Error(`Unsupported logging level: ${e}`);
-				Ie = e;
+				Ve = e;
 			}
 		},
 		get logLevel() {
-			return Ie;
+			return Ve;
 		}
-	}, Object.defineProperty(E, "logLevel", { enumerable: !0 });
-}), D, Re = C(() => {
-	Le(), D = E;
-}), ze, Be, O, k, A, j, Ve = C(() => {
-	Le(), ze = (e, t) => {
-		(typeof E.trace > "u" ? !E.wasm.trace : !E.trace) || console.timeStamp(`${e}::ORT::${t}`);
-	}, Be = (e, t) => {
+	}, Object.defineProperty(T, "logLevel", { enumerable: !0 });
+}), E, Ue = S(() => {
+	He(), E = T;
+}), We, Ge, D, O, k, A, Ke = S(() => {
+	He(), We = (e, t) => {
+		(typeof T.trace > "u" ? !T.wasm.trace : !T.trace) || console.timeStamp(`${e}::ORT::${t}`);
+	}, Ge = (e, t) => {
 		let n = (/* @__PURE__ */ Error()).stack?.split(/\r\n|\r|\n/g) || [], r = !1;
 		for (let i = 0; i < n.length; i++) {
 			if (r && !n[i].includes("TRACE_FUNC")) {
 				let r = `FUNC_${e}::${n[i].trim().split(" ")[1]}`;
-				t && (r += `::${t}`), ze("CPU", r);
+				t && (r += `::${t}`), We("CPU", r);
 				return;
 			}
 			n[i].includes("TRACE_FUNC") && (r = !0);
 		}
+	}, D = (e) => {
+		(typeof T.trace > "u" ? !T.wasm.trace : !T.trace) || Ge("BEGIN", e);
 	}, O = (e) => {
-		(typeof E.trace > "u" ? !E.wasm.trace : !E.trace) || Be("BEGIN", e);
+		(typeof T.trace > "u" ? !T.wasm.trace : !T.trace) || Ge("END", e);
 	}, k = (e) => {
-		(typeof E.trace > "u" ? !E.wasm.trace : !E.trace) || Be("END", e);
+		(typeof T.trace > "u" ? !T.wasm.trace : !T.trace) || console.time(`ORT::${e}`);
 	}, A = (e) => {
-		(typeof E.trace > "u" ? !E.wasm.trace : !E.trace) || console.time(`ORT::${e}`);
-	}, j = (e) => {
-		(typeof E.trace > "u" ? !E.wasm.trace : !E.trace) || console.timeEnd(`ORT::${e}`);
+		(typeof T.trace > "u" ? !T.wasm.trace : !T.trace) || console.timeEnd(`ORT::${e}`);
 	};
-}), He, Ue = C(() => {
-	Me(), Ve(), He = class e {
+}), qe, Je = S(() => {
+	Le(), Ke(), qe = class e {
 		constructor(e, t) {
 			this.backend = e, this.handler = t;
 		}
 		static async create(t) {
-			if (O(), typeof t != "string" && !(t instanceof Uint8Array)) throw TypeError("Unexpected argument[0]: must be 'path' or 'buffer'.");
-			let n = await je(), r = await n.createLoraAdapterHandler(t);
-			return k(), new e(n, r);
+			if (D(), typeof t != "string" && !(t instanceof Uint8Array)) throw TypeError("Unexpected argument[0]: must be 'path' or 'buffer'.");
+			let n = await Ie(), r = await n.createLoraAdapterHandler(t);
+			return O(), new e(n, r);
 		}
 		async release() {
 			return this.handler.dispose();
 		}
 	};
-}), We, Ge, Ke = C(() => {
-	We = (e, t) => {
+}), Ye, Xe, Ze = S(() => {
+	Ye = (e, t) => {
 		let n = typeof document < "u" ? document.createElement("canvas") : new OffscreenCanvas(1, 1);
 		n.width = e.dims[3], n.height = e.dims[2];
 		let r = n.getContext("2d");
@@ -889,7 +941,7 @@ var ge = class {
 			throw Error("toDataURL is not supported");
 		}
 		throw Error("Can not access image data");
-	}, Ge = (e, t) => {
+	}, Xe = (e, t) => {
 		let n = typeof document < "u" ? document.createElement("canvas").getContext("2d") : new OffscreenCanvas(1, 1).getContext("2d"), r;
 		if (n != null) {
 			let i, a, o;
@@ -934,8 +986,8 @@ var ge = class {
 		} else throw Error("Can not access image data");
 		return r;
 	};
-}), qe, Je, Ye, Xe, Ze, Qe, $e = C(() => {
-	st(), qe = (e, t) => {
+}), Qe, $e, et, tt, nt, rt, it = S(() => {
+	ft(), Qe = (e, t) => {
 		if (e === void 0) throw Error("Image buffer must be defined");
 		if (t.height === void 0 || t.width === void 0) throw Error("Image height and width must be defined");
 		if (t.tensorLayout === "NHWC") throw Error("NHWC Tensor layout is not supported yet");
@@ -967,18 +1019,18 @@ var ge = class {
 		let s = t.format === void 0 ? "RGBA" : t.format, c = t.tensorFormat !== void 0 && t.tensorFormat !== void 0 ? t.tensorFormat : "RGB", l = n * r, u = c === "RGBA" ? new Float32Array(l * 4) : new Float32Array(l * 3), d = 4, f = 0, p = 1, m = 2, h = 3, g = 0, _ = l, v = l * 2, y = -1;
 		s === "RGB" && (d = 3, f = 0, p = 1, m = 2, h = -1), c === "RGBA" ? y = l * 3 : c === "RBG" ? (g = 0, v = l, _ = l * 2) : c === "BGR" && (v = 0, _ = l, g = l * 2);
 		for (let t = 0; t < l; t++, f += d, m += d, p += d, h += d) u[g++] = (e[f] + o[0]) / a[0], u[_++] = (e[p] + o[1]) / a[1], u[v++] = (e[m] + o[2]) / a[2], y !== -1 && h !== -1 && (u[y++] = (e[h] + o[3]) / a[3]);
-		return c === "RGBA" ? new N("float32", u, [
+		return c === "RGBA" ? new M("float32", u, [
 			1,
 			4,
 			n,
 			r
-		]) : new N("float32", u, [
+		]) : new M("float32", u, [
 			1,
 			3,
 			n,
 			r
 		]);
-	}, Je = async (e, t) => {
+	}, $e = async (e, t) => {
 		let n = typeof HTMLImageElement < "u" && e instanceof HTMLImageElement, r = typeof ImageData < "u" && e instanceof ImageData, i = typeof ImageBitmap < "u" && e instanceof ImageBitmap, a = typeof e == "string", o, s = t ?? {}, c = () => {
 			if (typeof document < "u") return document.createElement("canvas");
 			if (typeof OffscreenCanvas < "u") return new OffscreenCanvas(1, 1);
@@ -1012,7 +1064,7 @@ var ge = class {
 			let r = l(n);
 			if (r != null) {
 				let t = e.height, n = e.width;
-				return r.drawImage(e, 0, 0, n, t), o = r.getImageData(0, 0, n, t).data, s.height = t, s.width = n, qe(o, s);
+				return r.drawImage(e, 0, 0, n, t), o = r.getImageData(0, 0, n, t).data, s.height = t, s.width = n, Qe(o, s);
 			}
 			throw Error("Can not access image data");
 		} else {
@@ -1023,16 +1075,16 @@ var ge = class {
 				a.crossOrigin = "Anonymous", a.src = e, a.onload = () => {
 					r.width = a.width, r.height = a.height, i.drawImage(a, 0, 0, r.width, r.height);
 					let e = i.getImageData(0, 0, r.width, r.height);
-					s.height = r.height, s.width = r.width, t(qe(e.data, s));
+					s.height = r.height, s.width = r.width, t(Qe(e.data, s));
 				};
 			});
 			throw Error("Input data provided is not supported - aborted tensor creation");
 		}
-		if (o !== void 0) return qe(o, s);
+		if (o !== void 0) return Qe(o, s);
 		throw Error("Input data provided is not supported - aborted tensor creation");
-	}, Ye = (e, t) => {
+	}, et = (e, t) => {
 		let { width: n, height: r, download: i, dispose: a } = t;
-		return new N({
+		return new M({
 			location: "texture",
 			type: "float32",
 			texture: e,
@@ -1045,9 +1097,9 @@ var ge = class {
 			download: i,
 			dispose: a
 		});
-	}, Xe = (e, t) => {
+	}, tt = (e, t) => {
 		let { dataType: n, dims: r, download: i, dispose: a } = t;
-		return new N({
+		return new M({
 			location: "gpu-buffer",
 			type: n ?? "float32",
 			gpuBuffer: e,
@@ -1055,9 +1107,9 @@ var ge = class {
 			download: i,
 			dispose: a
 		});
-	}, Ze = (e, t) => {
+	}, nt = (e, t) => {
 		let { dataType: n, dims: r, download: i, dispose: a } = t;
-		return new N({
+		return new M({
 			location: "ml-tensor",
 			type: n ?? "float32",
 			mlTensor: e,
@@ -1065,14 +1117,14 @@ var ge = class {
 			download: i,
 			dispose: a
 		});
-	}, Qe = (e, t, n) => new N({
+	}, rt = (e, t, n) => new M({
 		location: "cpu-pinned",
 		type: e,
 		data: t,
 		dims: n ?? [t.length]
 	});
-}), M, et, tt, nt, rt = C(() => {
-	M = /* @__PURE__ */ new Map([
+}), j, at, ot, st, ct = S(() => {
+	j = /* @__PURE__ */ new Map([
 		["float32", Float32Array],
 		["uint8", Uint8Array],
 		["int8", Int8Array],
@@ -1084,7 +1136,7 @@ var ge = class {
 		["uint32", Uint32Array],
 		["int4", Uint8Array],
 		["uint4", Uint8Array]
-	]), et = /* @__PURE__ */ new Map([
+	]), at = /* @__PURE__ */ new Map([
 		[Float32Array, "float32"],
 		[Uint8Array, "uint8"],
 		[Int8Array, "int8"],
@@ -1093,15 +1145,15 @@ var ge = class {
 		[Int32Array, "int32"],
 		[Float64Array, "float64"],
 		[Uint32Array, "uint32"]
-	]), tt = !1, nt = () => {
-		if (!tt) {
-			tt = !0;
+	]), ot = !1, st = () => {
+		if (!ot) {
+			ot = !0;
 			let e = typeof BigInt64Array < "u" && BigInt64Array.from, t = typeof BigUint64Array < "u" && BigUint64Array.from, n = globalThis.Float16Array, r = typeof n < "u" && n.from;
-			e && (M.set("int64", BigInt64Array), et.set(BigInt64Array, "int64")), t && (M.set("uint64", BigUint64Array), et.set(BigUint64Array, "uint64")), r ? (M.set("float16", n), et.set(n, "float16")) : M.set("float16", Uint16Array);
+			e && (j.set("int64", BigInt64Array), at.set(BigInt64Array, "int64")), t && (j.set("uint64", BigUint64Array), at.set(BigUint64Array, "uint64")), r ? (j.set("float16", n), at.set(n, "float16")) : j.set("float16", Uint16Array);
 		}
 	};
-}), it, at, ot = C(() => {
-	st(), it = (e) => {
+}), lt, ut, dt = S(() => {
+	ft(), lt = (e) => {
 		let t = 1;
 		for (let n = 0; n < e.length; n++) {
 			let r = e[n];
@@ -1110,28 +1162,28 @@ var ge = class {
 			t *= r;
 		}
 		return t;
-	}, at = (e, t) => {
+	}, ut = (e, t) => {
 		switch (e.location) {
-			case "cpu": return new N(e.type, e.data, t);
-			case "cpu-pinned": return new N({
+			case "cpu": return new M(e.type, e.data, t);
+			case "cpu-pinned": return new M({
 				location: "cpu-pinned",
 				data: e.data,
 				type: e.type,
 				dims: t
 			});
-			case "texture": return new N({
+			case "texture": return new M({
 				location: "texture",
 				texture: e.texture,
 				type: e.type,
 				dims: t
 			});
-			case "gpu-buffer": return new N({
+			case "gpu-buffer": return new M({
 				location: "gpu-buffer",
 				gpuBuffer: e.gpuBuffer,
 				type: e.type,
 				dims: t
 			});
-			case "ml-tensor": return new N({
+			case "ml-tensor": return new M({
 				location: "ml-tensor",
 				mlTensor: e.mlTensor,
 				type: e.type,
@@ -1140,14 +1192,14 @@ var ge = class {
 			default: throw Error(`tensorReshape: tensor location ${e.location} is not supported`);
 		}
 	};
-}), N, st = C(() => {
-	Ke(), $e(), rt(), ot(), N = class {
+}), M, ft = S(() => {
+	Ze(), it(), ct(), dt(), M = class {
 		constructor(e, t, n) {
-			nt();
+			st();
 			let r, i;
 			if (typeof e == "object" && "location" in e) switch (this.dataLocation = e.location, r = e.type, i = e.dims, e.location) {
 				case "cpu-pinned": {
-					let t = M.get(r);
+					let t = j.get(r);
 					if (!t) throw TypeError(`unsupported type "${r}" to create tensor from pinned buffer`);
 					if (!(e.data instanceof t)) throw TypeError(`buffer should be of type ${t.name}`);
 					this.cpuData = e.data;
@@ -1174,7 +1226,7 @@ var ge = class {
 						if (!Array.isArray(t)) throw TypeError("A string tensor's data must be a string array.");
 						a = t;
 					} else {
-						let n = M.get(e);
+						let n = j.get(e);
 						if (n === void 0) throw TypeError(`Unsupported tensor type: ${e}.`);
 						if (Array.isArray(t)) {
 							if (e === "float16" && n === Uint16Array || e === "uint4" || e === "int4") throw TypeError(`Creating a ${e} tensor from number array is not supported. Please use ${n.name} as data.`);
@@ -1194,7 +1246,7 @@ var ge = class {
 					else throw TypeError(`Invalid element type of data array: ${t}.`);
 				} else if (e instanceof Uint8ClampedArray) r = "uint8", a = Uint8Array.from(e);
 				else {
-					let t = et.get(e.constructor);
+					let t = at.get(e.constructor);
 					if (t === void 0) throw TypeError(`Unsupported type for tensor data: ${e.constructor}.`);
 					r = t, a = e;
 				}
@@ -1202,30 +1254,30 @@ var ge = class {
 				else if (!Array.isArray(o)) throw TypeError("A tensor's dims must be a number array");
 				i = o, this.cpuData = a, this.dataLocation = "cpu";
 			}
-			let a = it(i);
+			let a = lt(i);
 			if (this.cpuData && a !== this.cpuData.length && (r !== "uint4" && r !== "int4" || Math.ceil(a / 2) !== this.cpuData.length)) throw Error(`Tensor's size(${a}) does not match data length(${this.cpuData.length}).`);
 			this.type = r, this.dims = i, this.size = a;
 		}
 		static async fromImage(e, t) {
-			return Je(e, t);
+			return $e(e, t);
 		}
 		static fromTexture(e, t) {
-			return Ye(e, t);
+			return et(e, t);
 		}
 		static fromGpuBuffer(e, t) {
-			return Xe(e, t);
+			return tt(e, t);
 		}
 		static fromMLTensor(e, t) {
-			return Ze(e, t);
+			return nt(e, t);
 		}
 		static fromPinnedBuffer(e, t, n) {
-			return Qe(e, t, n);
+			return rt(e, t, n);
 		}
 		toDataURL(e) {
-			return We(this, e);
+			return Ye(this, e);
 		}
 		toImageData(e) {
-			return Ge(this, e);
+			return Xe(this, e);
 		}
 		get data() {
 			if (this.ensureValid(), !this.cpuData) throw Error("The data is not on CPU. Use `getData()` to download GPU data to CPU, or use `texture` or `gpuBuffer` property to access the GPU data directly.");
@@ -1274,24 +1326,24 @@ var ge = class {
 		}
 		reshape(e) {
 			if (this.ensureValid(), this.downloader || this.disposer) throw Error("Cannot reshape a tensor that owns GPU resource.");
-			return at(this, e);
+			return ut(this, e);
 		}
 	};
-}), P, ct = C(() => {
-	st(), P = N;
-}), lt, ut = C(() => {
-	Me(), Ue(), ct(), Ve(), lt = class e {
+}), N, pt = S(() => {
+	ft(), N = M;
+}), mt, ht = S(() => {
+	Le(), Je(), pt(), Ke(), mt = class e {
 		constructor(e, t) {
 			this.handler = e, this.backend = t;
 		}
 		async run(e, t, n) {
-			O(), A("InferenceSession.run");
+			D(), k("InferenceSession.run");
 			let r = {}, i = {};
-			if (typeof e != "object" || !e || e instanceof P || Array.isArray(e)) throw TypeError("'feeds' must be an object that use input names as keys and OnnxValue as corresponding values.");
+			if (typeof e != "object" || !e || e instanceof N || Array.isArray(e)) throw TypeError("'feeds' must be an object that use input names as keys and OnnxValue as corresponding values.");
 			let a = !0;
 			if (typeof t == "object") {
 				if (t === null) throw TypeError("Unexpected argument[1]: cannot be null.");
-				if (t instanceof P) throw TypeError("'fetches' cannot be a Tensor");
+				if (t instanceof N) throw TypeError("'fetches' cannot be a Tensor");
 				if (Array.isArray(t)) {
 					if (t.length === 0) throw TypeError("'fetches' cannot be an empty array.");
 					a = !1;
@@ -1306,7 +1358,7 @@ var ge = class {
 					let e = !1, o = Object.getOwnPropertyNames(t);
 					for (let n of this.outputNames) if (o.indexOf(n) !== -1) {
 						let i = t[n];
-						(i === null || i instanceof P) && (e = !0, a = !1, r[n] = i);
+						(i === null || i instanceof N) && (e = !0, a = !1, r[n] = i);
 					}
 					if (e) {
 						if (typeof n == "object" && n) i = n;
@@ -1320,7 +1372,7 @@ var ge = class {
 			if (i.activeLoraAdapters !== void 0) {
 				if (!Array.isArray(i.activeLoraAdapters)) throw TypeError("'activeLoraAdapters' must be an array.");
 				o = i.activeLoraAdapters.map((e) => {
-					if (!(e instanceof He)) throw TypeError("'activeLoraAdapters' must be an array of LoraAdapter objects.");
+					if (!(e instanceof qe)) throw TypeError("'activeLoraAdapters' must be an array of LoraAdapter objects.");
 					if (e.backend !== this.backend) throw Error("LoRA adapter was created by a different backend than the session.");
 					return e.handler;
 				});
@@ -1328,15 +1380,15 @@ var ge = class {
 			let s = await this.handler.run(e, r, i, o), c = {};
 			for (let e in s) if (Object.hasOwnProperty.call(s, e)) {
 				let t = s[e];
-				c[e] = t instanceof P ? t : new P(t.type, t.data, t.dims);
+				c[e] = t instanceof N ? t : new N(t.type, t.data, t.dims);
 			}
-			return j("InferenceSession.run"), k(), c;
+			return A("InferenceSession.run"), O(), c;
 		}
 		async release() {
 			return this.handler.dispose();
 		}
 		static async create(t, n, r, i) {
-			O(), A("InferenceSession.create");
+			D(), k("InferenceSession.create");
 			let a, o = {};
 			if (typeof t == "string") {
 				if (a = t, typeof n == "object" && n) o = n;
@@ -1359,8 +1411,8 @@ var ge = class {
 				} else if (typeof n < "u") throw TypeError("'options' must be an object.");
 				a = new Uint8Array(e, s, c);
 			} else throw TypeError("Unexpected argument[0]: must be 'path' or 'buffer'.");
-			let [s, c] = await Ae(o), l = await s.createInferenceSessionHandler(a, c);
-			return j("InferenceSession.create"), k(), new e(l, s);
+			let [s, c] = await Fe(o), l = await s.createInferenceSessionHandler(a, c);
+			return A("InferenceSession.create"), O(), new e(l, s);
 		}
 		startProfiling() {
 			this.handler.startProfiling();
@@ -1381,35 +1433,35 @@ var ge = class {
 			return this.handler.outputMetadata;
 		}
 	};
-}), F, dt = C(() => {
-	ut(), F = lt;
-}), ft, pt = C(() => {
-	Ue(), ft = He;
-}), mt = C(() => {}), ht = C(() => {}), gt = C(() => {}), _t = C(() => {});
-we({}, {
-	InferenceSession: () => F,
-	LoraAdapter: () => ft,
-	TRACE: () => ze,
-	TRACE_EVENT_BEGIN: () => A,
-	TRACE_EVENT_END: () => j,
-	TRACE_FUNC_BEGIN: () => O,
-	TRACE_FUNC_END: () => k,
-	Tensor: () => P,
-	env: () => D,
-	registerBackend: () => Oe
+}), P, gt = S(() => {
+	ht(), P = mt;
+}), _t, vt = S(() => {
+	Je(), _t = qe;
+}), yt = S(() => {}), bt = S(() => {}), xt = S(() => {}), St = S(() => {});
+ke({}, {
+	InferenceSession: () => P,
+	LoraAdapter: () => _t,
+	TRACE: () => We,
+	TRACE_EVENT_BEGIN: () => k,
+	TRACE_EVENT_END: () => A,
+	TRACE_FUNC_BEGIN: () => D,
+	TRACE_FUNC_END: () => O,
+	Tensor: () => N,
+	env: () => E,
+	registerBackend: () => Ne
 });
-var I = C(() => {
-	Ne(), Re(), dt(), pt(), ct(), mt(), ht(), Ve(), gt(), _t();
-}), vt = C(() => {}), yt = {};
-we(yt, { default: () => St });
-var bt, xt, St, Ct = C(() => {
-	On(), z(), Lt(), bt = "ort-wasm-proxy-worker", xt = globalThis.self?.name === bt, xt && (self.onmessage = (e) => {
+var F = S(() => {
+	Re(), Ue(), gt(), vt(), pt(), yt(), bt(), Ke(), xt(), St();
+}), Ct = S(() => {}), wt = {};
+ke(wt, { default: () => Dt });
+var Tt, Et, Dt, Ot = S(() => {
+	Nn(), R(), Ht(), Tt = "ort-wasm-proxy-worker", Et = globalThis.self?.name === Tt, Et && (self.onmessage = (e) => {
 		let { type: t, in: n } = e.data;
 		try {
 			switch (t) {
 				case "init-wasm":
-					Gt(n.wasm).then(() => {
-						pn(n).then(() => {
+					Xt(n.wasm).then(() => {
+						vn(n).then(() => {
 							postMessage({ type: t });
 						}, (e) => {
 							postMessage({
@@ -1426,7 +1478,7 @@ var bt, xt, St, Ct = C(() => {
 					break;
 				case "init-ep": {
 					let { epName: e, env: r } = n;
-					mn(r, e).then(() => {
+					yn(r, e).then(() => {
 						postMessage({ type: t });
 					}, (e) => {
 						postMessage({
@@ -1437,7 +1489,7 @@ var bt, xt, St, Ct = C(() => {
 					break;
 				}
 				case "copy-from": {
-					let { buffer: e } = n, r = _n(e);
+					let { buffer: e } = n, r = Sn(e);
 					postMessage({
 						type: t,
 						out: r
@@ -1446,7 +1498,7 @@ var bt, xt, St, Ct = C(() => {
 				}
 				case "create": {
 					let { model: e, options: r } = n;
-					vn(e, r).then((e) => {
+					Cn(e, r).then((e) => {
 						postMessage({
 							type: t,
 							out: e
@@ -1460,18 +1512,18 @@ var bt, xt, St, Ct = C(() => {
 					break;
 				}
 				case "release":
-					yn(n), postMessage({ type: t });
+					wn(n), postMessage({ type: t });
 					break;
 				case "run": {
 					let { sessionId: e, inputIndices: r, inputs: i, outputIndices: a, options: o } = n;
-					Tn(e, r, i, a, Array(a.length).fill(null), o).then((e) => {
+					An(e, r, i, a, Array(a.length).fill(null), o).then((e) => {
 						e.some((e) => e[3] !== "cpu") ? postMessage({
 							type: t,
 							err: "Proxy does not support non-cpu tensor location."
 						}) : postMessage({
 							type: t,
 							out: e
-						}, Dn([...i, ...e]));
+						}, Mn([...i, ...e]));
 					}, (e) => {
 						postMessage({
 							type: t,
@@ -1480,7 +1532,7 @@ var bt, xt, St, Ct = C(() => {
 					});
 					break;
 				}
-				case "end-profiling": En(n), postMessage({ type: t });
+				case "end-profiling": jn(n), postMessage({ type: t });
 			}
 		} catch (e) {
 			postMessage({
@@ -1488,54 +1540,54 @@ var bt, xt, St, Ct = C(() => {
 				err: e
 			});
 		}
-	}), St = xt ? null : (e) => new Worker(e ?? L, {
+	}), Dt = Et ? null : (e) => new Worker(e ?? I, {
 		type: "module",
-		name: bt
+		name: Tt
 	});
-}), wt, Tt, Et, L, Dt, Ot, kt, At, jt, Mt, Nt, Pt, Ft, It, Lt = C(() => {
-	vt(), wt = typeof location > "u" ? void 0 : location.origin, Tt = import.meta.url > "file:" && import.meta.url < "file;", Et = () => Tt ? new URL(new URL("ort.wasm.min.mjs", import.meta.url).href, wt).href : import.meta.url, L = Et(), Dt = () => {
-		if (L && !L.startsWith("blob:")) return L.substring(0, L.lastIndexOf("/") + 1);
-	}, Ot = (e, t) => {
+}), kt, At, jt, I, Mt, Nt, Pt, Ft, It, Lt, Rt, zt, Bt, Vt, Ht = S(() => {
+	Ct(), kt = typeof location > "u" ? void 0 : location.origin, At = import.meta.url > "file:" && import.meta.url < "file;", jt = () => At ? new URL(new URL("ort.wasm.min.mjs", import.meta.url).href, kt).href : import.meta.url, I = jt(), Mt = () => {
+		if (I && !I.startsWith("blob:")) return I.substring(0, I.lastIndexOf("/") + 1);
+	}, Nt = (e, t) => {
 		try {
-			let n = t ?? L;
-			return (n ? new URL(e, n) : new URL(e)).origin === wt;
+			let n = t ?? I;
+			return (n ? new URL(e, n) : new URL(e)).origin === kt;
 		} catch {
 			return !1;
 		}
-	}, kt = (e, t) => {
-		let n = t ?? L;
+	}, Pt = (e, t) => {
+		let n = t ?? I;
 		try {
 			return (n ? new URL(e, n) : new URL(e)).href;
 		} catch {
 			return;
 		}
-	}, At = (e, t) => `${t ?? "./"}${e}`, jt = async (e) => {
+	}, Ft = (e, t) => `${t ?? "./"}${e}`, It = async (e) => {
 		let t = await (await fetch(e, { credentials: "same-origin" })).blob();
 		return URL.createObjectURL(t);
-	}, Mt = async (e) => (await import(
+	}, Lt = async (e) => (await import(
 		/*webpackIgnore:true*/
 		/*@vite-ignore*/
 		e
-)).default, Nt = (Ct(), Ee(yt)).default, Pt = async () => {
-		if (!L) throw Error("Failed to load proxy worker: cannot determine the script source URL.");
-		if (Ot(L)) return [void 0, Nt()];
-		let e = await jt(L);
-		return [e, Nt(e)];
-	}, Ft = void 0, It = async (e, t, n, r) => {
-		let i = Ft && !(e || t);
+)).default, Rt = (Ot(), je(wt)).default, zt = async () => {
+		if (!I) throw Error("Failed to load proxy worker: cannot determine the script source URL.");
+		if (Nt(I)) return [void 0, Rt()];
+		let e = await It(I);
+		return [e, Rt(e)];
+	}, Bt = void 0, Vt = async (e, t, n, r) => {
+		let i = Bt && !(e || t);
 		if (i) {
-			if (L) i = Ot(L) || r && !n;
+			if (I) i = Nt(I) || r && !n;
 			else if (r && !n) i = !0;
 			else throw Error("cannot determine the script source URL.");
 		}
-		if (i) return [void 0, Ft];
+		if (i) return [void 0, Bt];
 		{
-			let r = "ort-wasm-simd-threaded.mjs", i = e ?? kt(r, t), a = n && i && !Ot(i, t), o = a ? await jt(i) : i ?? At(r, t);
-			return [a ? o : void 0, await Mt(o)];
+			let r = "ort-wasm-simd-threaded.mjs", i = e ?? Pt(r, t), a = n && i && !Nt(i, t), o = a ? await It(i) : i ?? Ft(r, t);
+			return [a ? o : void 0, await Lt(o)];
 		}
 	};
-}), Rt, zt, Bt, Vt, Ht, Ut, Wt, Gt, R, z = C(() => {
-	Lt(), zt = !1, Bt = !1, Vt = !1, Ht = () => {
+}), Ut, Wt, Gt, Kt, qt, Jt, Yt, Xt, L, R = S(() => {
+	Ht(), Wt = !1, Gt = !1, Kt = !1, qt = () => {
 		if (typeof SharedArrayBuffer > "u") return !1;
 		try {
 			return typeof MessageChannel < "u" && new MessageChannel().port1.postMessage(new SharedArrayBuffer(1)), WebAssembly.validate(new Uint8Array([
@@ -1580,7 +1632,7 @@ var bt, xt, St, Ct = C(() => {
 		} catch {
 			return !1;
 		}
-	}, Ut = () => {
+	}, Jt = () => {
 		try {
 			return WebAssembly.validate(new Uint8Array([
 				0,
@@ -1637,7 +1689,7 @@ var bt, xt, St, Ct = C(() => {
 		} catch {
 			return !1;
 		}
-	}, Wt = () => {
+	}, Yt = () => {
 		try {
 			return WebAssembly.validate(new Uint8Array([
 				0,
@@ -1684,20 +1736,20 @@ var bt, xt, St, Ct = C(() => {
 		} catch {
 			return !1;
 		}
-	}, Gt = async (e) => {
-		if (zt) return Promise.resolve();
-		if (Bt) throw Error("multiple calls to 'initializeWebAssembly()' detected.");
-		if (Vt) throw Error("previous call to 'initializeWebAssembly()' failed.");
-		Bt = !0;
+	}, Xt = async (e) => {
+		if (Wt) return Promise.resolve();
+		if (Gt) throw Error("multiple calls to 'initializeWebAssembly()' detected.");
+		if (Kt) throw Error("previous call to 'initializeWebAssembly()' failed.");
+		Gt = !0;
 		let t = e.initTimeout, n = e.numThreads;
 		if (e.simd !== !1) {
 			if (e.simd === "relaxed") {
-				if (!Wt()) throw Error("Relaxed WebAssembly SIMD is not supported in the current environment.");
-			} else if (!Ut()) throw Error("WebAssembly SIMD is not supported in the current environment.");
+				if (!Yt()) throw Error("Relaxed WebAssembly SIMD is not supported in the current environment.");
+			} else if (!Jt()) throw Error("WebAssembly SIMD is not supported in the current environment.");
 		}
-		let r = Ht();
+		let r = qt();
 		n > 1 && !r && (typeof self < "u" && !self.crossOriginIsolated && console.warn("env.wasm.numThreads is set to " + n + ", but this will not work unless you enable crossOriginIsolated mode. See https://web.dev/cross-origin-isolation-guide/ for more info."), console.warn("WebAssembly multi-threading is not supported in the current environment. Falling back to single-threading."), e.numThreads = n = 1);
-		let i = e.wasmPaths, a = typeof i == "string" ? i : void 0, o = i?.mjs, s = o?.href ?? o, c = i?.wasm, l = c?.href ?? c, u = e.wasmBinary, [d, f] = await It(s, a, n > 1, !!u || !!l), p = !1, m = [];
+		let i = e.wasmPaths, a = typeof i == "string" ? i : void 0, o = i?.mjs, s = o?.href ?? o, c = i?.wasm, l = c?.href ?? c, u = e.wasmBinary, [d, f] = await Vt(s, a, n > 1, !!u || !!l), p = !1, m = [];
 		if (t > 0 && m.push(new Promise((e) => {
 			setTimeout(() => {
 				p = !0, e();
@@ -1708,37 +1760,37 @@ var bt, xt, St, Ct = C(() => {
 			else if (l || a) r.locateFile = (e) => l ?? a + e;
 			else if (s && s.indexOf("blob:") !== 0) r.locateFile = (e) => new URL(e, s).href;
 			else if (d) {
-				let e = Dt();
+				let e = Mt();
 				e && (r.locateFile = (t) => e + t);
 			}
 			f(r).then((t) => {
-				Bt = !1, zt = !0, Rt = t, e(), d && URL.revokeObjectURL(d);
+				Gt = !1, Wt = !0, Ut = t, e(), d && URL.revokeObjectURL(d);
 			}, (e) => {
-				Bt = !1, Vt = !0, t(e);
+				Gt = !1, Kt = !0, t(e);
 			});
 		})), await Promise.race(m), p) throw Error(`WebAssembly backend initializing failed due to timeout: ${t}ms`);
-	}, R = () => {
-		if (zt && Rt) return Rt;
+	}, L = () => {
+		if (Wt && Ut) return Ut;
 		throw Error("WebAssembly is not initialized yet.");
 	};
-}), B, Kt, V, qt = C(() => {
-	z(), B = (e, t) => {
-		let n = R(), r = n.lengthBytesUTF8(e) + 1, i = n._malloc(r);
+}), z, Zt, B, Qt = S(() => {
+	R(), z = (e, t) => {
+		let n = L(), r = n.lengthBytesUTF8(e) + 1, i = n._malloc(r);
 		return n.stringToUTF8(e, i, r), t.push(i), i;
-	}, Kt = (e, t, n, r) => {
+	}, Zt = (e, t, n, r) => {
 		if (typeof e == "object" && e) {
 			if (n.has(e)) throw Error("Circular reference in options");
 			n.add(e);
 		}
 		Object.entries(e).forEach(([e, i]) => {
 			let a = t ? t + e : e;
-			if (typeof i == "object") Kt(i, a + ".", n, r);
+			if (typeof i == "object") Zt(i, a + ".", n, r);
 			else if (typeof i == "string" || typeof i == "number") r(a, i.toString());
 			else if (typeof i == "boolean") r(a, i ? "1" : "0");
 			else throw Error(`Can't handle extra config type: ${typeof i}`);
 		});
-	}, V = (e) => {
-		let t = R(), n = t.stackSave();
+	}, B = (e) => {
+		let t = L(), n = t.stackSave();
 		try {
 			let n = t.PTR_SIZE, r = t.stackAlloc(2 * n);
 			t._OrtGetLastError(r, r + n);
@@ -1748,9 +1800,9 @@ var bt, xt, St, Ct = C(() => {
 			t.stackRestore(n);
 		}
 	};
-}), Jt, Yt = C(() => {
-	z(), qt(), Jt = (e, t) => {
-		let n = R(), r = 0, i = [], a = e || {};
+}), $t, en = S(() => {
+	R(), Qt(), $t = (e, t) => {
+		let n = L(), r = 0, i = [], a = e || {};
 		try {
 			if (e?.logSeverityLevel === void 0) a.logSeverityLevel = 2;
 			else if (typeof e.logSeverityLevel != "number" || !Number.isInteger(e.logSeverityLevel) || e.logSeverityLevel < 0 || e.logSeverityLevel > 4) throw Error(`log severity level is not valid: ${e.logSeverityLevel}`);
@@ -1758,18 +1810,18 @@ var bt, xt, St, Ct = C(() => {
 			else if (typeof e.logVerbosityLevel != "number" || !Number.isInteger(e.logVerbosityLevel)) throw Error(`log verbosity level is not valid: ${e.logVerbosityLevel}`);
 			e?.terminate === void 0 && (a.terminate = !1);
 			let o = 0;
-			e?.tag !== void 0 && (o = B(e.tag, i)), r = n._OrtCreateRunOptions(a.logSeverityLevel, a.logVerbosityLevel, !!a.terminate, o), r === 0 && V("Can't create run options."), e?.extra !== void 0 && Kt(e.extra, "", /* @__PURE__ */ new WeakSet(), (e, t) => {
-				let a = B(e, i), o = B(t, i);
-				n._OrtAddRunConfigEntry(r, a, o) !== 0 && V(`Can't set a run config entry: ${e} - ${t}.`);
+			e?.tag !== void 0 && (o = z(e.tag, i)), r = n._OrtCreateRunOptions(a.logSeverityLevel, a.logVerbosityLevel, !!a.terminate, o), r === 0 && B("Can't create run options."), e?.extra !== void 0 && Zt(e.extra, "", /* @__PURE__ */ new WeakSet(), (e, t) => {
+				let a = z(e, i), o = z(t, i);
+				n._OrtAddRunConfigEntry(r, a, o) !== 0 && B(`Can't set a run config entry: ${e} - ${t}.`);
 			});
-			for (let e of t) n._OrtRunOptionsAddActiveLoraAdapter(r, e) !== 0 && V("Can't add an active LoRA adapter.");
+			for (let e of t) n._OrtRunOptionsAddActiveLoraAdapter(r, e) !== 0 && B("Can't add an active LoRA adapter.");
 			return [r, i];
 		} catch (e) {
 			throw r !== 0 && n._OrtReleaseRunOptions(r), i.forEach((e) => n._free(e)), e;
 		}
 	};
-}), Xt, Zt, Qt, H, $t, en, tn = C(() => {
-	z(), qt(), Xt = (e) => {
+}), tn, nn, rn, V, an, on, sn = S(() => {
+	R(), Qt(), tn = (e) => {
 		switch (e) {
 			case "disabled": return 0;
 			case "basic": return 1;
@@ -1778,28 +1830,28 @@ var bt, xt, St, Ct = C(() => {
 			case "all": return 99;
 			default: throw Error(`unsupported graph optimization level: ${e}`);
 		}
-	}, Zt = (e) => {
+	}, nn = (e) => {
 		switch (e) {
 			case "sequential": return 0;
 			case "parallel": return 1;
 			default: throw Error(`unsupported execution mode: ${e}`);
 		}
-	}, Qt = (e) => {
+	}, rn = (e) => {
 		e.extra ||= {}, e.extra.session || (e.extra.session = {});
 		let t = e.extra.session;
 		t.use_ort_model_bytes_directly ||= "1", e.executionProviders && e.executionProviders.some((e) => (typeof e == "string" ? e : e.name) === "webgpu") && (e.enableMemPattern = !1);
-	}, H = (e, t, n, r) => {
-		let i = B(t, r), a = B(n, r);
-		R()._OrtAddSessionConfigEntry(e, i, a) !== 0 && V(`Can't set a session config entry: ${t} - ${n}.`);
-	}, $t = async (e, t, n) => {
+	}, V = (e, t, n, r) => {
+		let i = z(t, r), a = z(n, r);
+		L()._OrtAddSessionConfigEntry(e, i, a) !== 0 && B(`Can't set a session config entry: ${t} - ${n}.`);
+	}, an = async (e, t, n) => {
 		let r = t.executionProviders;
 		for (let t of r) {
 			let r = typeof t == "string" ? t : t.name, i = [];
 			switch (r) {
 				case "webnn":
-					if (r = "WEBNN", H(e, "session.disable_quant_qdq", "1", n), H(e, "session.disable_qdq_constant_folding", "1", n), typeof t != "string") {
+					if (r = "WEBNN", V(e, "session.disable_quant_qdq", "1", n), V(e, "session.disable_qdq_constant_folding", "1", n), typeof t != "string") {
 						let r = t?.deviceType;
-						r && H(e, "deviceType", r, n);
+						r && V(e, "deviceType", r, n);
 					}
 					break;
 				case "webgpu":
@@ -1807,7 +1859,7 @@ var bt, xt, St, Ct = C(() => {
 						let r = t;
 						if (r?.preferredLayout) {
 							if (r.preferredLayout !== "NCHW" && r.preferredLayout !== "NHWC") throw Error(`preferredLayout must be either 'NCHW' or 'NHWC': ${r.preferredLayout}`);
-							H(e, "preferredLayout", r.preferredLayout, n);
+							V(e, "preferredLayout", r.preferredLayout, n);
 						}
 					}
 					break;
@@ -1817,44 +1869,44 @@ var bt, xt, St, Ct = C(() => {
 			}
 			let a = i.length, o = 0, s = 0;
 			if (a > 0) {
-				o = R()._malloc(a * R().PTR_SIZE), n.push(o), s = R()._malloc(a * R().PTR_SIZE), n.push(s);
-				for (let e = 0; e < a; e++) R().setValue(o + e * R().PTR_SIZE, i[e][0], "*"), R().setValue(s + e * R().PTR_SIZE, i[e][1], "*");
+				o = L()._malloc(a * L().PTR_SIZE), n.push(o), s = L()._malloc(a * L().PTR_SIZE), n.push(s);
+				for (let e = 0; e < a; e++) L().setValue(o + e * L().PTR_SIZE, i[e][0], "*"), L().setValue(s + e * L().PTR_SIZE, i[e][1], "*");
 			}
 			let c;
 			{
-				let t = B(r, n);
-				c = await R()._OrtAppendExecutionProvider(e, t, o, s, a);
+				let t = z(r, n);
+				c = await L()._OrtAppendExecutionProvider(e, t, o, s, a);
 			}
-			c !== 0 && V(`Can't append execution provider: ${r}.`);
+			c !== 0 && B(`Can't append execution provider: ${r}.`);
 		}
-	}, en = async (e) => {
-		let t = R(), n = 0, r = [], i = e || {};
-		Qt(i);
+	}, on = async (e) => {
+		let t = L(), n = 0, r = [], i = e || {};
+		rn(i);
 		try {
-			let e = Xt(i.graphOptimizationLevel ?? "all"), a = Zt(i.executionMode ?? "sequential"), o = typeof i.logId == "string" ? B(i.logId, r) : 0, s = i.logSeverityLevel ?? 2;
+			let e = tn(i.graphOptimizationLevel ?? "all"), a = nn(i.executionMode ?? "sequential"), o = typeof i.logId == "string" ? z(i.logId, r) : 0, s = i.logSeverityLevel ?? 2;
 			if (!Number.isInteger(s) || s < 0 || s > 4) throw Error(`log severity level is not valid: ${s}`);
 			let c = i.logVerbosityLevel ?? 0;
 			if (!Number.isInteger(c) || c < 0 || c > 4) throw Error(`log verbosity level is not valid: ${c}`);
-			let l = typeof i.optimizedModelFilePath == "string" ? B(i.optimizedModelFilePath, r) : 0;
-			if (n = t._OrtCreateSessionOptions(e, !!i.enableCpuMemArena, !!i.enableMemPattern, a, !!i.enableProfiling, 0, o, s, c, l), n === 0 && V("Can't create session options."), i.executionProviders && await $t(n, i, r), i.enableGraphCapture !== void 0) {
+			let l = typeof i.optimizedModelFilePath == "string" ? z(i.optimizedModelFilePath, r) : 0;
+			if (n = t._OrtCreateSessionOptions(e, !!i.enableCpuMemArena, !!i.enableMemPattern, a, !!i.enableProfiling, 0, o, s, c, l), n === 0 && B("Can't create session options."), i.executionProviders && await an(n, i, r), i.enableGraphCapture !== void 0) {
 				if (typeof i.enableGraphCapture != "boolean") throw Error(`enableGraphCapture must be a boolean value: ${i.enableGraphCapture}`);
-				H(n, "enableGraphCapture", i.enableGraphCapture.toString(), r);
+				V(n, "enableGraphCapture", i.enableGraphCapture.toString(), r);
 			}
 			if (i.freeDimensionOverrides) for (let [e, a] of Object.entries(i.freeDimensionOverrides)) {
 				if (typeof e != "string") throw Error(`free dimension override name must be a string: ${e}`);
 				if (typeof a != "number" || !Number.isInteger(a) || a < 0) throw Error(`free dimension override value must be a non-negative integer: ${a}`);
-				let i = B(e, r);
-				t._OrtAddFreeDimensionOverride(n, i, a) !== 0 && V(`Can't set a free dimension override: ${e} - ${a}.`);
+				let i = z(e, r);
+				t._OrtAddFreeDimensionOverride(n, i, a) !== 0 && B(`Can't set a free dimension override: ${e} - ${a}.`);
 			}
-			return i.extra !== void 0 && Kt(i.extra, "", /* @__PURE__ */ new WeakSet(), (e, t) => {
-				H(n, e, t, r);
+			return i.extra !== void 0 && Zt(i.extra, "", /* @__PURE__ */ new WeakSet(), (e, t) => {
+				V(n, e, t, r);
 			}), [n, r];
 		} catch (e) {
-			throw n !== 0 && t._OrtReleaseSessionOptions(n) !== 0 && V("Can't release session options."), r.forEach((e) => t._free(e)), e;
+			throw n !== 0 && t._OrtReleaseSessionOptions(n) !== 0 && B("Can't release session options."), r.forEach((e) => t._free(e)), e;
 		}
 	};
-}), U, nn, W, rn, an, on, sn, cn, ln = C(() => {
-	U = (e) => {
+}), H, cn, U, ln, un, dn, fn, pn, mn = S(() => {
+	H = (e) => {
 		switch (e) {
 			case "int8": return 3;
 			case "uint8": return 2;
@@ -1873,7 +1925,7 @@ var bt, xt, St, Ct = C(() => {
 			case "uint4": return 21;
 			default: throw Error(`unsupported data type: ${e}`);
 		}
-	}, nn = (e) => {
+	}, cn = (e) => {
 		switch (e) {
 			case 3: return "int8";
 			case 2: return "uint8";
@@ -1892,7 +1944,7 @@ var bt, xt, St, Ct = C(() => {
 			case 21: return "uint4";
 			default: throw Error(`unsupported data type: ${e}`);
 		}
-	}, W = (e, t) => {
+	}, U = (e, t) => {
 		let n = [
 			-1,
 			4,
@@ -1919,7 +1971,7 @@ var bt, xt, St, Ct = C(() => {
 			.5
 		][e], r = typeof t == "number" ? t : t.reduce((e, t) => e * t, 1);
 		return n > 0 ? Math.ceil(r * n) : void 0;
-	}, rn = (e) => {
+	}, ln = (e) => {
 		switch (e) {
 			case "float16": return typeof Float16Array < "u" ? Float16Array : Uint16Array;
 			case "float32": return Float32Array;
@@ -1935,7 +1987,7 @@ var bt, xt, St, Ct = C(() => {
 			case "uint64": return BigUint64Array;
 			default: throw Error(`unsupported type: ${e}`);
 		}
-	}, an = (e) => {
+	}, un = (e) => {
 		switch (e) {
 			case "verbose": return 0;
 			case "info": return 1;
@@ -1944,7 +1996,7 @@ var bt, xt, St, Ct = C(() => {
 			case "fatal": return 4;
 			default: throw Error(`unsupported logging level: ${e}`);
 		}
-	}, on = (e) => e === "float32" || e === "float16" || e === "int32" || e === "int64" || e === "uint32" || e === "uint8" || e === "bool" || e === "uint4" || e === "int4", sn = (e) => e === "float32" || e === "float16" || e === "int32" || e === "int64" || e === "uint32" || e === "uint64" || e === "int8" || e === "uint8" || e === "bool" || e === "uint4" || e === "int4", cn = (e) => {
+	}, dn = (e) => e === "float32" || e === "float16" || e === "int32" || e === "int64" || e === "uint32" || e === "uint8" || e === "bool" || e === "uint4" || e === "int4", fn = (e) => e === "float32" || e === "float16" || e === "int32" || e === "int64" || e === "uint32" || e === "uint64" || e === "int8" || e === "uint8" || e === "bool" || e === "uint4" || e === "int4", pn = (e) => {
 		switch (e) {
 			case "none": return 0;
 			case "cpu": return 1;
@@ -1955,8 +2007,8 @@ var bt, xt, St, Ct = C(() => {
 			default: throw Error(`unsupported data location: ${e}`);
 		}
 	};
-}), un, dn = C(() => {
-	vt(), un = async (e) => {
+}), hn, gn = S(() => {
+	Ct(), hn = async (e) => {
 		if (typeof e == "string") {
 			let t = await fetch(e);
 			if (!t.ok) throw Error(`failed to load external data file: ${e}`);
@@ -1988,13 +2040,13 @@ var bt, xt, St, Ct = C(() => {
 		}
 		return e instanceof Blob ? new Uint8Array(await e.arrayBuffer()) : e instanceof Uint8Array ? e : new Uint8Array(e);
 	};
-}), fn, pn, mn, G, hn, gn, _n, vn, yn, bn, xn, K, Sn, Cn, wn, Tn, En, Dn, On = C(() => {
-	I(), Yt(), tn(), ln(), z(), qt(), dn(), fn = (e, t) => {
-		R()._OrtInit(e, t) !== 0 && V("Can't initialize onnxruntime.");
-	}, pn = async (e) => {
-		fn(e.wasm.numThreads, an(e.logLevel));
-	}, mn = async (e, t) => {
-		R().asyncInit?.();
+}), _n, vn, yn, W, bn, xn, Sn, Cn, wn, Tn, En, G, Dn, On, kn, An, jn, Mn, Nn = S(() => {
+	F(), en(), sn(), mn(), R(), Qt(), gn(), _n = (e, t) => {
+		L()._OrtInit(e, t) !== 0 && B("Can't initialize onnxruntime.");
+	}, vn = async (e) => {
+		_n(e.wasm.numThreads, un(e.logLevel));
+	}, yn = async (e, t) => {
+		L().asyncInit?.();
 		let n = e.webgpu.adapter;
 		if (t === "webgpu") {
 			if (typeof navigator > "u" || !navigator.gpu) throw Error("WebGPU is not supported in current environment");
@@ -2012,21 +2064,21 @@ var bt, xt, St, Ct = C(() => {
 			}
 		}
 		if (t === "webnn" && (typeof navigator > "u" || !navigator.ml)) throw Error("WebNN is not supported in current environment");
-	}, G = /* @__PURE__ */ new Map(), hn = (e) => {
-		let t = R(), n = t.stackSave();
+	}, W = /* @__PURE__ */ new Map(), bn = (e) => {
+		let t = L(), n = t.stackSave();
 		try {
 			let n = t.PTR_SIZE, r = t.stackAlloc(2 * n);
-			t._OrtGetInputOutputCount(e, r, r + n) !== 0 && V("Can't get session input/output count.");
+			t._OrtGetInputOutputCount(e, r, r + n) !== 0 && B("Can't get session input/output count.");
 			let i = n === 4 ? "i32" : "i64";
 			return [Number(t.getValue(r, i)), Number(t.getValue(r + n, i))];
 		} finally {
 			t.stackRestore(n);
 		}
-	}, gn = (e, t) => {
-		let n = R(), r = n.stackSave(), i = 0;
+	}, xn = (e, t) => {
+		let n = L(), r = n.stackSave(), i = 0;
 		try {
 			let r = n.PTR_SIZE, a = n.stackAlloc(2 * r);
-			n._OrtGetInputOutputMetadata(e, t, a, a + r) !== 0 && V("Can't get session input/output metadata.");
+			n._OrtGetInputOutputMetadata(e, t, a, a + r) !== 0 && B("Can't get session input/output metadata.");
 			let o = Number(n.getValue(a, "*"));
 			i = Number(n.getValue(a + r, "*"));
 			let s = n.HEAP32[i / 4];
@@ -2044,20 +2096,20 @@ var bt, xt, St, Ct = C(() => {
 		} finally {
 			n.stackRestore(r), i !== 0 && n._OrtFree(i);
 		}
-	}, _n = (e) => {
-		let t = R(), n = t._malloc(e.byteLength);
+	}, Sn = (e) => {
+		let t = L(), n = t._malloc(e.byteLength);
 		if (n === 0) throw Error(`Can't create a session. failed to allocate a buffer of size ${e.byteLength}.`);
 		return t.HEAPU8.set(e, n), [n, e.byteLength];
-	}, vn = async (e, t) => {
-		let n, r, i = R();
-		Array.isArray(e) ? [n, r] = e : e.buffer === i.HEAPU8.buffer ? [n, r] = [e.byteOffset, e.byteLength] : [n, r] = _n(e);
+	}, Cn = async (e, t) => {
+		let n, r, i = L();
+		Array.isArray(e) ? [n, r] = e : e.buffer === i.HEAPU8.buffer ? [n, r] = [e.byteOffset, e.byteLength] : [n, r] = Sn(e);
 		let a = 0, o = 0, s = [], c = [], l = [];
 		try {
-			if ([o, s] = await en(t), t?.externalData && i.mountExternalData) {
+			if ([o, s] = await on(t), t?.externalData && i.mountExternalData) {
 				let e = [];
 				for (let n of t.externalData) {
 					let t = typeof n == "string" ? n : n.path, r = typeof n == "string" ? n : n.data;
-					e.push(un(r).then((e) => {
+					e.push(hn(r).then((e) => {
 						i.mountExternalData(t, e);
 					}));
 				}
@@ -2073,11 +2125,11 @@ var bt, xt, St, Ct = C(() => {
 				} else i.currentContext = await i.webnnCreateMLContext();
 				break;
 			}
-			a = await i._OrtCreateSession(n, r, o), i.webgpuOnCreateSession?.(a), a === 0 && V("Can't create a session."), i.jsepOnCreateSession?.(), i.currentContext && (i.webnnRegisterMLContext(a, i.currentContext), i.currentContext = void 0, i.shouldTransferToMLTensor = !0);
-			let [e, u] = hn(a), d = !!t?.enableGraphCapture, f = [], p = [], m = [], h = [];
+			a = await i._OrtCreateSession(n, r, o), i.webgpuOnCreateSession?.(a), a === 0 && B("Can't create a session."), i.jsepOnCreateSession?.(), i.currentContext && (i.webnnRegisterMLContext(a, i.currentContext), i.currentContext = void 0, i.shouldTransferToMLTensor = !0);
+			let [e, u] = bn(a), d = !!t?.enableGraphCapture, f = [], p = [], m = [], h = [];
 			for (let t = 0; t < e; t++) {
-				let [e, n, r] = gn(a, t);
-				e === 0 && V("Can't get an input name."), c.push(e);
+				let [e, n, r] = xn(a, t);
+				e === 0 && B("Can't get an input name."), c.push(e);
 				let o = i.UTF8ToString(e);
 				f.push(o), m.push(n === 0 ? {
 					name: o,
@@ -2085,13 +2137,13 @@ var bt, xt, St, Ct = C(() => {
 				} : {
 					name: o,
 					isTensor: !0,
-					type: nn(n),
+					type: cn(n),
 					shape: r
 				});
 			}
 			for (let t = 0; t < u; t++) {
-				let [n, r, o] = gn(a, t + e);
-				n === 0 && V("Can't get an output name."), l.push(n);
+				let [n, r, o] = xn(a, t + e);
+				n === 0 && B("Can't get an output name."), l.push(n);
 				let s = i.UTF8ToString(n);
 				p.push(s), h.push(r === 0 ? {
 					name: s,
@@ -2099,11 +2151,11 @@ var bt, xt, St, Ct = C(() => {
 				} : {
 					name: s,
 					isTensor: !0,
-					type: nn(r),
+					type: cn(r),
 					shape: o
 				});
 			}
-			return G.set(a, [
+			return W.set(a, [
 				a,
 				c,
 				l,
@@ -2118,43 +2170,43 @@ var bt, xt, St, Ct = C(() => {
 				h
 			];
 		} catch (e) {
-			throw c.forEach((e) => i._OrtFree(e)), l.forEach((e) => i._OrtFree(e)), a !== 0 && i._OrtReleaseSession(a) !== 0 && V("Can't release session."), e;
+			throw c.forEach((e) => i._OrtFree(e)), l.forEach((e) => i._OrtFree(e)), a !== 0 && i._OrtReleaseSession(a) !== 0 && B("Can't release session."), e;
 		} finally {
-			i._free(n), o !== 0 && i._OrtReleaseSessionOptions(o) !== 0 && V("Can't release session options."), s.forEach((e) => i._free(e)), i.unmountExternalData?.();
+			i._free(n), o !== 0 && i._OrtReleaseSessionOptions(o) !== 0 && B("Can't release session options."), s.forEach((e) => i._free(e)), i.unmountExternalData?.();
 		}
-	}, yn = (e) => {
-		let t = R(), n = G.get(e);
+	}, wn = (e) => {
+		let t = L(), n = W.get(e);
 		if (!n) throw Error(`cannot release session. invalid session id: ${e}`);
 		let [r, i, a, o, s] = n;
-		o && (s && t._OrtClearBoundOutputs(o.handle) !== 0 && V("Can't clear bound outputs."), t._OrtReleaseBinding(o.handle) !== 0 && V("Can't release IO binding.")), t.jsepOnReleaseSession?.(e), t.webnnOnReleaseSession?.(e), t.webgpuOnReleaseSession?.(e), i.forEach((e) => t._OrtFree(e)), a.forEach((e) => t._OrtFree(e)), t._OrtReleaseSession(r) !== 0 && V("Can't release session."), G.delete(e);
-	}, bn = /* @__PURE__ */ new Map(), xn = 1, K = /* @__PURE__ */ new Map(), Sn = (e) => {
-		let t = R(), n = t._malloc(e.byteLength);
+		o && (s && t._OrtClearBoundOutputs(o.handle) !== 0 && B("Can't clear bound outputs."), t._OrtReleaseBinding(o.handle) !== 0 && B("Can't release IO binding.")), t.jsepOnReleaseSession?.(e), t.webnnOnReleaseSession?.(e), t.webgpuOnReleaseSession?.(e), i.forEach((e) => t._OrtFree(e)), a.forEach((e) => t._OrtFree(e)), t._OrtReleaseSession(r) !== 0 && B("Can't release session."), W.delete(e);
+	}, Tn = /* @__PURE__ */ new Map(), En = 1, G = /* @__PURE__ */ new Map(), Dn = (e) => {
+		let t = L(), n = t._malloc(e.byteLength);
 		if (n === 0) throw Error(`Can't create a LoRA adapter. failed to allocate a buffer of size ${e.byteLength}.`);
 		try {
 			t.HEAPU8.set(e, n);
 			let r = t._OrtCreateLoraAdapter(n, e.byteLength);
-			r === 0 && V("Can't create a LoRA adapter.");
-			let i = xn++;
-			return bn.set(i, r), i;
+			r === 0 && B("Can't create a LoRA adapter.");
+			let i = En++;
+			return Tn.set(i, r), i;
 		} finally {
 			t._free(n);
 		}
-	}, Cn = (e) => {
-		let t = R(), n = bn.get(e);
+	}, On = (e) => {
+		let t = L(), n = Tn.get(e);
 		if (n === void 0) throw Error(`cannot release LoRA adapter. invalid adapter id: ${e}`);
-		if (K.has(e)) throw Error(`cannot release LoRA adapter. the adapter is used by a run in progress. adapter id: ${e}`);
-		t._OrtReleaseLoraAdapter(n) !== 0 && V("Can't release LoRA adapter."), bn.delete(e);
-	}, wn = async (e, t, n, r, i, a, o = !1) => {
+		if (G.has(e)) throw Error(`cannot release LoRA adapter. the adapter is used by a run in progress. adapter id: ${e}`);
+		t._OrtReleaseLoraAdapter(n) !== 0 && B("Can't release LoRA adapter."), Tn.delete(e);
+	}, kn = async (e, t, n, r, i, a, o = !1) => {
 		if (!e) {
 			t.push(0);
 			return;
 		}
-		let s = R(), c = s.PTR_SIZE, l = e[0], u = e[1], d = e[3], f = d, p, m;
+		let s = L(), c = s.PTR_SIZE, l = e[0], u = e[1], d = e[3], f = d, p, m;
 		if (l === "string" && (d === "gpu-buffer" || d === "ml-tensor")) throw Error("String tensor is not supported on GPU.");
 		if (o && d !== "gpu-buffer") throw Error(`External buffer must be provided for input/output index ${a} when enableGraphCapture is true.`);
 		if (d === "gpu-buffer") {
 			let t = e[2].gpuBuffer;
-			m = W(U(l), u);
+			m = U(H(l), u);
 			{
 				let e = s.jsepRegisterBuffer;
 				if (!e) throw Error("Tensor location \"gpu-buffer\" is not supported without using WebGPU.");
@@ -2162,25 +2214,25 @@ var bt, xt, St, Ct = C(() => {
 			}
 		} else if (d === "ml-tensor") {
 			let t = e[2].mlTensor;
-			m = W(U(l), u);
+			m = U(H(l), u);
 			let n = s.webnnRegisterMLTensor;
 			if (!n) throw Error("Tensor location \"ml-tensor\" is not supported without using WebNN.");
-			p = n(r, t, U(l), u);
+			p = n(r, t, H(l), u);
 		} else {
 			let t = e[2];
 			if (Array.isArray(t)) {
 				m = c * t.length, p = s._malloc(m), n.push(p);
 				for (let e = 0; e < t.length; e++) {
 					if (typeof t[e] != "string") throw TypeError(`tensor data at index ${e} is not a string`);
-					s.setValue(p + e * c, B(t[e], n), "*");
+					s.setValue(p + e * c, z(t[e], n), "*");
 				}
 			} else {
 				let e = s.webnnIsGraphInput, a = s.webnnIsGraphOutput;
 				if (l !== "string" && e && a) {
 					let o = s.UTF8ToString(i);
 					if (e(r, o) || a(r, o)) {
-						let e = U(l);
-						m = W(e, u), f = "ml-tensor";
+						let e = H(l);
+						m = U(e, u), f = "ml-tensor";
 						let n = s.webnnCreateTemporaryTensor, i = s.webnnUploadTensor;
 						if (!n || !i) throw Error("Tensor location \"ml-tensor\" is not supported without using WebNN.");
 						let a = await n(r, e, u);
@@ -2192,13 +2244,13 @@ var bt, xt, St, Ct = C(() => {
 		let h = s.stackSave(), g = s.stackAlloc(4 * u.length);
 		try {
 			u.forEach((e, t) => s.setValue(g + t * c, e, c === 4 ? "i32" : "i64"));
-			let e = s._OrtCreateTensor(U(l), p, m, g, u.length, cn(f));
-			e === 0 && V(`Can't create tensor for input/output. session=${r}, index=${a}.`), t.push(e);
+			let e = s._OrtCreateTensor(H(l), p, m, g, u.length, pn(f));
+			e === 0 && B(`Can't create tensor for input/output. session=${r}, index=${a}.`), t.push(e);
 		} finally {
 			s.stackRestore(h);
 		}
-	}, Tn = async (e, t, n, r, i, a, o = []) => {
-		let s = R(), c = s.PTR_SIZE, l = G.get(e);
+	}, An = async (e, t, n, r, i, a, o = []) => {
+		let s = L(), c = s.PTR_SIZE, l = W.get(e);
 		if (!l) throw Error(`cannot run inference. invalid session id: ${e}`);
 		let u = l[0], d = l[1], f = l[2], p = l[3], m = l[4];
 		l[5];
@@ -2206,41 +2258,41 @@ var bt, xt, St, Ct = C(() => {
 		if (o.length > 0) {
 			if (p) throw Error("LoRA adapters are not supported for a session that uses IO binding, e.g. when an output is preferred to be on GPU, or when the WebNN execution provider produces an output.");
 			for (let e of o) {
-				let t = bn.get(e);
+				let t = Tn.get(e);
 				if (t === void 0) throw Error(`cannot run inference. invalid LoRA adapter id: ${e}`);
 				h.push(t);
 			}
 		}
-		let g = t.length, _ = r.length, v = 0, y = [], b = [], x = [], ee = [], te = [], S = s.stackSave(), ne = s.stackAlloc(g * c), re = s.stackAlloc(g * c), ie = s.stackAlloc(_ * c), ae = s.stackAlloc(_ * c);
+		let g = t.length, _ = r.length, v = 0, y = [], ee = [], b = [], te = [], ne = [], x = s.stackSave(), re = s.stackAlloc(g * c), ie = s.stackAlloc(g * c), ae = s.stackAlloc(_ * c), oe = s.stackAlloc(_ * c);
 		try {
-			for (let e of o) K.set(e, (K.get(e) ?? 0) + 1);
-			[v, y] = Jt(a, h), A("wasm prepareInputOutputTensor");
-			for (let r = 0; r < g; r++) await wn(n[r], b, ee, e, d[t[r]], t[r], m);
-			for (let t = 0; t < _; t++) await wn(i[t], x, ee, e, f[r[t]], g + r[t], m);
-			j("wasm prepareInputOutputTensor");
-			for (let e = 0; e < g; e++) s.setValue(ne + e * c, b[e], "*"), s.setValue(re + e * c, d[t[e]], "*");
-			for (let e = 0; e < _; e++) s.setValue(ie + e * c, x[e], "*"), s.setValue(ae + e * c, f[r[e]], "*");
+			for (let e of o) G.set(e, (G.get(e) ?? 0) + 1);
+			[v, y] = $t(a, h), k("wasm prepareInputOutputTensor");
+			for (let r = 0; r < g; r++) await kn(n[r], ee, te, e, d[t[r]], t[r], m);
+			for (let t = 0; t < _; t++) await kn(i[t], b, te, e, f[r[t]], g + r[t], m);
+			A("wasm prepareInputOutputTensor");
+			for (let e = 0; e < g; e++) s.setValue(re + e * c, ee[e], "*"), s.setValue(ie + e * c, d[t[e]], "*");
+			for (let e = 0; e < _; e++) s.setValue(ae + e * c, b[e], "*"), s.setValue(oe + e * c, f[r[e]], "*");
 			s.jsepOnRunStart?.(u), s.webnnOnRunStart?.(u);
 			let l;
-			l = await s._OrtRun(u, re, ne, g, ae, _, ie, v), l !== 0 && V("failed to call OrtRun().");
-			let S = [], oe = [];
-			A("wasm ProcessOutputTensor");
+			l = await s._OrtRun(u, ie, re, g, oe, _, ae, v), l !== 0 && B("failed to call OrtRun().");
+			let x = [], se = [];
+			k("wasm ProcessOutputTensor");
 			for (let t = 0; t < _; t++) {
-				let n = Number(s.getValue(ie + t * c, "*"));
-				if (n === x[t] || te.includes(x[t])) {
-					S.push(i[t]), n !== x[t] && s._OrtReleaseTensor(n) !== 0 && V("Can't release tensor.");
+				let n = Number(s.getValue(ae + t * c, "*"));
+				if (n === b[t] || ne.includes(b[t])) {
+					x.push(i[t]), n !== b[t] && s._OrtReleaseTensor(n) !== 0 && B("Can't release tensor.");
 					continue;
 				}
 				let a = s.stackSave(), o = s.stackAlloc(4 * c), l = !1, u, d = 0;
 				try {
-					s._OrtGetTensorData(n, o, o + c, o + 2 * c, o + 3 * c) !== 0 && V(`Can't access output tensor data on index ${t}.`);
+					s._OrtGetTensorData(n, o, o + c, o + 2 * c, o + 3 * c) !== 0 && B(`Can't access output tensor data on index ${t}.`);
 					let i = c === 4 ? "i32" : "i64", a = Number(s.getValue(o, i));
 					d = s.getValue(o + c, "*");
 					let f = s.getValue(o + c * 2, "*"), m = Number(s.getValue(o + c * 3, i)), h = [];
 					for (let e = 0; e < m; e++) h.push(Number(s.getValue(f + e * c, i)));
-					s._OrtFree(f) !== 0 && V("Can't free memory for tensor dims.");
+					s._OrtFree(f) !== 0 && B("Can't free memory for tensor dims.");
 					let g = h.reduce((e, t) => e * t, 1);
-					u = nn(a);
+					u = cn(a);
 					let _ = p?.outputPreferredLocations[r[t]];
 					if (u === "string") {
 						if (_ === "gpu-buffer" || _ === "ml-tensor") throw Error("String tensor is not supported on GPU.");
@@ -2249,7 +2301,7 @@ var bt, xt, St, Ct = C(() => {
 							let n = s.getValue(d + t * c, "*"), r = s.getValue(d + (t + 1) * c, "*"), i = t === g - 1 ? void 0 : r - n;
 							e.push(s.UTF8ToString(n, i));
 						}
-						S.push([
+						x.push([
 							u,
 							h,
 							e,
@@ -2258,16 +2310,16 @@ var bt, xt, St, Ct = C(() => {
 					} else if (_ === "gpu-buffer" && g > 0) {
 						let e = s.jsepGetBuffer;
 						if (!e) throw Error("preferredLocation \"gpu-buffer\" is not supported without using WebGPU.");
-						let t = e(d), r = W(a, g);
-						if (r === void 0 || !on(u)) throw Error(`Unsupported data type: ${u}`);
-						l = !0, S.push([
+						let t = e(d), r = U(a, g);
+						if (r === void 0 || !dn(u)) throw Error(`Unsupported data type: ${u}`);
+						l = !0, x.push([
 							u,
 							h,
 							{
 								gpuBuffer: t,
 								download: s.jsepCreateDownloader(t, r, u),
 								dispose: () => {
-									s._OrtReleaseTensor(n) !== 0 && V("Can't release tensor.");
+									s._OrtReleaseTensor(n) !== 0 && B("Can't release tensor.");
 								}
 							},
 							"gpu-buffer"
@@ -2275,10 +2327,10 @@ var bt, xt, St, Ct = C(() => {
 					} else if (_ === "ml-tensor" && g > 0) {
 						let t = s.webnnEnsureTensor, r = s.webnnIsGraphInputOutputTypeSupported;
 						if (!t || !r) throw Error("preferredLocation \"ml-tensor\" is not supported without using WebNN.");
-						if (W(a, g) === void 0 || !sn(u)) throw Error(`Unsupported data type: ${u}`);
+						if (U(a, g) === void 0 || !fn(u)) throw Error(`Unsupported data type: ${u}`);
 						if (!r(e, u, !1)) throw Error(`preferredLocation "ml-tensor" for ${u} output is not supported by current WebNN Context.`);
 						let i = await t(e, d, a, h, !1);
-						l = !0, S.push([
+						l = !0, x.push([
 							u,
 							h,
 							{
@@ -2291,19 +2343,19 @@ var bt, xt, St, Ct = C(() => {
 							"ml-tensor"
 						]);
 					} else if (_ === "ml-tensor-cpu-output" && g > 0) {
-						let e = s.webnnCreateMLTensorDownloader(d, u)(), t = S.length;
-						l = !0, oe.push((async () => {
+						let e = s.webnnCreateMLTensorDownloader(d, u)(), t = x.length;
+						l = !0, se.push((async () => {
 							let r = [t, await e];
 							return s.webnnReleaseTensorId(d), s._OrtReleaseTensor(n), r;
-						})()), S.push([
+						})()), x.push([
 							u,
 							h,
 							[],
 							"cpu"
 						]);
 					} else {
-						let e = new (rn(u))(g);
-						new Uint8Array(e.buffer, e.byteOffset, e.byteLength).set(s.HEAPU8.subarray(d, d + e.byteLength)), S.push([
+						let e = new (ln(u))(g);
+						new Uint8Array(e.buffer, e.byteOffset, e.byteLength).set(s.HEAPU8.subarray(d, d + e.byteLength)), x.push([
 							u,
 							h,
 							e,
@@ -2314,7 +2366,7 @@ var bt, xt, St, Ct = C(() => {
 					s.stackRestore(a), u === "string" && d && s._free(d), l || s._OrtReleaseTensor(n);
 				}
 			}
-			p && !m && (s._OrtClearBoundOutputs(p.handle) !== 0 && V("Can't clear bound outputs."), G.set(e, [
+			p && !m && (s._OrtClearBoundOutputs(p.handle) !== 0 && B("Can't clear bound outputs."), W.set(e, [
 				u,
 				d,
 				f,
@@ -2322,21 +2374,21 @@ var bt, xt, St, Ct = C(() => {
 				m,
 				!1
 			]));
-			for (let [e, t] of await Promise.all(oe)) S[e][2] = t;
-			return j("wasm ProcessOutputTensor"), S;
+			for (let [e, t] of await Promise.all(se)) x[e][2] = t;
+			return A("wasm ProcessOutputTensor"), x;
 		} finally {
-			s.webnnOnRunEnd?.(u), s.stackRestore(S), b.forEach((e) => s._OrtReleaseTensor(e)), x.forEach((e) => s._OrtReleaseTensor(e)), ee.forEach((e) => s._free(e)), v !== 0 && s._OrtReleaseRunOptions(v), y.forEach((e) => s._free(e));
+			s.webnnOnRunEnd?.(u), s.stackRestore(x), ee.forEach((e) => s._OrtReleaseTensor(e)), b.forEach((e) => s._OrtReleaseTensor(e)), te.forEach((e) => s._free(e)), v !== 0 && s._OrtReleaseRunOptions(v), y.forEach((e) => s._free(e));
 			for (let e of o) {
-				let t = K.get(e) - 1;
-				t === 0 ? K.delete(e) : K.set(e, t);
+				let t = G.get(e) - 1;
+				t === 0 ? G.delete(e) : G.set(e, t);
 			}
 		}
-	}, En = (e) => {
-		let t = R(), n = G.get(e);
+	}, jn = (e) => {
+		let t = L(), n = W.get(e);
 		if (!n) throw Error("invalid session id");
 		let r = n[0], i = t._OrtEndProfiling(r);
-		i === 0 && V("Can't get an profile file name."), t._OrtFree(i);
-	}, Dn = (e) => {
+		i === 0 && B("Can't get an profile file name."), t._OrtFree(i);
+	}, Mn = (e) => {
 		let t = [];
 		for (let n of e) {
 			let e = n[2];
@@ -2344,16 +2396,16 @@ var bt, xt, St, Ct = C(() => {
 		}
 		return t;
 	};
-}), q, J, Y, kn, An, jn, Mn, Nn, X, Z, Pn, Fn, In, Ln, Rn, zn, Bn, Vn, Hn, Un, Wn = C(() => {
-	I(), On(), z(), Lt(), dn(), q = () => !!D.wasm.proxy && typeof document < "u", Y = !1, kn = !1, An = !1, Nn = /* @__PURE__ */ new Map(), X = (e, t) => {
-		let n = Nn.get(e);
-		n ? n.push(t) : Nn.set(e, [t]);
-	}, Z = () => {
-		if (Y || !kn || An || !J) throw Error("worker not ready");
-	}, Pn = (e) => {
+}), K, q, J, Pn, Fn, In, Ln, Rn, Y, X, zn, Bn, Vn, Hn, Un, Wn, Gn, Kn, qn, Jn, Yn = S(() => {
+	F(), Nn(), R(), Ht(), gn(), K = () => !!E.wasm.proxy && typeof document < "u", J = !1, Pn = !1, Fn = !1, Rn = /* @__PURE__ */ new Map(), Y = (e, t) => {
+		let n = Rn.get(e);
+		n ? n.push(t) : Rn.set(e, [t]);
+	}, X = () => {
+		if (J || !Pn || Fn || !q) throw Error("worker not ready");
+	}, zn = (e) => {
 		switch (e.data.type) {
 			case "init-wasm":
-				Y = !1, e.data.err ? (An = !0, Mn[1](e.data.err)) : (kn = !0, Mn[0]()), jn &&= (URL.revokeObjectURL(jn), void 0);
+				J = !1, e.data.err ? (Fn = !0, Ln[1](e.data.err)) : (Pn = !0, Ln[0]()), In &&= (URL.revokeObjectURL(In), void 0);
 				break;
 			case "init-ep":
 			case "copy-from":
@@ -2361,66 +2413,66 @@ var bt, xt, St, Ct = C(() => {
 			case "release":
 			case "run":
 			case "end-profiling": {
-				let t = Nn.get(e.data.type);
+				let t = Rn.get(e.data.type);
 				e.data.err ? t.shift()[1](e.data.err) : t.shift()[0](e.data.out);
 				break;
 			}
 		}
-	}, Fn = async () => {
-		if (!kn) {
-			if (Y) throw Error("multiple calls to 'initWasm()' detected.");
-			if (An) throw Error("previous call to 'initWasm()' failed.");
-			if (Y = !0, q()) return new Promise((e, t) => {
-				J?.terminate(), Pt().then(([n, r]) => {
+	}, Bn = async () => {
+		if (!Pn) {
+			if (J) throw Error("multiple calls to 'initWasm()' detected.");
+			if (Fn) throw Error("previous call to 'initWasm()' failed.");
+			if (J = !0, K()) return new Promise((e, t) => {
+				q?.terminate(), zt().then(([n, r]) => {
 					try {
-						J = r, J.onerror = (e) => t(e), J.onmessage = Pn, Mn = [e, t];
+						q = r, q.onerror = (e) => t(e), q.onmessage = zn, Ln = [e, t];
 						let i = {
 							type: "init-wasm",
-							in: D
+							in: E
 						};
 						if (!i.in.wasm.wasmPaths && n) {
-							let e = Dt();
+							let e = Mt();
 							e && (i.in.wasm.wasmPaths = e);
 						}
-						J.postMessage(i), jn = n;
+						q.postMessage(i), In = n;
 					} catch (e) {
 						t(e);
 					}
 				}, t);
 			});
 			try {
-				await Gt(D.wasm), await pn(D), kn = !0;
+				await Xt(E.wasm), await vn(E), Pn = !0;
 			} catch (e) {
-				throw An = !0, e;
+				throw Fn = !0, e;
 			} finally {
-				Y = !1;
+				J = !1;
 			}
 		}
-	}, In = async (e) => {
-		if (q()) return Z(), new Promise((t, n) => {
-			X("init-ep", [t, n]);
+	}, Vn = async (e) => {
+		if (K()) return X(), new Promise((t, n) => {
+			Y("init-ep", [t, n]);
 			let r = {
 				type: "init-ep",
 				in: {
 					epName: e,
-					env: D
+					env: E
 				}
 			};
-			J.postMessage(r);
+			q.postMessage(r);
 		});
-		await mn(D, e);
-	}, Ln = async (e) => q() ? (Z(), new Promise((t, n) => {
-		X("copy-from", [t, n]);
+		await yn(E, e);
+	}, Hn = async (e) => K() ? (X(), new Promise((t, n) => {
+		Y("copy-from", [t, n]);
 		let r = {
 			type: "copy-from",
 			in: { buffer: e }
 		};
-		J.postMessage(r, [e.buffer]);
-	})) : _n(e), Rn = async (e, t) => {
-		if (q()) {
+		q.postMessage(r, [e.buffer]);
+	})) : Sn(e), Un = async (e, t) => {
+		if (K()) {
 			if (t?.preferredOutputLocation) throw Error("session option \"preferredOutputLocation\" is not supported for proxy.");
-			return Z(), new Promise((n, r) => {
-				X("create", [n, r]);
+			return X(), new Promise((n, r) => {
+				Y("create", [n, r]);
 				let i = {
 					type: "create",
 					in: {
@@ -2428,34 +2480,34 @@ var bt, xt, St, Ct = C(() => {
 						options: { ...t }
 					}
 				}, a = [];
-				e instanceof Uint8Array && a.push(e.buffer), J.postMessage(i, a);
+				e instanceof Uint8Array && a.push(e.buffer), q.postMessage(i, a);
 			});
 		}
-		return vn(e, t);
-	}, zn = async (e) => {
-		if (q()) return Z(), new Promise((t, n) => {
-			X("release", [t, n]);
+		return Cn(e, t);
+	}, Wn = async (e) => {
+		if (K()) return X(), new Promise((t, n) => {
+			Y("release", [t, n]);
 			let r = {
 				type: "release",
 				in: e
 			};
-			J.postMessage(r);
+			q.postMessage(r);
 		});
-		yn(e);
-	}, Bn = async (e) => {
-		if (q()) throw Error("LoRA adapter is not supported for proxy.");
-		let t = typeof e == "string" ? await un(e) : e;
-		return Sn(t);
-	}, Vn = async (e) => {
-		if (q()) throw Error("LoRA adapter is not supported for proxy.");
-		Cn(e);
-	}, Hn = async (e, t, n, r, i, a, o) => {
-		if (q()) {
+		wn(e);
+	}, Gn = async (e) => {
+		if (K()) throw Error("LoRA adapter is not supported for proxy.");
+		let t = typeof e == "string" ? await hn(e) : e;
+		return Dn(t);
+	}, Kn = async (e) => {
+		if (K()) throw Error("LoRA adapter is not supported for proxy.");
+		On(e);
+	}, qn = async (e, t, n, r, i, a, o) => {
+		if (K()) {
 			if (o.length > 0) throw Error("LoRA adapter is not supported for proxy.");
 			if (n.some((e) => e[3] !== "cpu")) throw Error("input tensor on GPU is not supported for proxy.");
 			if (i.some((e) => e)) throw Error("pre-allocated output tensor is not supported for proxy.");
-			return Z(), new Promise((i, o) => {
-				X("run", [i, o]);
+			return X(), new Promise((i, o) => {
+				Y("run", [i, o]);
 				let s = n, c = {
 					type: "run",
 					in: {
@@ -2466,32 +2518,32 @@ var bt, xt, St, Ct = C(() => {
 						options: a
 					}
 				};
-				J.postMessage(c, Dn(s));
+				q.postMessage(c, Mn(s));
 			});
 		}
-		return Tn(e, t, n, r, i, a, o);
-	}, Un = async (e) => {
-		if (q()) return Z(), new Promise((t, n) => {
-			X("end-profiling", [t, n]);
+		return An(e, t, n, r, i, a, o);
+	}, Jn = async (e) => {
+		if (K()) return X(), new Promise((t, n) => {
+			Y("end-profiling", [t, n]);
 			let r = {
 				type: "end-profiling",
 				in: e
 			};
-			J.postMessage(r);
+			q.postMessage(r);
 		});
-		En(e);
+		jn(e);
 	};
-}), Gn, Kn = C(() => {
-	I(), Wn(), Gn = class {
+}), Xn, Zn = S(() => {
+	F(), Yn(), Xn = class {
 		async loadAdapter(e) {
-			O(), this.adapterId = await Bn(e), k();
+			D(), this.adapterId = await Gn(e), O();
 		}
 		async dispose() {
-			return Vn(this.adapterId);
+			return Kn(this.adapterId);
 		}
 	};
-}), qn, Jn, Yn, Xn = C(() => {
-	I(), Kn(), Wn(), ln(), vt(), dn(), qn = (e, t) => {
+}), Qn, $n, er, tr = S(() => {
+	F(), Zn(), Yn(), mn(), Ct(), gn(), Qn = (e, t) => {
 		switch (e.location) {
 			case "cpu": return [
 				e.type,
@@ -2513,14 +2565,14 @@ var bt, xt, St, Ct = C(() => {
 			];
 			default: throw Error(`invalid data location: ${e.location} for ${t()}`);
 		}
-	}, Jn = (e) => {
+	}, $n = (e) => {
 		switch (e[3]) {
-			case "cpu": return new P(e[0], e[2], e[1]);
+			case "cpu": return new N(e[0], e[2], e[1]);
 			case "gpu-buffer": {
 				let t = e[0];
-				if (!on(t)) throw Error(`not supported data type: ${t} for deserializing GPU tensor`);
+				if (!dn(t)) throw Error(`not supported data type: ${t} for deserializing GPU tensor`);
 				let { gpuBuffer: n, download: r, dispose: i } = e[2];
-				return P.fromGpuBuffer(n, {
+				return N.fromGpuBuffer(n, {
 					dataType: t,
 					dims: e[1],
 					download: r,
@@ -2529,9 +2581,9 @@ var bt, xt, St, Ct = C(() => {
 			}
 			case "ml-tensor": {
 				let t = e[0];
-				if (!sn(t)) throw Error(`not supported data type: ${t} for deserializing MLTensor tensor`);
+				if (!fn(t)) throw Error(`not supported data type: ${t} for deserializing MLTensor tensor`);
 				let { mlTensor: n, download: r, dispose: i } = e[2];
-				return P.fromMLTensor(n, {
+				return N.fromMLTensor(n, {
 					dataType: t,
 					dims: e[1],
 					download: r,
@@ -2540,22 +2592,22 @@ var bt, xt, St, Ct = C(() => {
 			}
 			default: throw Error(`invalid data location: ${e[3]}`);
 		}
-	}, Yn = class {
+	}, er = class {
 		async fetchModelAndCopyToWasmMemory(e) {
-			return Ln(await un(e));
+			return Hn(await hn(e));
 		}
 		async loadModel(e, t) {
-			O();
+			D();
 			let n;
-			n = typeof e == "string" ? await this.fetchModelAndCopyToWasmMemory(e) : e, [this.sessionId, this.inputNames, this.outputNames, this.inputMetadata, this.outputMetadata] = await Rn(n, t), k();
+			n = typeof e == "string" ? await this.fetchModelAndCopyToWasmMemory(e) : e, [this.sessionId, this.inputNames, this.outputNames, this.inputMetadata, this.outputMetadata] = await Un(n, t), O();
 		}
 		async dispose() {
-			return zn(this.sessionId);
+			return Wn(this.sessionId);
 		}
 		async run(e, t, n, r = []) {
-			O();
+			D();
 			let i = r.map((e) => {
-				if (!(e instanceof Gn)) throw Error("LoRA adapter was not created by the WebAssembly backend.");
+				if (!(e instanceof Xn)) throw Error("LoRA adapter was not created by the WebAssembly backend.");
 				return e.adapterId;
 			}), a = [], o = [];
 			Object.entries(e).forEach((e) => {
@@ -2569,69 +2621,70 @@ var bt, xt, St, Ct = C(() => {
 				if (r === -1) throw Error(`invalid output '${t}'`);
 				s.push(n), c.push(r);
 			});
-			let l = a.map((e, t) => qn(e, () => `input "${this.inputNames[o[t]]}"`)), u = s.map((e, t) => e ? qn(e, () => `output "${this.outputNames[c[t]]}"`) : null), d = await Hn(this.sessionId, o, l, c, u, n, i), f = {};
-			for (let e = 0; e < d.length; e++) f[this.outputNames[c[e]]] = s[e] ?? Jn(d[e]);
-			return k(), f;
+			let l = a.map((e, t) => Qn(e, () => `input "${this.inputNames[o[t]]}"`)), u = s.map((e, t) => e ? Qn(e, () => `output "${this.outputNames[c[t]]}"`) : null), d = await qn(this.sessionId, o, l, c, u, n, i), f = {};
+			for (let e = 0; e < d.length; e++) f[this.outputNames[c[e]]] = s[e] ?? $n(d[e]);
+			return O(), f;
 		}
 		startProfiling() {}
 		endProfiling() {
-			Un(this.sessionId);
+			Jn(this.sessionId);
 		}
 	};
-}), Zn, Qn = C(() => {
-	Zn = (e) => {
+}), nr, rr = S(() => {
+	nr = (e) => {
 		if (e?.epContextDataRead) throw Error("session option \"epContextDataRead\" is not supported by ONNX Runtime Web");
 	};
-}), $n = {};
-we($n, {
-	OnnxruntimeWebAssemblyBackend: () => tr,
-	initializeFlags: () => er,
-	wasmBackend: () => nr
+}), ir = {};
+ke(ir, {
+	OnnxruntimeWebAssemblyBackend: () => or,
+	initializeFlags: () => ar,
+	wasmBackend: () => sr
 });
-var er, tr, nr, rr = C(() => {
-	I(), Kn(), Wn(), Xn(), Qn(), er = () => {
-		(typeof D.wasm.initTimeout != "number" || D.wasm.initTimeout < 0) && (D.wasm.initTimeout = 0);
-		let e = D.wasm.simd;
-		if (typeof e != "boolean" && e !== void 0 && e !== "fixed" && e !== "relaxed" && (console.warn(`Property "env.wasm.simd" is set to unknown value "${e}". Reset it to \`false\` and ignore SIMD feature checking.`), D.wasm.simd = !1), typeof D.wasm.proxy != "boolean" && (D.wasm.proxy = !1), typeof D.wasm.trace != "boolean" && (D.wasm.trace = !1), typeof D.wasm.numThreads != "number" || !Number.isInteger(D.wasm.numThreads) || D.wasm.numThreads <= 0) {
-			if (typeof self < "u" && !self.crossOriginIsolated) D.wasm.numThreads = 1;
+var ar, or, sr, cr = S(() => {
+	F(), Zn(), Yn(), tr(), rr(), ar = () => {
+		(typeof E.wasm.initTimeout != "number" || E.wasm.initTimeout < 0) && (E.wasm.initTimeout = 0);
+		let e = E.wasm.simd;
+		if (typeof e != "boolean" && e !== void 0 && e !== "fixed" && e !== "relaxed" && (console.warn(`Property "env.wasm.simd" is set to unknown value "${e}". Reset it to \`false\` and ignore SIMD feature checking.`), E.wasm.simd = !1), typeof E.wasm.proxy != "boolean" && (E.wasm.proxy = !1), typeof E.wasm.trace != "boolean" && (E.wasm.trace = !1), typeof E.wasm.numThreads != "number" || !Number.isInteger(E.wasm.numThreads) || E.wasm.numThreads <= 0) {
+			if (typeof self < "u" && !self.crossOriginIsolated) E.wasm.numThreads = 1;
 			else {
-				let e = typeof navigator > "u" ? Ce("node:os").cpus().length : navigator.hardwareConcurrency;
-				D.wasm.numThreads = Math.min(4, Math.ceil((e || 1) / 2));
+				let e = typeof navigator > "u" ? Oe("node:os").cpus().length : navigator.hardwareConcurrency;
+				E.wasm.numThreads = Math.min(4, Math.ceil((e || 1) / 2));
 			}
 		}
-	}, tr = class {
+	}, or = class {
 		async init(e) {
-			er(), await Fn(), await In(e);
+			ar(), await Bn(), await Vn(e);
 		}
 		async createInferenceSessionHandler(e, t) {
-			Zn(t);
-			let n = new Yn();
+			nr(t);
+			let n = new er();
 			return await n.loadModel(e, t), n;
 		}
 		async createLoraAdapterHandler(e) {
-			let t = new Gn();
+			let t = new Xn();
 			return await t.loadAdapter(e), t;
 		}
-	}, nr = new tr();
+	}, sr = new or();
 });
-I(), I(), I();
-var ir = "1.31.1";
+F(), F(), F();
+var lr = "1.31.1";
 {
-	let e = (rr(), Ee($n)).wasmBackend;
-	Oe("cpu", e, 10), Oe("wasm", e, 10);
+	let e = (cr(), je(ir)).wasmBackend;
+	Ne("cpu", e, 10), Ne("wasm", e, 10);
 }
-Object.defineProperty(D.versions, "web", {
-	value: ir,
+Object.defineProperty(E.versions, "web", {
+	value: lr,
 	enumerable: !0
 });
 // src/wakeword.ts
-var ar = {
+var ur = {
 	io_broker: "io_broker.onnx",
+	iobroker_new: "iobroker_new.onnx",
 	hey_jarvis: "hey_jarvis_v0.1.onnx",
 	alexa: "alexa_v0.1.onnx",
 	hey_mycroft: "hey_mycroft_v0.1.onnx",
 	hey_rhasspy: "hey_rhasspy_v0.1.onnx"
-}, or = 32, sr = 76, cr = 8, lr = 96, ur = 16, dr = class {
+}, Z = 32, dr = 76, fr = 8, pr = 96, mr = 16, hr = class {
 	mel;
 	embedding;
 	classifiers = [];
@@ -2640,7 +2693,7 @@ var ar = {
 	embeddings = [];
 	threshold = .5;
 	async initialize(e) {
-		await this.dispose(), D.wasm.numThreads = 1, D.wasm.proxy = !1, D.wasm.wasmPaths = {
+		await this.dispose(), E.wasm.numThreads = 1, E.wasm.proxy = !1, E.wasm.wasmPaths = {
 			mjs: new URL("wasm/ort-wasm-simd-threaded.mjs", e.assetBase).href,
 			wasm: new URL("wasm/ort-wasm-simd-threaded.wasm", e.assetBase).href
 		}, this.threshold = Math.max(.01, Math.min(1, e.threshold));
@@ -2650,9 +2703,9 @@ var ar = {
 			return new Uint8Array(await n.arrayBuffer());
 		});
 		try {
-			this.mel = await F.create(await t("melspectrogram.onnx")), this.embedding = await F.create(await t("embedding_model.onnx"));
+			this.mel = await P.create(await t("melspectrogram.onnx")), this.embedding = await P.create(await t("embedding_model.onnx"));
 			for (let n of e.names) {
-				let r = ar[n], i = r ? await F.create(await t(r)) : await F.create(await e.getUploadedModel(n));
+				let r = ur[n], i = r ? await P.create(await t(r)) : await P.create(await e.getUploadedModel(n));
 				this.classifiers.push({
 					name: n,
 					session: i
@@ -2665,45 +2718,45 @@ var ar = {
 	}
 	async processAudio(e) {
 		if (!this.mel || !this.embedding || !this.classifiers.length) throw Error("Wake word engine not initialized");
-		let t = Float32Array.from(e, (e) => Math.round(Math.max(-1, Math.min(1, e)) * 32767)), n = (await this.mel.run({ [this.mel.inputNames[0]]: new P("float32", t, [1, t.length]) }))[this.mel.outputNames[0]], r = n.data, i = Number(n.dims[2]);
-		if (!Number.isInteger(i) || r.length < i * or) throw Error("Unexpected mel model output");
+		let t = Float32Array.from(e, (e) => Math.round(Math.max(-1, Math.min(1, e)) * 32767)), n = (await this.mel.run({ [this.mel.inputNames[0]]: new N("float32", t, [1, t.length]) }))[this.mel.outputNames[0]], r = n.data, i = Number(n.dims[2]);
+		if (!Number.isInteger(i) || r.length < i * Z) throw Error("Unexpected mel model output");
 		for (let e = 0; e < i; e++) {
-			let t = new Float32Array(or);
-			for (let n = 0; n < or; n++) t[n] = r[e * or + n] / 10 + 2;
+			let t = new Float32Array(Z);
+			for (let n = 0; n < Z; n++) t[n] = r[e * Z + n] / 10 + 2;
 			this.melRows.push(t);
 		}
-		for (; this.melProcessed + sr <= this.melRows.length;) {
+		for (; this.melProcessed + dr <= this.melRows.length;) {
 			let e = /* @__PURE__ */ new Float32Array(2432);
-			for (let t = 0; t < sr; t++) e.set(this.melRows[this.melProcessed + t], t * or);
-			let t = (await this.embedding.run({ [this.embedding.inputNames[0]]: new P("float32", e, [
+			for (let t = 0; t < dr; t++) e.set(this.melRows[this.melProcessed + t], t * Z);
+			let t = (await this.embedding.run({ [this.embedding.inputNames[0]]: new N("float32", e, [
 				1,
-				sr,
-				or,
+				dr,
+				Z,
 				1
 			]) }))[this.embedding.outputNames[0]].data;
-			if (t.length < lr) throw Error("Unexpected embedding model output");
-			this.embeddings.push(t.slice(0, lr)), this.melProcessed += cr;
+			if (t.length < pr) throw Error("Unexpected embedding model output");
+			this.embeddings.push(t.slice(0, pr)), this.melProcessed += fr;
 		}
-		if (this.melProcessed > sr) {
-			let e = this.melProcessed - sr;
+		if (this.melProcessed > dr) {
+			let e = this.melProcessed - dr;
 			this.melRows.splice(0, e), this.melProcessed -= e;
 		}
-		if (this.embeddings.length > 64 && this.embeddings.splice(0, this.embeddings.length - 64), this.embeddings.length < ur) return {
+		if (this.embeddings.length > 64 && this.embeddings.splice(0, this.embeddings.length - 64), this.embeddings.length < mr) return {
 			detected: !1,
 			confidence: 0,
 			timestamp: Date.now()
 		};
 		let a = /* @__PURE__ */ new Float32Array(1536);
-		for (let e = 0; e < ur; e++) a.set(this.embeddings[this.embeddings.length - ur + e], e * lr);
+		for (let e = 0; e < mr; e++) a.set(this.embeddings[this.embeddings.length - mr + e], e * pr);
 		let o = {
 			name: "",
 			confidence: 0
 		};
 		for (let { name: e, session: t } of this.classifiers) {
-			let n = await t.run({ [t.inputNames[0]]: new P("float32", a, [
+			let n = await t.run({ [t.inputNames[0]]: new N("float32", a, [
 				1,
-				ur,
-				lr
+				mr,
+				pr
 			]) }), r = Number(n[t.outputNames[0]].data[0]);
 			r > o.confidence && (o = {
 				name: e,
@@ -2728,6 +2781,75 @@ var ar = {
 		];
 		this.mel = void 0, this.embedding = void 0, this.classifiers = [], this.reset(), await Promise.all(e.filter((e) => !!e).map((e) => e.release()));
 	}
+}, gr = /* @__PURE__ */ new Set([
+	"success",
+	"clarification",
+	"cancelled",
+	"rejected",
+	"error"
+]);
+function _r(e) {
+	if (!e || typeof e != "object") throw Error("No response from smart-text2command");
+	let t = e;
+	return !("status" in t) && "message" in t && t.message && typeof t.message == "object" ? t.message : t;
+}
+var vr = class {
+	transport;
+	instance;
+	mode;
+	sessionId = crypto.randomUUID();
+	clarificationId = "";
+	pending = Promise.resolve();
+	constructor(e, t, n) {
+		if (this.transport = e, this.instance = t, this.mode = n, !/^smart-text2command\.\d+$/.test(t)) throw Error("Invalid smart-text2command instance");
+	}
+	process(e) {
+		let t = this.pending.then(() => this.processOne(e));
+		return this.pending = t.then(() => void 0, () => void 0), t;
+	}
+	async processOne(e) {
+		let t = e.trim();
+		if (!t || t.length > 1e3) throw Error("Recognized text must contain 1 to 1000 characters");
+		let n = {
+			requestId: crypto.randomUUID(),
+			sessionId: this.sessionId,
+			text: t,
+			mode: this.mode
+		};
+		this.clarificationId && (n.clarificationId = this.clarificationId);
+		let r, i;
+		try {
+			i = await Promise.race([this.transport.sendTo(this.instance, "processText", n), new Promise((e, t) => {
+				r = setTimeout(() => t(/* @__PURE__ */ Error("smart-text2command timed out")), 3e4);
+			})]);
+		} catch (e) {
+			throw this.clarificationId = "", e;
+		} finally {
+			r && clearTimeout(r);
+		}
+		let a;
+		try {
+			a = _r(i);
+		} catch (e) {
+			throw this.clarificationId = "", e;
+		}
+		if (typeof a.error == "string") throw this.clarificationId = "", Error(`smart-text2command: ${a.error}`);
+		if (!gr.has(a.status) || typeof a.response != "string") throw this.clarificationId = "", Error("Invalid smart-text2command response");
+		let o = a.status;
+		if (o === "clarification" && typeof a.clarification?.id != "string") throw this.clarificationId = "", Error("Invalid smart-text2command clarification");
+		return this.clarificationId = o === "clarification" && typeof a.clarification?.id == "string" ? a.clarification.id : "", {
+			text: a.response,
+			status: o
+		};
+	}
+};
+function yr(e, t, n, r) {
+	if (e === "smart-text2command") return new vr(t, n, r);
+}
+// src/service.ts
+var br = (e) => {
+	let t = Number(e);
+	return Number.isFinite(t) ? Math.max(1, Math.min(200, Math.floor(t))) : 50;
 }, Q = new class {
 	createEngine;
 	listeners = /* @__PURE__ */ new Set();
@@ -2737,7 +2859,8 @@ var ar = {
 		level: 0,
 		text: "",
 		error: "",
-		wakeword: ""
+		wakeword: "",
+		chat: []
 	};
 	socket;
 	options;
@@ -2756,7 +2879,9 @@ var ar = {
 	segments = /* @__PURE__ */ new Map();
 	lastLevelAt = 0;
 	activeAt = 0;
-	constructor(e = () => new dr()) {
+	processor;
+	processorKey = "";
+	constructor(e = () => new hr()) {
 		this.createEngine = e;
 	}
 	subscribe(e) {
@@ -2766,6 +2891,27 @@ var ar = {
 	}
 	get state() {
 		return this.snapshot;
+	}
+	updateDeliveryOptions(e) {
+		this.options && this.snapshot.enabled && (this.options = {
+			...this.options,
+			processorType: e.processorType,
+			processorInstance: e.processorInstance,
+			processorMode: e.processorMode,
+			forwardInstance: e.forwardInstance,
+			forwardCommand: e.forwardCommand,
+			resultState: e.resultState,
+			statusState: e.statusState,
+			errorState: e.errorState,
+			maxChatMessages: e.maxChatMessages
+		}, this.trimChat());
+	}
+	setChatLimit(e) {
+		this.chatRetentionLimit = br(e), this.trimChat();
+	}
+	chatRetentionLimit = 50;
+	trimChat() {
+		this.snapshot.chat.length > this.chatRetentionLimit && this.publish({ chat: this.snapshot.chat.slice(-this.chatRetentionLimit) });
 	}
 	publish(e) {
 		this.snapshot = {
@@ -2786,7 +2932,7 @@ var ar = {
 	async enable(e, t) {
 		if (this.snapshot.enabled || this.snapshot.phase === "initializing") return;
 		let n = ++this.generation;
-		this.socket = e, this.options = t, this.publish({
+		e !== this.socket && (this.processor = void 0, this.processorKey = ""), this.socket = e, this.options = t, this.setChatLimit(t.maxChatMessages), this.publish({
 			phase: "initializing",
 			error: "",
 			text: "",
@@ -2814,7 +2960,7 @@ var ar = {
 				}
 			}
 			if (n !== this.generation) return;
-			let r = new AudioContext({ sampleRate: pe });
+			let r = new AudioContext({ sampleRate: ve });
 			this.context = r, await r.resume();
 			let i = await navigator.mediaDevices.getUserMedia({ audio: {
 				deviceId: t.microphone ? { ideal: t.microphone } : void 0,
@@ -2844,7 +2990,7 @@ var ar = {
 				e.pcm && n === this.generation && this.onAudio(new Float32Array(e.pcm));
 			}, a.connect(s), s.connect(r.destination), i.getAudioTracks().forEach((e) => {
 				e.onended = () => void this.disable();
-			}), this.context = r, this.stream = i, this.source = a, this.node = s, this.ring = new ge(Math.round(pe * t.ringBufferMs / 1e3)), this.publish({
+			}), this.context = r, this.stream = i, this.source = a, this.node = s, this.ring = new xe(Math.round(ve * t.ringBufferMs / 1e3)), this.publish({
 				enabled: !0,
 				phase: "listening"
 			});
@@ -2914,13 +3060,13 @@ var ar = {
 			wakeword: e,
 			text: ""
 		}), n.activationTone && this.tone(880), this.activeAt = Date.now(), this.segments.clear();
-		let r = this.generation, i = n.stripWakeword ? /* @__PURE__ */ new Float32Array() : this.ring?.snapshot() || /* @__PURE__ */ new Float32Array(), a = this.client = new ve((e) => t.sendTo(n.parakeet, "live", e), (e) => this.onEvent(e), (e) => this.fail(e));
+		let r = this.generation, i = n.stripWakeword ? /* @__PURE__ */ new Float32Array() : this.ring?.snapshot() || /* @__PURE__ */ new Float32Array(), a = this.client = new Ce((e) => t.sendTo(n.parakeet, "live", e), (e) => this.onEvent(e), (e) => this.fail(e));
 		try {
 			if (await a.start(), r !== this.generation || this.client !== a) {
 				await a.cancel();
 				return;
 			}
-			this.vad = new _e(n), this.publish({ phase: "recording" }), i.length && a.push(i);
+			this.vad = new Se(n), this.publish({ phase: "recording" }), i.length && a.push(i);
 			let e = this.afterWake.splice(0);
 			for (let t of e) this.record(t);
 		} catch (e) {
@@ -2967,6 +3113,11 @@ var ar = {
 	async deliver(e, t) {
 		let n = this.socket, r = this.options;
 		if (!n || !r) return;
+		this.appendChat({
+			role: "user",
+			text: e,
+			timestamp: this.activeAt
+		});
 		let i = {
 			text: e,
 			timestamp: this.activeAt,
@@ -2974,11 +3125,46 @@ var ar = {
 			sessionId: t,
 			final: !0
 		};
-		if (r.resultState && await this.writeState(r.resultState, e), r.forwardInstance && r.forwardCommand) try {
+		if (r.resultState && await this.writeState(r.resultState, e), r.processorType === "smart-text2command") {
+			let t = this.appendChat({
+				role: "processor",
+				text: "",
+				timestamp: Date.now(),
+				status: "pending",
+				source: r.processorInstance || "smart-text2command"
+			});
+			try {
+				let i = `${r.processorType}/${r.processorInstance}/${r.processorMode}`;
+				this.processorKey === i && this.processor || (this.processor = yr(r.processorType, n, r.processorInstance, r.processorMode), this.processorKey = i);
+				let a = await this.processor.process(e);
+				this.updateChat(t, {
+					text: a.text,
+					status: a.status
+				});
+			} catch (e) {
+				this.updateChat(t, {
+					text: e.message,
+					status: "error"
+				}), this.publish({ error: e.message });
+			}
+		} else if (r.forwardInstance && r.forwardCommand) try {
 			await n.sendTo(r.forwardInstance, r.forwardCommand, i);
 		} catch (e) {
 			this.publish({ error: e.message });
 		}
+	}
+	appendChat(e) {
+		let t = crypto.randomUUID();
+		return this.publish({ chat: [...this.snapshot.chat, {
+			id: t,
+			...e
+		}].slice(-this.chatRetentionLimit) }), t;
+	}
+	updateChat(e, t) {
+		this.publish({ chat: this.snapshot.chat.map((n) => n.id === e ? {
+			...n,
+			...t
+		} : n) });
 	}
 	fail(e) {
 		this.publish({
@@ -2992,11 +3178,14 @@ var ar = {
 			level: 0
 		});
 	}
-}(), fr = "\n:host { display:block; width:100%; height:100%; color:inherit; font:inherit; }\n* { box-sizing:border-box; }\n.wakeword { width:100%; height:100%; padding:var(--wakeword-padding, 16px); background:transparent; color:inherit; font:inherit; text-align:inherit; overflow:auto; }\n.top { display:flex; align-items:center; gap:16px; }\n.mic { width:64px; height:64px; border:0; border-radius:50%; background:color-mix(in srgb, currentColor 12%, transparent); color:inherit; font:inherit; cursor:pointer; display:grid; place-items:center; flex:none; }\n.mic.on { background:var(--wake-accent, var(--iob-primary, #2563eb)); color:var(--iob-primary-contrast, #fff); box-shadow:0 0 0 5px color-mix(in srgb, var(--wake-accent, var(--iob-primary, #2563eb)) 18%, transparent); }\n.mic:disabled { opacity:.55; cursor:default; }\n.mic svg { width:34px; height:34px; fill:currentColor; }\n.status { display:flex; flex-direction:column; gap:4px; min-width:0; }\n.status strong { font-weight:inherit; }\n.status small { opacity:.7; }\n.meter { height:5px; background:color-mix(in srgb,currentColor 15%,transparent); border-radius:99px; margin-top:16px; overflow:hidden; }\n.meter span { display:block; height:100%; background:var(--wake-accent, var(--iob-primary, #2563eb)); transition:width .1s linear; }\n.text { margin:14px 0 0; overflow-wrap:anywhere; }\n.error { color:var(--iob-error, #dc2626); margin:12px 0 0; }\n.actions { display:flex; gap:8px; margin-top:14px; }\n.actions button { border:1px solid var(--wake-accent, var(--iob-primary, #2563eb)); color:var(--wake-accent, var(--iob-primary, #2563eb)); background:transparent; border-radius:var(--iob-border-radius, 6px); padding:6px 12px; cursor:pointer; font:inherit; }\n.actions button:disabled { opacity:.5; }\n.compact { padding:var(--wakeword-padding, 8px); }\n.compact .mic { width:42px; height:42px; }\n.compact .mic svg { width:25px; height:25px; }\n.compact .meter { margin-top:8px; }\n@media (prefers-reduced-motion:reduce) { .meter span { transition:none; } }\n", pr = (e, t) => {
+}(), xr = "\n:host { display:block; width:100%; height:100%; color:inherit; font:inherit; }\n* { box-sizing:border-box; }\n.wakeword { width:100%; height:100%; min-height:0; display:flex; flex-direction:column; padding:var(--wakeword-padding, 16px); background:transparent; color:inherit; font:inherit; text-align:inherit; overflow:auto; }\n.wakeword.with-chat { overflow:hidden; }\n.top { display:flex; align-items:center; gap:16px; }\n.mic { width:64px; height:64px; border:0; border-radius:50%; background:color-mix(in srgb, currentColor 12%, transparent); color:inherit; font:inherit; cursor:pointer; display:grid; place-items:center; flex:none; }\n.mic.on { background:var(--wake-accent, var(--iob-primary, #2563eb)); color:var(--iob-primary-contrast, #fff); box-shadow:0 0 0 5px color-mix(in srgb, var(--wake-accent, var(--iob-primary, #2563eb)) 18%, transparent); }\n.mic:disabled { opacity:.55; cursor:default; }\n.mic svg { width:34px; height:34px; fill:currentColor; }\n.status { display:flex; flex-direction:column; gap:4px; min-width:0; }\n.status strong { font-weight:inherit; }\n.status small { opacity:.7; }\n.meter { height:5px; background:color-mix(in srgb,currentColor 15%,transparent); border-radius:99px; margin-top:16px; overflow:hidden; }\n.meter span { display:block; height:100%; background:var(--wake-accent, var(--iob-primary, #2563eb)); transition:width .1s linear; }\n.text { margin:14px 0 0; overflow-wrap:anywhere; }\n.with-chat .text { max-height:3em; overflow-y:auto; }\n.error { color:var(--iob-error, #dc2626); margin:12px 0 0; }\n.chat { flex:1 1 0; min-height:0; margin-top:12px; padding:8px; overflow-y:auto; overscroll-behavior:contain; border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); }\n.chat-content { min-height:100%; }\n.chat-entry { max-width:90%; margin:0 0 10px; padding:6px 9px; border-radius:var(--iob-border-radius, 6px); background:var(--iob-paper, rgba(128,128,128,.08)); overflow-wrap:anywhere; }\n.chat-entry.user { margin-left:auto; background:color-mix(in srgb, var(--wake-accent, var(--iob-primary, #2563eb)) 14%, transparent); }\n.chat-entry.error { color:var(--iob-error, #dc2626); }\n.chat-entry p { margin:3px 0 0; white-space:pre-wrap; }\n.chat-source { font-size:.8em; opacity:.7; }\n.chat-empty { margin:0; opacity:.65; }\n.actions { display:flex; gap:8px; margin-top:14px; }\n.actions button { border:1px solid var(--wake-accent, var(--iob-primary, #2563eb)); color:var(--wake-accent, var(--iob-primary, #2563eb)); background:transparent; border-radius:var(--iob-border-radius, 6px); padding:6px 12px; cursor:pointer; font:inherit; }\n.actions button:disabled { opacity:.5; }\n.compact { padding:var(--wakeword-padding, 8px); }\n.compact .mic { width:42px; height:42px; }\n.compact .mic svg { width:25px; height:25px; }\n.compact .meter { margin-top:8px; }\n@media (prefers-reduced-motion:reduce) { .meter span { transition:none; } }\n", Sr = (e, t) => {
 	let n = (e || `${t}.0`).replace(/^system\.adapter\./, "");
 	return RegExp(`^${t.replaceAll("-", "\\-")}\\.\\d+$`).test(n) ? n : `${t}.0`;
-}, $ = (e, t) => Number.isFinite(Number(e)) ? Number(e) : t;
-le("iob-wakeword", class extends ce {
+}, $ = (e, t) => Number.isFinite(Number(e)) ? Number(e) : t, Cr = (e) => {
+	let t = (e || "").replace(/^system\.adapter\./, "");
+	return /^smart-text2command\.\d+$/.test(t) ? t : "";
+};
+pe("iob-wakeword", class extends fe {
 	#e;
 	#t;
 	#n = !1;
@@ -3005,7 +3194,7 @@ le("iob-wakeword", class extends ce {
 	constructor() {
 		super();
 		let t = this.attachShadow({ mode: "open" }), n = document.createElement("style");
-		n.textContent = fr;
+		n.textContent = xr;
 		let r = document.createElement("div");
 		r.style.height = "100%", t.append(n, r), this.#e = e(r);
 	}
@@ -3013,13 +3202,13 @@ le("iob-wakeword", class extends ce {
 		this.#t?.(), this.#t = void 0, this.#n = !1, this.#r = null, super.disconnectedCallback();
 	}
 	getStateIds(e) {
-		return [`system.adapter.${pr(e.parakeet, "ai-parakeet")}.alive`];
+		return [`system.adapter.${Sr(e.parakeet, "ai-parakeet")}.alive`];
 	}
 	render() {
 		this.#t ||= Q.subscribe((e) => {
 			this.#i = e, this.#s();
-		}), this.editMode && Q.state.enabled && Q.disable();
-		let e = pr(this.settings.parakeet, "ai-parakeet");
+		}), Q.setChatLimit(this.settings.maxChatMessages ?? 50), this.editMode && Q.state.enabled && Q.disable(), !this.editMode && this.socket && Q.updateDeliveryOptions(this.#a());
+		let e = Sr(this.settings.parakeet, "ai-parakeet");
 		if (this.states[`system.adapter.${e}.alive`]?.val === !1 && Q.connectionLost("Adapter is not running"), this.socket !== this.#r) {
 			let e = this.#r;
 			if (this.#r = this.socket, this.#n = !1, e && Q.state.enabled) {
@@ -3034,7 +3223,7 @@ le("iob-wakeword", class extends ce {
 	#a() {
 		let e = this.settings;
 		return {
-			parakeet: pr(e.parakeet, "ai-parakeet"),
+			parakeet: Sr(e.parakeet, "ai-parakeet"),
 			mode: e.mode || "wakeword",
 			microphone: e.microphone || "",
 			ringBufferMs: $(e.ringBufferMs, 1e3),
@@ -3050,23 +3239,29 @@ le("iob-wakeword", class extends ce {
 			resultState: e.resultState || "",
 			statusState: e.statusState || "",
 			errorState: e.errorState || "",
+			processorType: e.processorType === "smart-text2command" ? "smart-text2command" : "none",
+			processorInstance: Cr(e.processorInstance),
+			processorMode: e.processorMode === "analyze" ? "analyze" : "execute",
 			forwardInstance: e.forwardInstance || "",
-			forwardCommand: e.forwardCommand || ""
+			forwardCommand: e.forwardCommand || "",
+			maxChatMessages: br(e.maxChatMessages)
 		};
 	}
 	#o() {
 		return this.settings.language === "de" || this.settings.language === "en" ? this.settings.language : (this.systemLang || navigator.language).toLowerCase().startsWith("de") ? "de" : "en";
 	}
 	#s() {
-		let e = this.closest(".vis-widget")?.style, n = $(this.settings.fontSize, 0), r = e?.fontSize || n === 16 ? void 0 : n || void 0, i = this.settings.accentColor === "#2563eb" ? void 0 : this.settings.accentColor;
-		this.#e.render(/* @__PURE__ */ t(fe, {
+		let e = this.closest(".vis-widget")?.style, t = $(this.settings.fontSize, 0), n = e?.fontSize || t === 16 ? void 0 : t || void 0, r = this.settings.accentColor === "#2563eb" ? void 0 : this.settings.accentColor;
+		this.#e.render(/* @__PURE__ */ i(_e, {
 			snapshot: this.#i,
 			mode: this.settings.mode || "wakeword",
 			language: this.#o(),
 			compact: !!this.settings.compact,
 			showText: this.settings.showText !== !1,
-			accentColor: i,
-			fontSize: r,
+			showChat: !!this.settings.showChat,
+			maxChatMessages: br(this.settings.maxChatMessages),
+			accentColor: r,
+			fontSize: n,
 			editMode: this.editMode,
 			onToggle: () => {
 				Q.state.enabled ? Q.disable() : this.socket && Q.enable(this.socket, this.#a());

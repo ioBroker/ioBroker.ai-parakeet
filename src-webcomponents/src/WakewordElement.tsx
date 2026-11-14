@@ -2,7 +2,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { defineWebComponent, IobWebComponent } from '@iobroker/web-components/element';
 import type { WebComponentSocket } from '@iobroker/web-components';
 import { WakewordView } from './WakewordView';
-import { voiceService, type Mode, type Snapshot, type SocketLike, type WidgetOptions } from './service';
+import { chatLimit, voiceService, type Mode, type Snapshot, type SocketLike, type WidgetOptions } from './service';
 import { STYLES } from './styles';
 
 interface Settings {
@@ -14,12 +14,18 @@ interface Settings {
     showInterim?: boolean; compact?: boolean; language?: 'auto' | 'de' | 'en';
     accentColor?: string; fontSize?: number; resultState?: string; statusState?: string;
     errorState?: string; forwardInstance?: string; forwardCommand?: string;
+    processorType?: 'none' | 'smart-text2command'; processorInstance?: string;
+    processorMode?: 'analyze' | 'execute'; showChat?: boolean; maxChatMessages?: number;
 }
 const instance = (value: string | undefined, adapter: string): string => {
     const id = (value || `${adapter}.0`).replace(/^system\.adapter\./, '');
     return new RegExp(`^${adapter.replaceAll('-', '\\-')}\\.\\d+$`).test(id) ? id : `${adapter}.0`;
 };
 const numeric = (value: number | undefined, fallback: number): number => Number.isFinite(Number(value)) ? Number(value) : fallback;
+const selectedProcessorInstance = (value: string | undefined): string => {
+    const id = (value || '').replace(/^system\.adapter\./, '');
+    return /^smart-text2command\.\d+$/.test(id) ? id : '';
+};
 
 class WakewordElement extends IobWebComponent<Settings> {
     readonly #root: Root;
@@ -46,7 +52,9 @@ class WakewordElement extends IobWebComponent<Settings> {
     }
     protected override render(): void {
         if (!this.#unsubscribe) this.#unsubscribe = voiceService.subscribe(state => { this.#state = state; this.#draw(); });
+        voiceService.setChatLimit(this.settings.maxChatMessages ?? 50);
         if (this.editMode && voiceService.state.enabled) void voiceService.disable();
+        if (!this.editMode && this.socket) voiceService.updateDeliveryOptions(this.#options());
         const parakeet = instance(this.settings.parakeet, 'ai-parakeet');
         if (this.states[`system.adapter.${parakeet}.alive`]?.val === false) {
             voiceService.connectionLost('Adapter is not running');
@@ -83,7 +91,11 @@ class WakewordElement extends IobWebComponent<Settings> {
             maxRecordMs: numeric(s.maxRecordMs, 15000), showInterim: s.showInterim !== false,
             activationTone: !!s.activationTone, completionTone: !!s.completionTone,
             resultState: s.resultState || '', statusState: s.statusState || '', errorState: s.errorState || '',
+            processorType: s.processorType === 'smart-text2command' ? 'smart-text2command' : 'none',
+            processorInstance: selectedProcessorInstance(s.processorInstance),
+            processorMode: s.processorMode === 'analyze' ? 'analyze' : 'execute',
             forwardInstance: s.forwardInstance || '', forwardCommand: s.forwardCommand || '',
+            maxChatMessages: chatLimit(s.maxChatMessages),
         };
     }
     #language(): 'de' | 'en' {
@@ -99,6 +111,7 @@ class WakewordElement extends IobWebComponent<Settings> {
         this.#root.render(<WakewordView
             snapshot={this.#state} mode={this.settings.mode || 'wakeword'} language={this.#language()}
             compact={!!this.settings.compact} showText={this.settings.showText !== false}
+            showChat={!!this.settings.showChat} maxChatMessages={chatLimit(this.settings.maxChatMessages)}
             accentColor={accentColor} fontSize={fontSize}
             editMode={this.editMode}
             onToggle={() => {

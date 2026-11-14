@@ -1,22 +1,33 @@
 import { AudioRingBuffer, RATE, VoiceActivityDetector, type VadOptions } from './audio';
 import { ParakeetClient, type LiveAnswer, type LiveEvent } from './parakeet';
 import { OnnxWakewordEngine, type WakewordEngine } from './wakeword';
+import { createTextProcessor, type ProcessorMode, type ProcessorStatus, type ProcessorType, type TextProcessor } from './processors';
 
 export type Phase = 'disabled' | 'initializing' | 'listening' | 'activated' | 'recording' | 'processing' | 'result' | 'error';
 export type Mode = 'wakeword' | 'ptt' | 'combined';
+export const chatLimit = (value: number | undefined): number => {
+    const requested = Number(value);
+    return Number.isFinite(requested) ? Math.max(1, Math.min(200, Math.floor(requested))) : 50;
+};
 export interface WidgetOptions extends VadOptions {
     mode: Mode; parakeet: string;
     ringBufferMs: number; stripWakeword: boolean; microphone: string;
     activationTone: boolean; completionTone: boolean;
     showInterim: boolean; resultState: string; statusState: string; errorState: string;
+    processorType: ProcessorType; processorInstance: string; processorMode: ProcessorMode;
     forwardInstance: string; forwardCommand: string;
+    maxChatMessages: number;
 }
 export interface VoiceResult { text: string; timestamp: number; source: string; sessionId: string; final: true }
+export interface ChatMessage {
+    id: string; role: 'user' | 'processor'; text: string; timestamp: number;
+    status?: ProcessorStatus | 'pending'; source?: string;
+}
 export interface SocketLike {
     sendTo<T>(instance: string, command: string, message: Record<string, unknown>): Promise<T | undefined>;
     setState(id: string, state: { val: string; ack: false }): Promise<unknown>;
 }
-export interface Snapshot { phase: Phase; enabled: boolean; level: number; text: string; error: string; wakeword: string }
+export interface Snapshot { phase: Phase; enabled: boolean; level: number; text: string; error: string; wakeword: string; chat: ChatMessage[] }
 type Listener = (snapshot: Snapshot) => void;
 
 interface WakeConfigAnswer { names?: string[]; threshold?: number; error?: string }
@@ -24,7 +35,7 @@ interface ModelAnswer { base64?: string; error?: string }
 
 export class VoiceControlService {
     private listeners = new Set<Listener>();
-    private snapshot: Snapshot = { phase: 'disabled', enabled: false, level: 0, text: '', error: '', wakeword: '' };
+    private snapshot: Snapshot = { phase: 'disabled', enabled: false, level: 0, text: '', error: '', wakeword: '', chat: [] };
     private socket?: SocketLike;
     private options?: WidgetOptions;
     private context?: AudioContext;
@@ -42,6 +53,8 @@ export class VoiceControlService {
     private segments = new Map<number, { text: string; final: boolean }>();
     private lastLevelAt = 0;
     private activeAt = 0;
+    private processor?: TextProcessor;
+    private processorKey = '';
 
     constructor(private readonly createEngine: () => WakewordEngine = () => new OnnxWakewordEngine()) {}
 
@@ -51,6 +64,26 @@ export class VoiceControlService {
         return () => { this.listeners.delete(listener); if (!this.listeners.size) void this.disable(); };
     }
     get state(): Snapshot { return this.snapshot; }
+    updateDeliveryOptions(options: WidgetOptions): void {
+        if (!this.options || !this.snapshot.enabled) return;
+        this.options = { ...this.options,
+            processorType: options.processorType, processorInstance: options.processorInstance,
+            processorMode: options.processorMode, forwardInstance: options.forwardInstance,
+            forwardCommand: options.forwardCommand, resultState: options.resultState,
+            statusState: options.statusState, errorState: options.errorState,
+            maxChatMessages: options.maxChatMessages };
+        this.trimChat();
+    }
+    setChatLimit(value: number): void {
+        this.chatRetentionLimit = chatLimit(value);
+        this.trimChat();
+    }
+    private chatRetentionLimit = 50;
+    private trimChat(): void {
+        if (this.snapshot.chat.length > this.chatRetentionLimit) {
+            this.publish({ chat: this.snapshot.chat.slice(-this.chatRetentionLimit) });
+        }
+    }
     private publish(change: Partial<Snapshot>): void {
         this.snapshot = { ...this.snapshot, ...change };
         for (const listener of this.listeners) listener(this.snapshot);
@@ -64,7 +97,9 @@ export class VoiceControlService {
     async enable(socket: SocketLike, options: WidgetOptions): Promise<void> {
         if (this.snapshot.enabled || this.snapshot.phase === 'initializing') return;
         const run = ++this.generation;
+        if (socket !== this.socket) { this.processor = undefined; this.processorKey = ''; }
         this.socket = socket; this.options = options;
+        this.setChatLimit(options.maxChatMessages);
         this.publish({ phase: 'initializing', error: '', text: '', enabled: false });
         try {
             if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia || !window.AudioWorkletNode) {
@@ -249,12 +284,36 @@ export class VoiceControlService {
     private async deliver(text: string, sessionId: string): Promise<void> {
         const socket = this.socket, options = this.options;
         if (!socket || !options) return;
+        this.appendChat({ role: 'user', text, timestamp: this.activeAt });
         const payload: VoiceResult = { text, timestamp: this.activeAt, source: 'ai-parakeet-wakeword', sessionId, final: true };
         if (options.resultState) await this.writeState(options.resultState, text);
-        if (options.forwardInstance && options.forwardCommand) {
+        if (options.processorType === 'smart-text2command') {
+            const pendingId = this.appendChat({ role: 'processor', text: '', timestamp: Date.now(),
+                status: 'pending', source: options.processorInstance || 'smart-text2command' });
+            try {
+                const key = `${options.processorType}/${options.processorInstance}/${options.processorMode}`;
+                if (this.processorKey !== key || !this.processor) {
+                    this.processor = createTextProcessor(options.processorType, socket, options.processorInstance, options.processorMode);
+                    this.processorKey = key;
+                }
+                const reply = await this.processor!.process(text);
+                this.updateChat(pendingId, { text: reply.text, status: reply.status });
+            } catch (error) {
+                this.updateChat(pendingId, { text: (error as Error).message, status: 'error' });
+                this.publish({ error: (error as Error).message });
+            }
+        } else if (options.forwardInstance && options.forwardCommand) {
             try { await socket.sendTo(options.forwardInstance, options.forwardCommand, payload as unknown as Record<string, unknown>); }
             catch (error) { this.publish({ error: (error as Error).message }); }
         }
+    }
+    private appendChat(message: Omit<ChatMessage, 'id'>): string {
+        const id = crypto.randomUUID();
+        this.publish({ chat: [...this.snapshot.chat, { id, ...message }].slice(-this.chatRetentionLimit) });
+        return id;
+    }
+    private updateChat(id: string, change: Partial<ChatMessage>): void {
+        this.publish({ chat: this.snapshot.chat.map(message => message.id === id ? { ...message, ...change } : message) });
     }
     private fail(error: Error): void {
         this.publish({ phase: 'error', error: error.message });

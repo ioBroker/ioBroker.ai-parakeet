@@ -29,7 +29,7 @@ import type { AiParakeetConfig } from './types';
 const DEFAULT_PORT = 9999;
 const MAX_FILE_BYTES = 64 * 1024 * 1024;
 const WILDCARD_ADDRESSES = ['', '0.0.0.0', '::'];
-const BUNDLED_WAKEWORDS = ['io_broker', 'hey_jarvis', 'alexa', 'hey_mycroft', 'hey_rhasspy'];
+const BUNDLED_WAKEWORDS = ['io_broker', 'iobroker_new', 'hey_jarvis', 'alexa', 'hey_mycroft', 'hey_rhasspy'];
 const MAX_WAKEWORD_MODEL_BYTES = 10 * 1024 * 1024;
 
 type Status = 'starting' | 'downloading' | 'verifying' | 'loading' | 'ready' | 'idle' | 'error';

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { VoiceControlService, type SocketLike, type WidgetOptions } from '../../src-webcomponents/src/service';
+import { chatLimit, VoiceControlService, type SocketLike, type WidgetOptions } from '../../src-webcomponents/src/service';
 import type { WakewordEngine, WakewordResult } from '../../src-webcomponents/src/wakeword';
 
 const options: WidgetOptions = {
@@ -9,6 +9,7 @@ const options: WidgetOptions = {
     threshold: 0.01, minSpeechMs: 250, silenceMs: 1200, noSpeechMs: 5000, maxRecordMs: 15000,
     activationTone: false, completionTone: false, showInterim: true,
     resultState: '', statusState: '', errorState: '', forwardInstance: '', forwardCommand: '',
+    processorType: 'none', processorInstance: '', processorMode: 'execute', maxChatMessages: 50,
 };
 
 test('shared service sends no audio before activation and releases the last widget microphone', async () => {
@@ -123,4 +124,50 @@ test('wake word mode gates Parakeet start until local detection', async () => {
     assert.equal(calls.some(call => call === 'live:start'), true);
     await service.disable();
     unsubscribe();
+});
+
+test('final transcripts and processor replies appear in conversation order', async () => {
+    const requests: Record<string, unknown>[] = [];
+    const socket: SocketLike = {
+        async sendTo<T>(instance: string, command: string, message: Record<string, unknown>): Promise<T> {
+            assert.equal(instance, 'smart-text2command.0');
+            assert.equal(command, 'processText');
+            requests.push(message);
+            return (requests.length === 1
+                ? { status: 'clarification', response: 'Welcher Raum?', clarification: { id: 'room-1' } }
+                : { status: 'success', response: 'Im Wohnzimmer sind es 21 Grad.' }) as T;
+        },
+        async setState() {},
+    };
+    const service = new VoiceControlService();
+    Reflect.set(service, 'socket', socket);
+    Reflect.set(service, 'options', { ...options, processorType: 'smart-text2command',
+        processorInstance: 'smart-text2command.0' });
+    Reflect.set(service, 'activeAt', Date.now());
+    const deliver = (service as unknown as { deliver(text: string, sessionId: string): Promise<void> }).deliver.bind(service);
+    await deliver('Welche Temperatur?', 'parakeet-session-1');
+    await deliver('Wohnzimmer', 'parakeet-session-2');
+    assert.deepEqual(service.state.chat.map(message => [message.role, message.text]), [
+        ['user', 'Welche Temperatur?'], ['processor', 'Welcher Raum?'],
+        ['user', 'Wohnzimmer'], ['processor', 'Im Wohnzimmer sind es 21 Grad.'],
+    ]);
+    assert.equal(requests[1].clarificationId, 'room-1');
+});
+
+test('chat keeps only the configured number of newest messages and trims when reduced', async () => {
+    assert.equal(chatLimit(undefined), 50);
+    assert.equal(chatLimit(0), 1);
+    assert.equal(chatLimit(999), 200);
+    const service = new VoiceControlService();
+    const socket: SocketLike = { sendTo: async () => undefined, setState: async () => undefined };
+    Reflect.set(service, 'socket', socket);
+    Reflect.set(service, 'options', { ...options, maxChatMessages: 3 });
+    service.setChatLimit(3);
+    const deliver = (service as unknown as { deliver(text: string, sessionId: string): Promise<void> }).deliver.bind(service);
+    for (const text of ['first', 'second', 'third', 'fourth']) await deliver(text, text);
+    assert.deepEqual(service.state.chat.map(message => message.text), ['second', 'third', 'fourth']);
+    service.setChatLimit(2);
+    assert.deepEqual(service.state.chat.map(message => message.text), ['third', 'fourth']);
+    await deliver('fifth', 'fifth');
+    assert.deepEqual(service.state.chat.map(message => message.text), ['fourth', 'fifth']);
 });

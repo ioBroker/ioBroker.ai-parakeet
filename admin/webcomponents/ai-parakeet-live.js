@@ -51,9 +51,12 @@ const TEXTS = {
         noMeasurement: 'No measurement yet.',
         rules: '{rules} correction(s) loaded. The switch shows the text with or without them; the recognition itself does not change.',
         noRules: 'The correction dictionary is empty.',
-        metrics: 'Inference: {inference} ms · queue: {queue} ms · audio: {audio} s · RTF: {rtf} · {kind}',
+        metrics:
+            'Inference: {inference} ms · queue: {queue} ms · audio: {audio} s · RTF: {rtf} · {kind} - Quality: {quality}',
         final: 'sentence finished',
         partial: 'intermediate',
+        good: 'good',
+        bad: 'bad',
     },
     de: {
         start: 'Mikrofon starten',
@@ -93,9 +96,12 @@ const TEXTS = {
         noMeasurement: 'Noch keine Messung.',
         rules: '{rules} Korrektur(en) geladen. Der Schalter zeigt den Text mit oder ohne sie; die Erkennung selbst ändert sich nicht.',
         noRules: 'Das Korrekturwörterbuch ist leer.',
-        metrics: 'Inferenz: {inference} ms · Warteschlange: {queue} ms · Audio: {audio} s · RTF: {rtf} · {kind}',
+        metrics:
+            'Inferenz: {inference} ms · Warteschlange: {queue} ms · Audio: {audio} s · RTF: {rtf} · {kind} - Qualität: {quality}',
         final: 'Satz abgeschlossen',
         partial: 'vorläufig',
+        good: 'Gut',
+        bad: 'Schlect',
     },
 };
 
@@ -651,6 +657,7 @@ class AiParakeetLive extends HTMLElement {
                 audio: event.audioSeconds.toFixed(1),
                 rtf: rtf.toFixed(2),
                 kind: this.#t(event.final ? 'final' : 'partial'),
+                quality: rtf > 0.8 ? this.#t('bad') : this.#t('good'),
             });
         } else if (event.type === 'done') {
             this.#finish(session, false);

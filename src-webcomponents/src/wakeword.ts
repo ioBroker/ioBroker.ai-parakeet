@@ -1,6 +1,11 @@
 import * as ort from 'onnxruntime-web/wasm';
 
-export interface WakewordResult { detected: boolean; confidence: number; timestamp: number; name?: string }
+export interface WakewordResult {
+    detected: boolean;
+    confidence: number;
+    timestamp: number;
+    name?: string;
+}
 export interface WakewordConfig {
     names: string[];
     threshold: number;
@@ -17,6 +22,7 @@ export interface WakewordEngine {
 
 const BUILTIN: Record<string, string> = {
     io_broker: 'io_broker.onnx',
+    iobroker_new: 'iobroker_new.onnx',
     hey_jarvis: 'hey_jarvis_v0.1.onnx',
     alexa: 'alexa_v0.1.onnx',
     hey_mycroft: 'hey_mycroft_v0.1.onnx',
@@ -46,11 +52,13 @@ export class OnnxWakewordEngine implements WakewordEngine {
             wasm: new URL('wasm/ort-wasm-simd-threaded.wasm', config.assetBase).href,
         };
         this.threshold = Math.max(0.01, Math.min(1, config.threshold));
-        const loadAsset = config.loadAsset || (async (name: string): Promise<Uint8Array> => {
-            const response = await fetch(new URL(`models/${name}`, config.assetBase));
-            if (!response.ok) throw new Error(`Could not load model ${name}: HTTP ${response.status}`);
-            return new Uint8Array(await response.arrayBuffer());
-        });
+        const loadAsset =
+            config.loadAsset ||
+            (async (name: string): Promise<Uint8Array> => {
+                const response = await fetch(new URL(`models/${name}`, config.assetBase));
+                if (!response.ok) throw new Error(`Could not load model ${name}: HTTP ${response.status}`);
+                return new Uint8Array(await response.arrayBuffer());
+            });
         try {
             this.mel = await ort.InferenceSession.create(await loadAsset('melspectrogram.onnx'));
             this.embedding = await ort.InferenceSession.create(await loadAsset('embedding_model.onnx'));
@@ -62,18 +70,25 @@ export class OnnxWakewordEngine implements WakewordEngine {
                 this.classifiers.push({ name, session });
             }
             if (!this.classifiers.length) throw new Error('No wake word model selected');
-        } catch (error) { await this.dispose(); throw error; }
+        } catch (error) {
+            await this.dispose();
+            throw error;
+        }
     }
 
     async processAudio(samples: Float32Array): Promise<WakewordResult> {
-        if (!this.mel || !this.embedding || !this.classifiers.length) throw new Error('Wake word engine not initialized');
+        if (!this.mel || !this.embedding || !this.classifiers.length)
+            throw new Error('Wake word engine not initialized');
         // The feature model expects int16 values represented as float32, not normalized floats.
         const audio = Float32Array.from(samples, sample => Math.round(Math.max(-1, Math.min(1, sample)) * 32767));
-        const melOut = await this.mel.run({ [this.mel.inputNames[0]]: new ort.Tensor('float32', audio, [1, audio.length]) });
+        const melOut = await this.mel.run({
+            [this.mel.inputNames[0]]: new ort.Tensor('float32', audio, [1, audio.length]),
+        });
         const melTensor = melOut[this.mel.outputNames[0]];
         const melData = melTensor.data as Float32Array;
         const frames = Number(melTensor.dims[2]);
-        if (!Number.isInteger(frames) || melData.length < frames * MEL_BINS) throw new Error('Unexpected mel model output');
+        if (!Number.isInteger(frames) || melData.length < frames * MEL_BINS)
+            throw new Error('Unexpected mel model output');
         for (let f = 0; f < frames; f++) {
             const row = new Float32Array(MEL_BINS);
             for (let b = 0; b < MEL_BINS; b++) row[b] = melData[f * MEL_BINS + b] / 10 + 2;
@@ -98,20 +113,35 @@ export class OnnxWakewordEngine implements WakewordEngine {
         if (this.embeddings.length > WW_FRAMES * 4) this.embeddings.splice(0, this.embeddings.length - WW_FRAMES * 4);
         if (this.embeddings.length < WW_FRAMES) return { detected: false, confidence: 0, timestamp: Date.now() };
         const features = new Float32Array(WW_FRAMES * EMB_DIM);
-        for (let f = 0; f < WW_FRAMES; f++) features.set(this.embeddings[this.embeddings.length - WW_FRAMES + f], f * EMB_DIM);
+        for (let f = 0; f < WW_FRAMES; f++)
+            features.set(this.embeddings[this.embeddings.length - WW_FRAMES + f], f * EMB_DIM);
         let best = { name: '', confidence: 0 };
         for (const { name, session } of this.classifiers) {
-            const out = await session.run({ [session.inputNames[0]]: new ort.Tensor('float32', features, [1, WW_FRAMES, EMB_DIM]) });
+            const out = await session.run({
+                [session.inputNames[0]]: new ort.Tensor('float32', features, [1, WW_FRAMES, EMB_DIM]),
+            });
             const score = Number((out[session.outputNames[0]].data as Float32Array)[0]);
             if (score > best.confidence) best = { name, confidence: score };
         }
-        return { detected: best.confidence >= this.threshold, confidence: best.confidence, timestamp: Date.now(), name: best.name };
+        return {
+            detected: best.confidence >= this.threshold,
+            confidence: best.confidence,
+            timestamp: Date.now(),
+            name: best.name,
+        };
     }
 
-    reset(): void { this.melRows = []; this.melProcessed = 0; this.embeddings = []; }
+    reset(): void {
+        this.melRows = [];
+        this.melProcessed = 0;
+        this.embeddings = [];
+    }
     async dispose(): Promise<void> {
         const sessions = [this.mel, this.embedding, ...this.classifiers.map(item => item.session)];
-        this.mel = undefined; this.embedding = undefined; this.classifiers = []; this.reset();
+        this.mel = undefined;
+        this.embedding = undefined;
+        this.classifiers = [];
+        this.reset();
         await Promise.all(sessions.filter((item): item is ort.InferenceSession => !!item).map(item => item.release()));
     }
 }
