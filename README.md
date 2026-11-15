@@ -241,6 +241,16 @@ Microphone access requires HTTPS or localhost and browser permission. Automatic 
     ### **WORK IN PROGRESS**
 -->
 
+### **WORK IN PROGRESS**
+
+- A "wakeword" widget has been added as a web component capable of communicating with "smart-text2command." It is designed to be extensible for communication with the assistant adapter or other adapters.
+- An ioBroker "wakeword" function with improved detection performance has been integrated.
+- A chat display has been added.
+- Speech synthesis for audio output via the browser has been implemented.
+- An option to select the voice used for speech synthesis has been added.
+- "Piper TTS" has been integrated on the server side; audio data can be requested using the "sendTo" command.
+- Speech synthesis options (browser/server) have been added for clients that do not support native speech synthesis.
+
 ### 0.1.4 (2026-11-09)
 
 - (@GermanBluefox) Timers of the libraries are cleared when the adapter stops. Fixed the findings of the repository checker
