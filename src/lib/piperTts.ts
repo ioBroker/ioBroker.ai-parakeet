@@ -2,7 +2,7 @@
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { createReadStream, createWriteStream, existsSync } from 'node:fs';
-import { chmod, mkdir, mkdtemp, readFile, rename, rm, rmdir, stat } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, rename, rm, rmdir, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve, sep } from 'node:path';
 import { Readable, Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
@@ -13,6 +13,43 @@ const BINARY_BASE = `https://github.com/rhasspy/piper/releases/download/${PIPER_
 const VOICE_BASE = `https://huggingface.co/rhasspy/piper-voices/resolve/${PIPER_VOICE_REVISION}`;
 const MAX_WAV_BYTES = 8 * 1024 * 1024;
 const MAX_TEXT_LENGTH = 1000;
+export const CUSTOM_VOICE_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/;
+export function validateUploadedVoice(model: Buffer, config: Buffer): void {
+    if (
+        !Buffer.isBuffer(model) ||
+        model.length < 1024 ||
+        model.length > 150 * 1024 * 1024 ||
+        !Buffer.isBuffer(config) ||
+        config.length < 20 ||
+        config.length > 256 * 1024
+    ) {
+        throw new Error('Uploaded Piper voice must contain an ONNX model (max 150 MiB) and JSON config (max 256 KiB)');
+    }
+    let parsed: unknown;
+    try {
+        parsed = JSON.parse(config.toString('utf8'));
+    } catch {
+        throw new Error('Uploaded Piper voice has invalid JSON configuration');
+    }
+    const value =
+        parsed && typeof parsed === 'object'
+            ? (parsed as {
+                  audio?: { sample_rate?: number };
+                  espeak?: { voice?: string };
+                  phoneme_id_map?: object;
+              })
+            : {};
+    if (
+        !Number.isInteger(value.audio?.sample_rate) ||
+        value.audio!.sample_rate! < 8000 ||
+        value.audio!.sample_rate! > 48000 ||
+        typeof value.espeak?.voice !== 'string' ||
+        !value.phoneme_id_map ||
+        typeof value.phoneme_id_map !== 'object'
+    ) {
+        throw new Error('Uploaded Piper voice configuration is not compatible with this Piper runtime');
+    }
+}
 
 interface BinaryAsset {
     name: string;
@@ -157,7 +194,11 @@ export function parseSynthesizeRequest(
         throw new Error(`"text" is longer than ${MAX_TEXT_LENGTH} characters`);
     }
     const voice = input.voice === undefined ? defaultVoice : input.voice;
-    if (typeof voice !== 'string' || !PIPER_VOICES.some(candidate => candidate.id === voice)) {
+    if (
+        typeof voice !== 'string' ||
+        (!PIPER_VOICES.some(candidate => candidate.id === voice) &&
+            !(voice.startsWith('custom:') && CUSTOM_VOICE_NAME.test(voice.slice(7))))
+    ) {
         throw new Error('Unknown Piper voice; use piperVoices to list available voices');
     }
     if (input.format !== undefined && input.format !== 'wav') {
@@ -258,10 +299,12 @@ export class PiperTts {
     private readonly verifiedVoices = new Set<string>();
     private tail: Promise<unknown> = Promise.resolve();
     private pending = 0;
+    private readonly uploadedHashes = new Map<string, string>();
 
     constructor(
         private readonly dataDir: string,
         private readonly log?: { info(message: string): void },
+        private readonly readUploadedVoice?: (name: string) => Promise<{ model: Buffer; config: Buffer }>,
     ) {}
 
     close(): void {
@@ -357,6 +400,27 @@ export class PiperTts {
         return model;
     }
 
+    private async prepareUploadedVoice(name: string): Promise<string> {
+        if (!CUSTOM_VOICE_NAME.test(name) || !this.readUploadedVoice) {
+            throw new Error('Unknown uploaded Piper voice');
+        }
+        const { model, config } = await this.readUploadedVoice(name);
+        validateUploadedVoice(model, config);
+        const digest = createHash('sha256').update(model).update(config).digest('hex');
+        const path = join(this.dataDir, 'piper', 'voices', 'custom', name, `${name}.onnx`);
+        if (this.uploadedHashes.get(name) !== digest || !existsSync(path) || !existsSync(`${path}.json`)) {
+            await mkdir(dirname(path), { recursive: true });
+            await writeFile(`${path}.part`, model);
+            await writeFile(`${path}.json.part`, config);
+            await rm(path, { force: true });
+            await rm(`${path}.json`, { force: true });
+            await rename(`${path}.part`, path);
+            await rename(`${path}.json.part`, `${path}.json`);
+            this.uploadedHashes.set(name, digest);
+        }
+        return path;
+    }
+
     private async binary(): Promise<string> {
         const path = join(
             this.dataDir,
@@ -431,14 +495,17 @@ export class PiperTts {
         if (this.controller.signal.aborted) {
             throw new Error('Piper is stopping');
         }
-        const voice = PIPER_VOICES.find(candidate => candidate.id === request.voice)!;
-        const [binary, model] = await Promise.all([this.binary(), this.downloadVoice(voice.id)]);
+        const voice = PIPER_VOICES.find(candidate => candidate.id === request.voice);
+        const [binary, model] = await Promise.all([
+            this.binary(),
+            voice ? this.downloadVoice(voice.id) : this.prepareUploadedVoice(request.voice.slice(7)),
+        ]);
         const config = JSON.parse(await readFile(`${model}.json`, 'utf8')) as {
             audio?: { sample_rate?: number };
             num_speakers?: number;
         };
         if (request.speaker !== undefined && request.speaker >= (config.num_speakers || 1)) {
-            throw new Error(`speaker must be below ${config.num_speakers || 1} for ${voice.id}`);
+            throw new Error(`speaker must be below ${config.num_speakers || 1} for ${request.voice}`);
         }
         const outputRoot = join(this.dataDir, 'piper', 'output');
         await mkdir(outputRoot, { recursive: true });
@@ -483,7 +550,7 @@ export class PiperTts {
                 sampleRate,
                 channels: 1,
                 durationMs,
-                voice: voice.id,
+                voice: request.voice,
             };
         } finally {
             await rm(outputFile, { force: true });

@@ -1,7 +1,7 @@
 import { AudioRingBuffer, RATE, VoiceActivityDetector, type VadOptions } from './audio';
 import { ParakeetClient, type LiveAnswer, type LiveEvent } from './parakeet';
 import { OnnxWakewordEngine, type WakewordEngine } from './wakeword';
-import { createTextProcessor, type ProcessorMode, type ProcessorStatus, type ProcessorType, type TextProcessor } from './processors';
+import { createTextProcessor, type ProcessorStatus, type ProcessorType, type TextProcessor } from './processors';
 import { BrowserSpeechOutput } from './speech';
 import { ServerSpeechOutput } from './serverSpeech';
 
@@ -15,14 +15,12 @@ export interface WidgetOptions extends VadOptions {
     mode: Mode; parakeet: string;
     ringBufferMs: number; stripWakeword: boolean; microphone: string;
     activationTone: boolean; completionTone: boolean;
-    showInterim: boolean; resultState: string; statusState: string; errorState: string;
-    processorType: ProcessorType; processorInstance: string; processorMode: ProcessorMode;
-    forwardInstance: string; forwardCommand: string;
+    showInterim: boolean;
+    processorType: ProcessorType; processorInstance: string;
     maxChatMessages: number;
     speechEnabled: boolean; speechLanguage: string; speechVoiceURI: string;
     speechEngine?: 'browser' | 'server'; speechServerVoice?: string;
 }
-export interface VoiceResult { text: string; timestamp: number; source: string; sessionId: string; final: true }
 export interface ChatMessage {
     id: string; role: 'user' | 'processor'; text: string; timestamp: number;
     status?: ProcessorStatus | 'pending'; source?: string;
@@ -83,9 +81,6 @@ export class VoiceControlService {
         }
         this.options = { ...this.options,
             processorType: options.processorType, processorInstance: options.processorInstance,
-            processorMode: options.processorMode, forwardInstance: options.forwardInstance,
-            forwardCommand: options.forwardCommand, resultState: options.resultState,
-            statusState: options.statusState, errorState: options.errorState,
             maxChatMessages: options.maxChatMessages,
             speechEnabled: options.speechEnabled, speechLanguage: options.speechLanguage,
             speechVoiceURI: options.speechVoiceURI,
@@ -105,11 +100,6 @@ export class VoiceControlService {
     private publish(change: Partial<Snapshot>): void {
         this.snapshot = { ...this.snapshot, ...change };
         for (const listener of this.listeners) listener(this.snapshot);
-        if (change.phase && this.options?.statusState) void this.writeState(this.options.statusState, change.phase);
-        if (change.error && this.options?.errorState) void this.writeState(this.options.errorState, change.error);
-    }
-    private async writeState(id: string, val: string): Promise<void> {
-        try { await this.socket?.setState(id, { val, ack: false }); } catch { /* permission or connection error */ }
     }
 
     async enable(socket: SocketLike, options: WidgetOptions): Promise<void> {
@@ -294,7 +284,7 @@ export class VoiceControlService {
         } else if (event.type === 'done') {
             const text = this.joinText();
             this.publish({ phase: 'result', text });
-            if (text) void this.deliver(text, this.client?.sessionId || '');
+            if (text) void this.deliver(text);
             this.client = undefined; this.vad = undefined; this.ring?.clear(); this.engine?.reset();
             window.setTimeout(() => {
                 if (this.snapshot.phase === 'result') this.publish({ phase: 'listening', wakeword: '' });
@@ -304,19 +294,17 @@ export class VoiceControlService {
     private joinText(): string {
         return [...this.segments].sort(([a], [b]) => a - b).map(([, value]) => value.text).filter(Boolean).join(' ').trim();
     }
-    private async deliver(text: string, sessionId: string): Promise<void> {
+    private async deliver(text: string): Promise<void> {
         const socket = this.socket, options = this.options;
         if (!socket || !options) return;
         this.appendChat({ role: 'user', text, timestamp: this.activeAt });
-        const payload: VoiceResult = { text, timestamp: this.activeAt, source: 'ai-parakeet-wakeword', sessionId, final: true };
-        if (options.resultState) await this.writeState(options.resultState, text);
         if (options.processorType === 'smart-text2command') {
             const pendingId = this.appendChat({ role: 'processor', text: '', timestamp: Date.now(),
                 status: 'pending', source: options.processorInstance || 'smart-text2command' });
             try {
-                const key = `${options.processorType}/${options.processorInstance}/${options.processorMode}`;
+                const key = `${options.processorType}/${options.processorInstance}/execute`;
                 if (this.processorKey !== key || !this.processor) {
-                    this.processor = createTextProcessor(options.processorType, socket, options.processorInstance, options.processorMode);
+                    this.processor = createTextProcessor(options.processorType, socket, options.processorInstance, 'execute');
                     this.processorKey = key;
                 }
                 const reply = await this.processor!.process(text);
@@ -345,9 +333,6 @@ export class VoiceControlService {
                 this.updateChat(pendingId, { text: (error as Error).message, status: 'error' });
                 this.publish({ error: (error as Error).message });
             }
-        } else if (options.forwardInstance && options.forwardCommand) {
-            try { await socket.sendTo(options.forwardInstance, options.forwardCommand, payload as unknown as Record<string, unknown>); }
-            catch (error) { this.publish({ error: (error as Error).message }); }
         }
     }
     private appendChat(message: Omit<ChatMessage, 'id'>): string {

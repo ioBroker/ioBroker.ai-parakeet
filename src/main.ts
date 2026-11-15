@@ -20,7 +20,7 @@ import { downloadFfmpegStatic, ffmpegStaticPath } from './lib/ffmpegStatic';
 import { translate, type TextId } from './lib/i18n';
 import { LiveSessions } from './lib/liveSessions';
 import { checkModel, downloadModel, MODEL, MODEL_SIZE, verifyModel } from './lib/modelFiles';
-import { PiperTts } from './lib/piperTts';
+import { CUSTOM_VOICE_NAME, PiperTts } from './lib/piperTts';
 import { directAdminHost, isSecureContextUrl, selectLanAddress } from './lib/network';
 import type { JobResult } from './lib/scheduler';
 import { adapterTimers } from './lib/timers';
@@ -130,7 +130,7 @@ export class AiParakeetAdapter extends Adapter {
             configuredDir && isAbsolute(configuredDir)
                 ? configuredDir
                 : join(getAbsoluteDefaultDataDir(), 'ai-parakeet', 'models');
-        this.piper = new PiperTts(this.instanceDataDir(), this.log);
+        this.piper = new PiperTts(this.instanceDataDir(), this.log, name => this.readUploadedPiperVoice(name));
         const maxAudioSeconds = Math.round(num(cfg.maxAudioSeconds, 300, 5, 3600));
 
         this.engine = new Engine({
@@ -569,7 +569,27 @@ export class AiParakeetAdapter extends Adapter {
                     response = await this.transcribeMessage(obj.message);
                     break;
                 case 'piperVoices':
-                    response = this.piper?.listVoices() || [];
+                    response = [
+                        ...((obj.message as { includeDefault?: boolean } | undefined)?.includeDefault
+                            ? [
+                                  {
+                                      value: '',
+                                      label: 'Adapter default',
+                                      description: 'Use the voice configured in the adapter',
+                                  },
+                              ]
+                            : []),
+                        ...(this.piper?.listVoices() || []),
+                        ...(await this.uploadedPiperVoiceNames()).map(name => ({
+                            value: `custom:${name}`,
+                            label: `Uploaded: ${name}`,
+                            description: 'User-supplied model; verify its license and Piper compatibility',
+                            language: '',
+                            license: 'user supplied',
+                            standard: false,
+                            installed: true,
+                        })),
+                    ];
                     break;
                 case 'downloadPiperVoice': {
                     const id = (obj.message as { voice?: unknown } | undefined)?.voice;
@@ -644,6 +664,36 @@ export class AiParakeetAdapter extends Adapter {
         } catch {
             return [...BUNDLED_WAKEWORDS];
         }
+    }
+
+    private async uploadedPiperVoiceNames(): Promise<string[]> {
+        try {
+            const files = await this.readDirAsync(this.namespace, 'ttsVoices/');
+            const names = new Set(files.filter(file => !file.isDir).map(file => file.file.split('/').pop() || ''));
+            return [...names]
+                .filter(
+                    file =>
+                        file.endsWith('.onnx') &&
+                        CUSTOM_VOICE_NAME.test(file.slice(0, -5)) &&
+                        names.has(`${file}.json`),
+                )
+                .map(file => file.slice(0, -5))
+                .sort();
+        } catch {
+            return [];
+        }
+    }
+
+    private async readUploadedPiperVoice(name: string): Promise<{ model: Buffer; config: Buffer }> {
+        if (!CUSTOM_VOICE_NAME.test(name) || !(await this.uploadedPiperVoiceNames()).includes(name)) {
+            throw new Error('Unknown uploaded Piper voice');
+        }
+        const read = async (fileName: string): Promise<Buffer> => {
+            const file = await this.readFileAsync(this.namespace, `ttsVoices/${fileName}`);
+            const data = file && typeof file === 'object' && 'file' in file ? file.file : file;
+            return Buffer.isBuffer(data) ? data : Buffer.from(data, fileName.endsWith('.json') ? 'utf8' : 'binary');
+        };
+        return { model: await read(`${name}.onnx`), config: await read(`${name}.onnx.json`) };
     }
 
     // ---------------------------------------------------------------- ffmpeg

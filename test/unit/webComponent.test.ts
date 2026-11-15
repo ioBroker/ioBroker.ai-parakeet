@@ -44,19 +44,38 @@ describe('VIS-2 wake word web component', () => {
         const manifest = JSON.parse(readFileSync(join(DIR, 'wakeword.json'), 'utf8'));
         assert.ok(adapter.common.webComponents.includes('webcomponents/wakeword.json'));
         assert.equal(manifest.tag, 'iob-wakeword');
-        assert.equal(manifest.settings.items.parakeet.adapter, 'ai-parakeet');
-        assert.equal(manifest.settings.items.wakewordAdapter, undefined);
-        assert.equal(manifest.settings.items.processorInstance.type, 'instance');
-        assert.equal(manifest.settings.items.processorInstance.adapter, 'smart-text2command');
-        assert.equal(manifest.settings.items.showChat.type, 'checkbox');
-        assert.equal(manifest.settings.items.maxChatMessages.type, 'number');
-        assert.equal(manifest.settings.items.maxChatMessages.default, 50);
-        assert.equal(manifest.settings.items.speechEnabled.type, 'checkbox');
-        assert.equal(manifest.settings.items.speechEnabled.default, false);
-        assert.equal(manifest.settings.items.speechVoiceURI.type, 'select');
-        assert.ok(manifest.settings.items.speechVoiceURI.options.some((option: { value: string; label: string }) =>
-            option.value === 'Google Deutsch' && option.label.includes('(remote)')));
-        assert.equal(manifest.settings.items.speechVoiceCustom.type, 'text');
+        assert.equal(manifest.settings.type, 'tabs');
+        const groups = manifest.settings.items;
+        assert.deepEqual(Object.keys(groups), ['general', 'audio', 'display', 'processing', 'speech']);
+        assert.deepEqual(Object.values(groups).map((group: any) => group.label.en),
+            ['Common', 'Microphone and recognition', 'Display and chat', 'Text processing and output', 'Speech output']);
+        const names = Object.values(groups).flatMap((group: any) => Object.keys(group.items));
+        assert.equal(new Set(names).size, names.length, 'each setting must occur only once');
+        assert.deepEqual(names.sort(), `parakeet autoStart mode microphone ringBufferMs stripWakeword threshold
+            minSpeechMs silenceMs noSpeechMs maxRecordMs activationTone completionTone showText showInterim
+            compact language accentColor processorType processorInstance showChat maxChatMessages speechEnabled
+            speechEngine speechServerVoice`.split(/\s+/).sort());
+        const settings = Object.assign({}, ...Object.values(groups).map((group: any) => group.items));
+        assert.equal(settings.parakeet.adapter, 'ai-parakeet');
+        assert.equal(settings.wakewordAdapter, undefined);
+        assert.equal(settings.processorInstance.type, 'instance');
+        assert.equal(settings.processorInstance.adapter, 'smart-text2command');
+        assert.equal(settings.showChat.type, 'checkbox');
+        assert.equal(settings.maxChatMessages.type, 'number');
+        assert.equal(settings.maxChatMessages.default, 50);
+        assert.equal(settings.speechEnabled.type, 'checkbox');
+        assert.equal(settings.speechEnabled.default, false);
+        assert.deepEqual(Object.keys(groups.audio.items).slice(0, 2), ['activationTone', 'completionTone']);
+        assert.equal(settings.activationTone.default, true);
+        assert.equal(settings.completionTone.default, true);
+        assert.equal(settings.speechServerVoice.type, 'selectSendTo');
+        assert.equal(settings.speechServerVoice.command, 'piperVoices');
+        assert.equal(settings.speechServerVoice.instance, '${data.parakeet}');
+        assert.equal(settings.speechServerVoice.options, undefined);
+        for (const language of ['en', 'de', 'ru', 'pt', 'nl', 'fr', 'it', 'es', 'pl', 'uk', 'zh-cn']) {
+            assert.ok(groups.general.label[language]);
+            assert.ok(settings.speechServerVoice.label[language]);
+        }
         for (const file of [manifest.module, 'wakeword-capture.js', 'models/io_broker.onnx']) {
             assert.ok(existsSync(join(DIR, file)), file);
         }

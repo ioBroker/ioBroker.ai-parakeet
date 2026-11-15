@@ -1,92 +1,73 @@
 import type { WebComponentManifest } from '@iobroker/web-components';
+import { LANGUAGE_NAMES, widgetLabel as label, type WidgetTextKey } from './i18n';
 
-const label = (en: string, de: string): { en: string; de: string } => ({ en, de });
-const number = (en: string, de: string, value: number, min: number, max: number) =>
-    ({ type: 'number' as const, label: label(en, de), default: value, min, max });
+const number = (key: WidgetTextKey, value: number, min: number, max: number) =>
+    ({ type: 'number' as const, label: label(key), default: value, min, max });
 
 export const manifest: WebComponentManifest = {
     $schema: 'https://raw.githubusercontent.com/ioBroker/web-components/main/schemas/manifest.json',
     manifestVersion: 1,
     tag: 'iob-wakeword',
-    name: label('Wake word microphone', 'Aktivierungswort-Mikrofon'),
-    description: label('Local voice input through ai-parakeet', 'Lokale Spracheingabe über ai-parakeet'),
+    name: label('widgetName'),
+    description: label('description'),
     icon: 'wakeword.svg',
     module: 'wakeword.js',
     size: { width: 320, height: 220 },
     settings: {
-        type: 'panel',
+        type: 'tabs',
         items: {
-            parakeet: { type: 'instance', adapter: 'ai-parakeet', default: 'ai-parakeet.0', label: label('Parakeet instance', 'Parakeet-Instanz') },
-            autoStart: { type: 'checkbox', default: false, label: label('Start microphone when loaded', 'Mikrofon beim Laden aktivieren') },
-            mode: { type: 'select', default: 'wakeword', label: label('Activation mode', 'Aktivierungsmodus'), options: [
-                { value: 'wakeword', label: label('Wake word', 'Aktivierungswort') },
-                { value: 'ptt', label: label('Push to talk', 'Sprechtaste') },
-                { value: 'combined', label: label('Both', 'Beide') },
-            ] },
-            microphone: { type: 'text', default: '', label: label('Microphone device ID (optional)', 'Mikrofon-Geräte-ID (optional)') },
-            ringBufferMs: number('Ring buffer (ms)', 'Ringpuffer (ms)', 1000, 0, 3000),
-            stripWakeword: { type: 'checkbox', default: false, label: label('Exclude wake word from sent audio', 'Aktivierungswort nicht übertragen') },
-            threshold: number('VAD threshold (0–1)', 'VAD-Schwelle (0–1)', 0.015, 0.001, 1),
-            minSpeechMs: number('Minimum speech (ms)', 'Minimale Sprachdauer (ms)', 250, 0, 5000),
-            silenceMs: number('Trailing silence (ms)', 'Stille nach Sprache (ms)', 1200, 100, 10000),
-            noSpeechMs: number('No-speech timeout (ms)', 'Wartezeit nach Aktivierung (ms)', 5000, 500, 20000),
-            maxRecordMs: number('Maximum recording (ms)', 'Maximale Aufnahme (ms)', 15000, 1000, 60000),
-            activationTone: { type: 'checkbox', default: false, label: label('Activation sound', 'Aktivierungston') },
-            completionTone: { type: 'checkbox', default: false, label: label('Completion sound', 'Abschlusston') },
-            showText: { type: 'checkbox', default: true, label: label('Show recognized text', 'Erkannten Text anzeigen') },
-            showInterim: { type: 'checkbox', default: true, label: label('Show interim text', 'Zwischenresultate anzeigen') },
-            compact: { type: 'checkbox', default: false, label: label('Compact view', 'Kompakte Darstellung') },
-            language: { type: 'select', default: 'auto', label: label('Interface language', 'Sprache der Oberfläche'), options: [
-                { value: 'auto', label: label('Automatic', 'Automatisch') }, { value: 'de', label: 'Deutsch' }, { value: 'en', label: 'English' },
-            ] },
-            accentColor: { type: 'color', default: '#2563eb', label: label('Accent color', 'Akzentfarbe') },
-            fontSize: number('Font size override (0 = VIS CSS)', 'Schriftgröße überschreiben (0 = VIS-CSS)', 0, 0, 40),
-            resultState: { type: 'objectId', label: label('Result state (optional)', 'Ergebnis-Datenpunkt (optional)') },
-            statusState: { type: 'objectId', label: label('Status state (optional)', 'Status-Datenpunkt (optional)') },
-            errorState: { type: 'objectId', label: label('Error state (optional)', 'Fehler-Datenpunkt (optional)') },
-            processorType: { type: 'select', default: 'none', label: label('Text processor', 'Textverarbeitung'), options: [
-                { value: 'none', label: label('None', 'Keine') },
-                { value: 'smart-text2command', label: 'smart-text2command' },
-            ] },
-            processorInstance: { type: 'instance', adapter: 'smart-text2command',
-                label: label('Processor instance', 'Instanz für Textverarbeitung'),
-                hidden: "data.processorType !== 'smart-text2command'" },
-            processorMode: { type: 'select', default: 'execute', label: label('Processing mode', 'Verarbeitungsmodus'),
-                hidden: "data.processorType !== 'smart-text2command'", options: [
-                    { value: 'execute', label: label('Execute approved commands', 'Freigegebene Befehle ausführen') },
-                    { value: 'analyze', label: label('Analyze only', 'Nur analysieren') },
+            general: { type: 'panel', label: label('common'), items: {
+                parakeet: { type: 'instance', adapter: 'ai-parakeet', default: 'ai-parakeet.0', label: label('parakeetInstance') },
+                autoStart: { type: 'checkbox', default: false, label: label('autoStart') },
+                mode: { type: 'select', default: 'wakeword', label: label('activationMode'), options: [
+                    { value: 'wakeword', label: label('wakeword') },
+                    { value: 'ptt', label: label('pushToTalk') },
+                    { value: 'combined', label: label('both') },
                 ] },
-            showChat: { type: 'checkbox', default: false, label: label('Show conversation', 'Chatverlauf anzeigen') },
-            maxChatMessages: number('Chat messages to keep', 'Nachrichten im Chat behalten', 50, 1, 200),
-            speechEnabled: { type: 'checkbox', default: false,
-                label: label('Speak processor replies', 'Antworten vorlesen') },
-            speechEngine: { type: 'select', default: 'browser', label: label('Speech output', 'Sprachausgabe'),
-                hidden: '!data.speechEnabled', options: [
-                    { value: 'browser', label: label('Browser voice', 'Browserstimme') },
-                    { value: 'server', label: label('Piper on adapter', 'Piper im Adapter') },
+            } },
+            audio: { type: 'panel', label: label('microphoneRecognition'), items: {
+                activationTone: { type: 'checkbox', default: true, label: label('activationSound') },
+                completionTone: { type: 'checkbox', default: true, label: label('completionSound') },
+                microphone: { type: 'text', default: '', label: label('microphoneDevice') },
+                ringBufferMs: number('ringBuffer', 1000, 0, 3000),
+                stripWakeword: { type: 'checkbox', default: false, label: label('stripWakeword') },
+                threshold: number('vadThreshold', 0.015, 0.001, 1),
+                minSpeechMs: number('minSpeech', 250, 0, 5000),
+                silenceMs: number('trailingSilence', 1200, 100, 10000),
+                noSpeechMs: number('noSpeechTimeout', 5000, 500, 20000),
+                maxRecordMs: number('maxRecording', 15000, 1000, 60000),
+            } },
+            display: { type: 'panel', label: label('displayChat'), items: {
+                showText: { type: 'checkbox', default: true, label: label('showText') },
+                showInterim: { type: 'checkbox', default: true, label: label('showInterim') },
+                showChat: { type: 'checkbox', default: false, label: label('showChat') },
+                maxChatMessages: number('chatLimit', 50, 1, 200),
+                compact: { type: 'checkbox', default: false, label: label('compact') },
+                language: { type: 'select', default: 'auto', label: label('interfaceLanguage'), options: [
+                    { value: 'auto', label: label('automatic') },
+                    ...Object.entries(LANGUAGE_NAMES).map(([value, name]) => ({ value, label: name })),
                 ] },
-            speechServerVoice: { type: 'select', default: '', label: label('Piper voice', 'Piper-Stimme'),
-                hidden: "!data.speechEnabled || data.speechEngine !== 'server'", options: [
-                    { value: '', label: label('Adapter default', 'Adapter-Standard') },
-                    { value: 'de_DE-thorsten-low', label: 'Deutsch - Thorsten' },
-                    { value: 'de_DE-kerstin-low', label: 'Deutsch - Kerstin' },
-                    { value: 'en_US-kristin-medium', label: 'English - Kristin' },
-                    { value: 'fr_FR-siwis-low', label: 'Français - Siwis' },
-                    { value: 'es_ES-carlfm-x_low', label: 'Español - CarlFM' },
+                accentColor: { type: 'color', default: '#2563eb', label: label('accentColor') },
+            } },
+            processing: { type: 'panel', label: label('processingOutput'), items: {
+                processorType: { type: 'select', default: 'none', label: label('textProcessor'), options: [
+                    { value: 'none', label: label('none') },
+                    { value: 'smart-text2command', label: 'smart-text2command' },
                 ] },
-            speechVoiceURI: { type: 'select', default: '', label: label('Speech voice', 'Sprachausgabe-Stimme'),
-                hidden: "!data.speechEnabled || data.speechEngine === 'server'", options: [
-                    { value: '', label: label('Automatic (local)', 'Automatisch (lokal)') },
-                    { value: 'Google Deutsch', label: 'Google Deutsch (remote)' },
-                    { value: 'custom', label: label('Other browser voice', 'Andere Browserstimme') },
-                ] },
-            speechVoiceCustom: { type: 'text', default: '',
-                label: label('Voice name or URI (as shown by the browser)', 'Stimmenname oder URI (laut Browser)'),
-                hidden: "!data.speechEnabled || data.speechEngine === 'server' || data.speechVoiceURI !== 'custom'",
-                help: label('Enter a voice available in the browser used by the VIS page. A remote voice may transmit reply text to its provider.',
-                    'Eine im Browser der VIS-Seite verfügbare Stimme eintragen. Eine Remote-Stimme kann den Antworttext an ihren Anbieter übertragen.') },
-            forwardInstance: { type: 'text', default: '', label: label('Forward to adapter instance (optional)', 'An Adapter-Instanz weiterleiten (optional)') },
-            forwardCommand: { type: 'text', default: '', label: label('Forward command', 'Weiterleitungsbefehl') },
+                processorInstance: { type: 'instance', adapter: 'smart-text2command',
+                    label: label('processorInstance'), hidden: "data.processorType !== 'smart-text2command'" },
+            } },
+            speech: { type: 'panel', label: label('speechOutput'), items: {
+                speechEnabled: { type: 'checkbox', default: false, label: label('speakReplies') },
+                speechEngine: { type: 'select', default: 'browser', label: label('speechOutput'),
+                    hidden: '!data.speechEnabled', options: [
+                        { value: 'browser', label: label('browserVoice') },
+                        { value: 'server', label: label('piperOnAdapter') },
+                    ] },
+                speechServerVoice: { type: 'selectSendTo', default: '', label: label('piperVoice'),
+                    hidden: "!data.speechEnabled || data.speechEngine !== 'server'",
+                    command: 'piperVoices', instance: '${data.parakeet}', data: { includeDefault: true } },
+            } },
         },
     },
 };

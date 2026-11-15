@@ -1,5 +1,4 @@
 /** Browser voices are device-specific; automatic selection stays local. */
-export const DEFAULT_VOICE_SELECTION = '__widget_default__';
 export const AUTO_LOCAL_VOICE_SELECTION = '__auto_local__';
 
 export const availableSpeechVoices = (): SpeechSynthesisVoice[] =>

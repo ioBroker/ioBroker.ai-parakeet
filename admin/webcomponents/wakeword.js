@@ -447,7 +447,7 @@ function me(e, t) {
 	customElements.get(n) || customElements.define(n, t);
 }
 // src/speech.ts
-var he = "__widget_default__", ge = "__auto_local__", _e = () => window.speechSynthesis?.getVoices() || [], ve = class {
+var he = "__auto_local__", ge = () => window.speechSynthesis?.getVoices() || [], _e = class {
 	utterance;
 	activity;
 	generation = 0;
@@ -456,7 +456,7 @@ var he = "__widget_default__", ge = "__auto_local__", _e = () => window.speechSy
 		if (!e.trim() || !a || typeof SpeechSynthesisUtterance > "u") return "unavailable";
 		this.cancel();
 		let o = ++this.generation, s = t.toLowerCase(), c = s.split("-")[0], l = () => {
-			let e = _e();
+			let e = ge();
 			if (r) return e.find((e) => e.voiceURI === r || e.name === r);
 			let t = e.filter((e) => e.localService === !0);
 			return t.find((e) => e.lang.toLowerCase() === s) || t.find((e) => e.lang.toLowerCase().split("-")[0] === c);
@@ -487,118 +487,798 @@ var he = "__widget_default__", ge = "__auto_local__", _e = () => window.speechSy
 	cancel() {
 		++this.generation, this.utterance && (this.utterance.onend = null, this.utterance.onerror = null, this.utterance = void 0, this.activity?.(!1), this.activity = void 0, window.speechSynthesis?.cancel());
 	}
-}, ye = "M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3m5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72z", be = "M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.2 7.2 0 0 0-1.63-.94l-.36-2.54a.49.49 0 0 0-.49-.42h-3.84a.49.49 0 0 0-.49.42l-.36 2.54c-.59.23-1.13.54-1.63.94l-2.39-.96a.5.5 0 0 0-.61.22L2.74 8.84a.5.5 0 0 0 .12.64l2.03 1.58a6.8 6.8 0 0 0 0 1.88l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.12.21.37.3.61.22l2.39-.96c.5.39 1.04.7 1.63.94l.36 2.54c.04.24.25.42.49.42h3.84c.24 0 .45-.18.49-.42l.36-2.54c.59-.23 1.13-.54 1.63-.94l2.39.96c.24.09.49 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.64L19.14 12.94zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z", xe = {
-	de: {
-		disabled: "Mikrofon aus",
-		initializing: "Initialisierung…",
-		listening: "Warte auf Aktivierungswort",
-		activated: "Aktiviert",
-		recording: "Aufnahme läuft",
-		processing: "Verarbeitung…",
-		result: "Ergebnis",
-		error: "Fehler",
-		on: "Mikrofon deaktivieren",
-		off: "Mikrofon aktivieren",
-		ptt: "Sprechen",
-		stop: "Aufnahme beenden",
-		editor: "Mikrofon im Editor deaktiviert",
-		chat: "Gesprächsverlauf",
-		you: "Du",
-		pending: "Antwort wird verarbeitet…",
-		empty: "Noch keine erkannten Texte"
-	},
-	en: {
-		disabled: "Microphone off",
-		initializing: "Initializing…",
-		listening: "Waiting for wake word",
-		activated: "Activated",
-		recording: "Recording",
-		processing: "Processing…",
-		result: "Result",
-		error: "Error",
-		on: "Disable microphone",
-		off: "Enable microphone",
-		ptt: "Speak",
-		stop: "Finish recording",
-		editor: "Microphone disabled in editor",
-		chat: "Conversation",
-		you: "You",
-		pending: "Processing reply…",
-		empty: "No recognized text yet"
-	}
+}, ve = {
+	widgetName: "Wake word microphone",
+	description: "Local voice input through ai-parakeet",
+	common: "Common",
+	parakeetInstance: "Parakeet instance",
+	autoStart: "Start microphone when loaded",
+	activationMode: "Activation mode",
+	wakeword: "Wake word",
+	pushToTalk: "Push to talk",
+	both: "Both",
+	microphoneRecognition: "Microphone and recognition",
+	activationSound: "Activation sound",
+	completionSound: "Completion sound",
+	microphoneDevice: "Microphone device ID (optional)",
+	ringBuffer: "Ring buffer (ms)",
+	stripWakeword: "Exclude wake word from sent audio",
+	vadThreshold: "VAD threshold (0-1)",
+	minSpeech: "Minimum speech (ms)",
+	trailingSilence: "Trailing silence (ms)",
+	noSpeechTimeout: "No-speech timeout (ms)",
+	maxRecording: "Maximum recording (ms)",
+	displayChat: "Display and chat",
+	showText: "Show recognized text",
+	showInterim: "Show interim text",
+	showChat: "Show conversation",
+	chatLimit: "Chat messages to keep",
+	compact: "Compact view",
+	interfaceLanguage: "Interface language",
+	automatic: "Automatic",
+	accentColor: "Accent color",
+	processingOutput: "Text processing and output",
+	textProcessor: "Text processor",
+	none: "None",
+	processorInstance: "Processor instance",
+	speechOutput: "Speech output",
+	speakReplies: "Speak processor replies",
+	browserVoice: "Browser voice",
+	piperOnAdapter: "Piper on adapter",
+	piperVoice: "Piper voice",
+	micOff: "Microphone off",
+	initializing: "Initializing…",
+	listening: "Waiting for wake word",
+	activated: "Activated",
+	recording: "Recording",
+	processing: "Processing…",
+	result: "Result",
+	error: "Error",
+	disableMic: "Disable microphone",
+	enableMic: "Enable microphone",
+	speak: "Speak",
+	finishRecording: "Finish recording",
+	editorDisabled: "Microphone disabled in editor",
+	conversation: "Conversation",
+	you: "You",
+	pendingReply: "Processing reply…",
+	emptyChat: "No recognized text yet",
+	voice: "Voice",
+	chooseVoice: "Choose voice",
+	automaticLocal: "Automatic (local)",
+	local: "local",
+	remote: "remote",
+	missingVoice: "Selected voice unavailable",
+	noBrowserVoices: "No browser voices available",
+	microphoneLevel: "Microphone level"
+}, ye = {
+	widgetName: "Aktivierungswort-Mikrofon",
+	description: "Lokale Spracheingabe über ai-parakeet",
+	common: "Allgemein",
+	parakeetInstance: "Parakeet-Instanz",
+	autoStart: "Mikrofon beim Laden aktivieren",
+	activationMode: "Aktivierungsmodus",
+	wakeword: "Aktivierungswort",
+	pushToTalk: "Sprechtaste",
+	both: "Beide",
+	microphoneRecognition: "Mikrofon und Erkennung",
+	activationSound: "Aktivierungston",
+	completionSound: "Abschlusston",
+	microphoneDevice: "Mikrofon-Geräte-ID (optional)",
+	ringBuffer: "Ringpuffer (ms)",
+	stripWakeword: "Aktivierungswort nicht übertragen",
+	vadThreshold: "VAD-Schwelle (0-1)",
+	minSpeech: "Minimale Sprachdauer (ms)",
+	trailingSilence: "Stille nach Sprache (ms)",
+	noSpeechTimeout: "Wartezeit nach Aktivierung (ms)",
+	maxRecording: "Maximale Aufnahme (ms)",
+	displayChat: "Anzeige und Chat",
+	showText: "Erkannten Text anzeigen",
+	showInterim: "Zwischenresultate anzeigen",
+	showChat: "Chatverlauf anzeigen",
+	chatLimit: "Nachrichten im Chat behalten",
+	compact: "Kompakte Darstellung",
+	interfaceLanguage: "Sprache der Oberfläche",
+	automatic: "Automatisch",
+	accentColor: "Akzentfarbe",
+	processingOutput: "Textverarbeitung und Ausgabe",
+	textProcessor: "Textverarbeitung",
+	none: "Keine",
+	processorInstance: "Instanz für Textverarbeitung",
+	speechOutput: "Sprachausgabe",
+	speakReplies: "Antworten vorlesen",
+	browserVoice: "Browserstimme",
+	piperOnAdapter: "Piper im Adapter",
+	piperVoice: "Piper-Stimme",
+	micOff: "Mikrofon aus",
+	initializing: "Initialisierung…",
+	listening: "Warte auf Aktivierungswort",
+	activated: "Aktiviert",
+	recording: "Aufnahme läuft",
+	processing: "Verarbeitung…",
+	result: "Ergebnis",
+	error: "Fehler",
+	disableMic: "Mikrofon deaktivieren",
+	enableMic: "Mikrofon aktivieren",
+	speak: "Sprechen",
+	finishRecording: "Aufnahme beenden",
+	editorDisabled: "Mikrofon im Editor deaktiviert",
+	conversation: "Gesprächsverlauf",
+	you: "Du",
+	pendingReply: "Antwort wird verarbeitet…",
+	emptyChat: "Noch keine erkannten Texte",
+	voice: "Stimme",
+	chooseVoice: "Stimme auswählen",
+	automaticLocal: "Automatisch (lokal)",
+	local: "lokal",
+	remote: "remote",
+	missingVoice: "Gewählte Stimme nicht verfügbar",
+	noBrowserVoices: "Keine Browserstimmen verfügbar",
+	microphoneLevel: "Mikrofonpegel"
+}, be = {
+	widgetName: "Микрофон с ключевым словом",
+	description: "Локальный голосовой ввод через ai-parakeet",
+	common: "Общие",
+	parakeetInstance: "Экземпляр Parakeet",
+	autoStart: "Включать микрофон при загрузке",
+	activationMode: "Режим активации",
+	wakeword: "Ключевое слово",
+	pushToTalk: "Нажать и говорить",
+	both: "Оба",
+	microphoneRecognition: "Микрофон и распознавание",
+	activationSound: "Звук активации",
+	completionSound: "Звук завершения",
+	microphoneDevice: "ID микрофона (необязательно)",
+	ringBuffer: "Кольцевой буфер (мс)",
+	stripWakeword: "Не передавать ключевое слово",
+	vadThreshold: "Порог VAD (0-1)",
+	minSpeech: "Мин. длительность речи (мс)",
+	trailingSilence: "Тишина после речи (мс)",
+	noSpeechTimeout: "Ожидание речи (мс)",
+	maxRecording: "Макс. запись (мс)",
+	displayChat: "Отображение и чат",
+	showText: "Показывать распознанный текст",
+	showInterim: "Показывать промежуточный текст",
+	showChat: "Показывать беседу",
+	chatLimit: "Хранить сообщений в чате",
+	compact: "Компактный вид",
+	interfaceLanguage: "Язык интерфейса",
+	automatic: "Автоматически",
+	accentColor: "Акцентный цвет",
+	processingOutput: "Обработка и вывод текста",
+	textProcessor: "Обработчик текста",
+	none: "Нет",
+	processorInstance: "Экземпляр обработчика",
+	speechOutput: "Синтез речи",
+	speakReplies: "Озвучивать ответы",
+	browserVoice: "Голос браузера",
+	piperOnAdapter: "Piper в адаптере",
+	piperVoice: "Голос Piper",
+	micOff: "Микрофон выключен",
+	initializing: "Инициализация…",
+	listening: "Ожидание ключевого слова",
+	activated: "Активировано",
+	recording: "Запись",
+	processing: "Обработка…",
+	result: "Результат",
+	error: "Ошибка",
+	disableMic: "Выключить микрофон",
+	enableMic: "Включить микрофон",
+	speak: "Говорить",
+	finishRecording: "Завершить запись",
+	editorDisabled: "Микрофон отключён в редакторе",
+	conversation: "Беседа",
+	you: "Вы",
+	pendingReply: "Обработка ответа…",
+	emptyChat: "Распознанного текста пока нет",
+	voice: "Голос",
+	chooseVoice: "Выбрать голос",
+	automaticLocal: "Автоматически (локально)",
+	local: "локально",
+	remote: "удалённо",
+	missingVoice: "Выбранный голос недоступен",
+	noBrowserVoices: "Голоса браузера недоступны",
+	microphoneLevel: "Уровень микрофона"
+}, xe = {
+	widgetName: "Microfone com palavra de ativação",
+	description: "Entrada de voz local via ai-parakeet",
+	common: "Comum",
+	parakeetInstance: "Instância Parakeet",
+	autoStart: "Ativar microfone ao carregar",
+	activationMode: "Modo de ativação",
+	wakeword: "Palavra de ativação",
+	pushToTalk: "Premir para falar",
+	both: "Ambos",
+	microphoneRecognition: "Microfone e reconhecimento",
+	activationSound: "Som de ativação",
+	completionSound: "Som de conclusão",
+	microphoneDevice: "ID do microfone (opcional)",
+	ringBuffer: "Buffer circular (ms)",
+	stripWakeword: "Excluir palavra de ativação do áudio",
+	vadThreshold: "Limiar VAD (0-1)",
+	minSpeech: "Duração mínima da fala (ms)",
+	trailingSilence: "Silêncio após fala (ms)",
+	noSpeechTimeout: "Espera por fala (ms)",
+	maxRecording: "Gravação máxima (ms)",
+	displayChat: "Visualização e chat",
+	showText: "Mostrar texto reconhecido",
+	showInterim: "Mostrar resultados parciais",
+	showChat: "Mostrar conversa",
+	chatLimit: "Mensagens a manter no chat",
+	compact: "Vista compacta",
+	interfaceLanguage: "Idioma da interface",
+	automatic: "Automático",
+	accentColor: "Cor de destaque",
+	processingOutput: "Processamento e saída de texto",
+	textProcessor: "Processador de texto",
+	none: "Nenhum",
+	processorInstance: "Instância do processador",
+	speechOutput: "Saída de voz",
+	speakReplies: "Ler respostas em voz alta",
+	browserVoice: "Voz do navegador",
+	piperOnAdapter: "Piper no adaptador",
+	piperVoice: "Voz Piper",
+	micOff: "Microfone desligado",
+	initializing: "A iniciar…",
+	listening: "À espera da palavra de ativação",
+	activated: "Ativado",
+	recording: "A gravar",
+	processing: "A processar…",
+	result: "Resultado",
+	error: "Erro",
+	disableMic: "Desativar microfone",
+	enableMic: "Ativar microfone",
+	speak: "Falar",
+	finishRecording: "Terminar gravação",
+	editorDisabled: "Microfone desativado no editor",
+	conversation: "Conversa",
+	you: "Você",
+	pendingReply: "A processar resposta…",
+	emptyChat: "Ainda não há texto reconhecido",
+	voice: "Voz",
+	chooseVoice: "Escolher voz",
+	automaticLocal: "Automático (local)",
+	local: "local",
+	remote: "remoto",
+	missingVoice: "Voz selecionada indisponível",
+	noBrowserVoices: "Sem vozes do navegador",
+	microphoneLevel: "Nível do microfone"
 }, Se = {
-	de: {
-		voice: "Stimme",
-		settings: "Stimme auswählen",
-		widgetDefault: "Widget-Vorgabe",
-		automatic: "Automatisch (lokal)",
-		local: "lokal",
-		remote: "remote",
-		missing: "Gewählte Stimme nicht verfügbar",
-		none: "Keine Browserstimmen verfügbar"
-	},
-	en: {
-		voice: "Voice",
-		settings: "Choose voice",
-		widgetDefault: "Widget default",
-		automatic: "Automatic (local)",
-		local: "local",
-		remote: "remote",
-		missing: "Selected voice unavailable",
-		none: "No browser voices available"
-	}
-}, Ce = t(function({ language: e, voiceURI: t, configuredVoiceURI: r, onChange: i }) {
-	let [c, l] = a(_e);
+	widgetName: "Wekwoordmicrofoon",
+	description: "Lokale spraakinvoer via ai-parakeet",
+	common: "Algemeen",
+	parakeetInstance: "Parakeet-instantie",
+	autoStart: "Microfoon inschakelen bij laden",
+	activationMode: "Activeringsmodus",
+	wakeword: "Wekwoord",
+	pushToTalk: "Druk om te spreken",
+	both: "Beide",
+	microphoneRecognition: "Microfoon en herkenning",
+	activationSound: "Activeringsgeluid",
+	completionSound: "Voltooiingsgeluid",
+	microphoneDevice: "Microfoonapparaat-ID (optioneel)",
+	ringBuffer: "Ringbuffer (ms)",
+	stripWakeword: "Wekwoord niet meesturen",
+	vadThreshold: "VAD-drempel (0-1)",
+	minSpeech: "Minimale spreekduur (ms)",
+	trailingSilence: "Stilte na spraak (ms)",
+	noSpeechTimeout: "Wachttijd op spraak (ms)",
+	maxRecording: "Maximale opname (ms)",
+	displayChat: "Weergave en chat",
+	showText: "Herkende tekst tonen",
+	showInterim: "Tussentijdse resultaten tonen",
+	showChat: "Gesprek tonen",
+	chatLimit: "Chatberichten bewaren",
+	compact: "Compacte weergave",
+	interfaceLanguage: "Interfacetaal",
+	automatic: "Automatisch",
+	accentColor: "Accentkleur",
+	processingOutput: "Tekstverwerking en uitvoer",
+	textProcessor: "Tekstverwerker",
+	none: "Geen",
+	processorInstance: "Verwerkerinstantie",
+	speechOutput: "Spraakuitvoer",
+	speakReplies: "Antwoorden voorlezen",
+	browserVoice: "Browserstem",
+	piperOnAdapter: "Piper in adapter",
+	piperVoice: "Piper-stem",
+	micOff: "Microfoon uit",
+	initializing: "Initialiseren…",
+	listening: "Wachten op wekwoord",
+	activated: "Geactiveerd",
+	recording: "Opnemen",
+	processing: "Verwerken…",
+	result: "Resultaat",
+	error: "Fout",
+	disableMic: "Microfoon uitschakelen",
+	enableMic: "Microfoon inschakelen",
+	speak: "Spreken",
+	finishRecording: "Opname beëindigen",
+	editorDisabled: "Microfoon uitgeschakeld in editor",
+	conversation: "Gesprek",
+	you: "Jij",
+	pendingReply: "Antwoord wordt verwerkt…",
+	emptyChat: "Nog geen herkende tekst",
+	voice: "Stem",
+	chooseVoice: "Stem kiezen",
+	automaticLocal: "Automatisch (lokaal)",
+	local: "lokaal",
+	remote: "extern",
+	missingVoice: "Gekozen stem niet beschikbaar",
+	noBrowserVoices: "Geen browserstemmen beschikbaar",
+	microphoneLevel: "Microfoonniveau"
+}, Ce = {
+	widgetName: "Microphone à mot d’activation",
+	description: "Entrée vocale locale via ai-parakeet",
+	common: "Commun",
+	parakeetInstance: "Instance Parakeet",
+	autoStart: "Activer le microphone au chargement",
+	activationMode: "Mode d’activation",
+	wakeword: "Mot d’activation",
+	pushToTalk: "Appuyer pour parler",
+	both: "Les deux",
+	microphoneRecognition: "Microphone et reconnaissance",
+	activationSound: "Son d’activation",
+	completionSound: "Son de fin",
+	microphoneDevice: "ID du microphone (facultatif)",
+	ringBuffer: "Tampon circulaire (ms)",
+	stripWakeword: "Exclure le mot d’activation de l’audio",
+	vadThreshold: "Seuil VAD (0-1)",
+	minSpeech: "Durée minimale de parole (ms)",
+	trailingSilence: "Silence après parole (ms)",
+	noSpeechTimeout: "Délai sans parole (ms)",
+	maxRecording: "Enregistrement maximal (ms)",
+	displayChat: "Affichage et discussion",
+	showText: "Afficher le texte reconnu",
+	showInterim: "Afficher les résultats partiels",
+	showChat: "Afficher la conversation",
+	chatLimit: "Messages à conserver",
+	compact: "Vue compacte",
+	interfaceLanguage: "Langue de l’interface",
+	automatic: "Automatique",
+	accentColor: "Couleur d’accent",
+	processingOutput: "Traitement et sortie du texte",
+	textProcessor: "Processeur de texte",
+	none: "Aucun",
+	processorInstance: "Instance du processeur",
+	speechOutput: "Synthèse vocale",
+	speakReplies: "Lire les réponses à voix haute",
+	browserVoice: "Voix du navigateur",
+	piperOnAdapter: "Piper sur l’adaptateur",
+	piperVoice: "Voix Piper",
+	micOff: "Microphone désactivé",
+	initializing: "Initialisation…",
+	listening: "En attente du mot d’activation",
+	activated: "Activé",
+	recording: "Enregistrement",
+	processing: "Traitement…",
+	result: "Résultat",
+	error: "Erreur",
+	disableMic: "Désactiver le microphone",
+	enableMic: "Activer le microphone",
+	speak: "Parler",
+	finishRecording: "Terminer l’enregistrement",
+	editorDisabled: "Microphone désactivé dans l’éditeur",
+	conversation: "Conversation",
+	you: "Vous",
+	pendingReply: "Traitement de la réponse…",
+	emptyChat: "Aucun texte reconnu pour le moment",
+	voice: "Voix",
+	chooseVoice: "Choisir une voix",
+	automaticLocal: "Automatique (locale)",
+	local: "locale",
+	remote: "distante",
+	missingVoice: "Voix choisie indisponible",
+	noBrowserVoices: "Aucune voix du navigateur disponible",
+	microphoneLevel: "Niveau du microphone"
+}, we = {
+	widgetName: "Microfono con parola di attivazione",
+	description: "Input vocale locale tramite ai-parakeet",
+	common: "Comune",
+	parakeetInstance: "Istanza Parakeet",
+	autoStart: "Attiva microfono al caricamento",
+	activationMode: "Modalità di attivazione",
+	wakeword: "Parola di attivazione",
+	pushToTalk: "Premi per parlare",
+	both: "Entrambi",
+	microphoneRecognition: "Microfono e riconoscimento",
+	activationSound: "Suono di attivazione",
+	completionSound: "Suono di completamento",
+	microphoneDevice: "ID microfono (facoltativo)",
+	ringBuffer: "Buffer circolare (ms)",
+	stripWakeword: "Escludi parola di attivazione dall’audio",
+	vadThreshold: "Soglia VAD (0-1)",
+	minSpeech: "Durata minima del parlato (ms)",
+	trailingSilence: "Silenzio dopo il parlato (ms)",
+	noSpeechTimeout: "Attesa del parlato (ms)",
+	maxRecording: "Registrazione massima (ms)",
+	displayChat: "Visualizzazione e chat",
+	showText: "Mostra testo riconosciuto",
+	showInterim: "Mostra risultati parziali",
+	showChat: "Mostra conversazione",
+	chatLimit: "Messaggi da conservare",
+	compact: "Vista compatta",
+	interfaceLanguage: "Lingua dell’interfaccia",
+	automatic: "Automatico",
+	accentColor: "Colore di accento",
+	processingOutput: "Elaborazione e uscita del testo",
+	textProcessor: "Elaboratore di testo",
+	none: "Nessuno",
+	processorInstance: "Istanza dell’elaboratore",
+	speechOutput: "Sintesi vocale",
+	speakReplies: "Leggi le risposte ad alta voce",
+	browserVoice: "Voce del browser",
+	piperOnAdapter: "Piper nell’adattatore",
+	piperVoice: "Voce Piper",
+	micOff: "Microfono spento",
+	initializing: "Inizializzazione…",
+	listening: "In attesa della parola di attivazione",
+	activated: "Attivato",
+	recording: "Registrazione",
+	processing: "Elaborazione…",
+	result: "Risultato",
+	error: "Errore",
+	disableMic: "Disattiva microfono",
+	enableMic: "Attiva microfono",
+	speak: "Parla",
+	finishRecording: "Termina registrazione",
+	editorDisabled: "Microfono disattivato nell’editor",
+	conversation: "Conversazione",
+	you: "Tu",
+	pendingReply: "Elaborazione della risposta…",
+	emptyChat: "Nessun testo riconosciuto",
+	voice: "Voce",
+	chooseVoice: "Scegli voce",
+	automaticLocal: "Automatico (locale)",
+	local: "locale",
+	remote: "remota",
+	missingVoice: "Voce selezionata non disponibile",
+	noBrowserVoices: "Nessuna voce del browser disponibile",
+	microphoneLevel: "Livello del microfono"
+}, Te = {
+	widgetName: "Micrófono con palabra de activación",
+	description: "Entrada de voz local mediante ai-parakeet",
+	common: "Común",
+	parakeetInstance: "Instancia Parakeet",
+	autoStart: "Activar micrófono al cargar",
+	activationMode: "Modo de activación",
+	wakeword: "Palabra de activación",
+	pushToTalk: "Pulsar para hablar",
+	both: "Ambos",
+	microphoneRecognition: "Micrófono y reconocimiento",
+	activationSound: "Sonido de activación",
+	completionSound: "Sonido de finalización",
+	microphoneDevice: "ID del micrófono (opcional)",
+	ringBuffer: "Búfer circular (ms)",
+	stripWakeword: "Excluir la palabra de activación del audio",
+	vadThreshold: "Umbral VAD (0-1)",
+	minSpeech: "Duración mínima del habla (ms)",
+	trailingSilence: "Silencio tras el habla (ms)",
+	noSpeechTimeout: "Espera de voz (ms)",
+	maxRecording: "Grabación máxima (ms)",
+	displayChat: "Pantalla y chat",
+	showText: "Mostrar texto reconocido",
+	showInterim: "Mostrar resultados parciales",
+	showChat: "Mostrar conversación",
+	chatLimit: "Mensajes que conservar",
+	compact: "Vista compacta",
+	interfaceLanguage: "Idioma de la interfaz",
+	automatic: "Automático",
+	accentColor: "Color de acento",
+	processingOutput: "Procesamiento y salida de texto",
+	textProcessor: "Procesador de texto",
+	none: "Ninguno",
+	processorInstance: "Instancia del procesador",
+	speechOutput: "Salida de voz",
+	speakReplies: "Leer respuestas en voz alta",
+	browserVoice: "Voz del navegador",
+	piperOnAdapter: "Piper en el adaptador",
+	piperVoice: "Voz Piper",
+	micOff: "Micrófono apagado",
+	initializing: "Inicializando…",
+	listening: "Esperando palabra de activación",
+	activated: "Activado",
+	recording: "Grabando",
+	processing: "Procesando…",
+	result: "Resultado",
+	error: "Error",
+	disableMic: "Desactivar micrófono",
+	enableMic: "Activar micrófono",
+	speak: "Hablar",
+	finishRecording: "Terminar grabación",
+	editorDisabled: "Micrófono desactivado en el editor",
+	conversation: "Conversación",
+	you: "Tú",
+	pendingReply: "Procesando respuesta…",
+	emptyChat: "Aún no hay texto reconocido",
+	voice: "Voz",
+	chooseVoice: "Elegir voz",
+	automaticLocal: "Automático (local)",
+	local: "local",
+	remote: "remota",
+	missingVoice: "Voz seleccionada no disponible",
+	noBrowserVoices: "No hay voces del navegador",
+	microphoneLevel: "Nivel del micrófono"
+}, Ee = {
+	widgetName: "Mikrofon ze słowem aktywacyjnym",
+	description: "Lokalne wprowadzanie głosowe przez ai-parakeet",
+	common: "Ogólne",
+	parakeetInstance: "Instancja Parakeet",
+	autoStart: "Włącz mikrofon przy ładowaniu",
+	activationMode: "Tryb aktywacji",
+	wakeword: "Słowo aktywacyjne",
+	pushToTalk: "Naciśnij i mów",
+	both: "Oba",
+	microphoneRecognition: "Mikrofon i rozpoznawanie",
+	activationSound: "Dźwięk aktywacji",
+	completionSound: "Dźwięk zakończenia",
+	microphoneDevice: "ID mikrofonu (opcjonalnie)",
+	ringBuffer: "Bufor pierścieniowy (ms)",
+	stripWakeword: "Nie wysyłaj słowa aktywacyjnego",
+	vadThreshold: "Próg VAD (0-1)",
+	minSpeech: "Min. czas mowy (ms)",
+	trailingSilence: "Cisza po mowie (ms)",
+	noSpeechTimeout: "Oczekiwanie na mowę (ms)",
+	maxRecording: "Maks. nagranie (ms)",
+	displayChat: "Wyświetlanie i czat",
+	showText: "Pokaż rozpoznany tekst",
+	showInterim: "Pokaż wyniki częściowe",
+	showChat: "Pokaż rozmowę",
+	chatLimit: "Zachowaj wiadomości czatu",
+	compact: "Widok kompaktowy",
+	interfaceLanguage: "Język interfejsu",
+	automatic: "Automatycznie",
+	accentColor: "Kolor akcentu",
+	processingOutput: "Przetwarzanie i wyjście tekstu",
+	textProcessor: "Procesor tekstu",
+	none: "Brak",
+	processorInstance: "Instancja procesora",
+	speechOutput: "Synteza mowy",
+	speakReplies: "Odczytuj odpowiedzi",
+	browserVoice: "Głos przeglądarki",
+	piperOnAdapter: "Piper w adapterze",
+	piperVoice: "Głos Piper",
+	micOff: "Mikrofon wyłączony",
+	initializing: "Inicjalizacja…",
+	listening: "Oczekiwanie na słowo aktywacyjne",
+	activated: "Aktywowano",
+	recording: "Nagrywanie",
+	processing: "Przetwarzanie…",
+	result: "Wynik",
+	error: "Błąd",
+	disableMic: "Wyłącz mikrofon",
+	enableMic: "Włącz mikrofon",
+	speak: "Mów",
+	finishRecording: "Zakończ nagrywanie",
+	editorDisabled: "Mikrofon wyłączony w edytorze",
+	conversation: "Rozmowa",
+	you: "Ty",
+	pendingReply: "Przetwarzanie odpowiedzi…",
+	emptyChat: "Brak rozpoznanego tekstu",
+	voice: "Głos",
+	chooseVoice: "Wybierz głos",
+	automaticLocal: "Automatycznie (lokalnie)",
+	local: "lokalnie",
+	remote: "zdalnie",
+	missingVoice: "Wybrany głos niedostępny",
+	noBrowserVoices: "Brak głosów przeglądarki",
+	microphoneLevel: "Poziom mikrofonu"
+}, De = {
+	widgetName: "Мікрофон із ключовим словом",
+	description: "Локальне голосове введення через ai-parakeet",
+	common: "Загальні",
+	parakeetInstance: "Екземпляр Parakeet",
+	autoStart: "Вмикати мікрофон під час завантаження",
+	activationMode: "Режим активації",
+	wakeword: "Ключове слово",
+	pushToTalk: "Натиснути й говорити",
+	both: "Обидва",
+	microphoneRecognition: "Мікрофон і розпізнавання",
+	activationSound: "Звук активації",
+	completionSound: "Звук завершення",
+	microphoneDevice: "ID мікрофона (необов’язково)",
+	ringBuffer: "Кільцевий буфер (мс)",
+	stripWakeword: "Не передавати ключове слово",
+	vadThreshold: "Поріг VAD (0-1)",
+	minSpeech: "Мін. тривалість мовлення (мс)",
+	trailingSilence: "Тиша після мовлення (мс)",
+	noSpeechTimeout: "Очікування мовлення (мс)",
+	maxRecording: "Макс. запис (мс)",
+	displayChat: "Відображення та чат",
+	showText: "Показувати розпізнаний текст",
+	showInterim: "Показувати проміжний текст",
+	showChat: "Показувати розмову",
+	chatLimit: "Зберігати повідомлень у чаті",
+	compact: "Компактний вигляд",
+	interfaceLanguage: "Мова інтерфейсу",
+	automatic: "Автоматично",
+	accentColor: "Колір акценту",
+	processingOutput: "Обробка та виведення тексту",
+	textProcessor: "Обробник тексту",
+	none: "Немає",
+	processorInstance: "Екземпляр обробника",
+	speechOutput: "Синтез мовлення",
+	speakReplies: "Озвучувати відповіді",
+	browserVoice: "Голос браузера",
+	piperOnAdapter: "Piper в адаптері",
+	piperVoice: "Голос Piper",
+	micOff: "Мікрофон вимкнено",
+	initializing: "Ініціалізація…",
+	listening: "Очікування ключового слова",
+	activated: "Активовано",
+	recording: "Запис",
+	processing: "Обробка…",
+	result: "Результат",
+	error: "Помилка",
+	disableMic: "Вимкнути мікрофон",
+	enableMic: "Увімкнути мікрофон",
+	speak: "Говорити",
+	finishRecording: "Завершити запис",
+	editorDisabled: "Мікрофон вимкнено в редакторі",
+	conversation: "Розмова",
+	you: "Ви",
+	pendingReply: "Обробка відповіді…",
+	emptyChat: "Розпізнаного тексту ще немає",
+	voice: "Голос",
+	chooseVoice: "Вибрати голос",
+	automaticLocal: "Автоматично (локально)",
+	local: "локально",
+	remote: "віддалено",
+	missingVoice: "Обраний голос недоступний",
+	noBrowserVoices: "Голоси браузера недоступні",
+	microphoneLevel: "Рівень мікрофона"
+}, Oe = {
+	widgetName: "唤醒词麦克风",
+	description: "通过 ai-parakeet 进行本地语音输入",
+	common: "通用",
+	parakeetInstance: "Parakeet 实例",
+	autoStart: "加载时启用麦克风",
+	activationMode: "激活模式",
+	wakeword: "唤醒词",
+	pushToTalk: "按住说话",
+	both: "两者",
+	microphoneRecognition: "麦克风与识别",
+	activationSound: "激活提示音",
+	completionSound: "完成提示音",
+	microphoneDevice: "麦克风设备 ID（可选）",
+	ringBuffer: "环形缓冲区（毫秒）",
+	stripWakeword: "发送音频时去除唤醒词",
+	vadThreshold: "VAD 阈值（0-1）",
+	minSpeech: "最短语音时长（毫秒）",
+	trailingSilence: "语音后静音（毫秒）",
+	noSpeechTimeout: "等待语音超时（毫秒）",
+	maxRecording: "最长录音（毫秒）",
+	displayChat: "显示与聊天",
+	showText: "显示识别文本",
+	showInterim: "显示中间结果",
+	showChat: "显示对话",
+	chatLimit: "保留聊天消息数",
+	compact: "紧凑视图",
+	interfaceLanguage: "界面语言",
+	automatic: "自动",
+	accentColor: "强调色",
+	processingOutput: "文本处理与输出",
+	textProcessor: "文本处理器",
+	none: "无",
+	processorInstance: "处理器实例",
+	speechOutput: "语音输出",
+	speakReplies: "朗读回复",
+	browserVoice: "浏览器语音",
+	piperOnAdapter: "适配器上的 Piper",
+	piperVoice: "Piper 语音",
+	micOff: "麦克风已关闭",
+	initializing: "正在初始化…",
+	listening: "等待唤醒词",
+	activated: "已激活",
+	recording: "正在录音",
+	processing: "正在处理…",
+	result: "结果",
+	error: "错误",
+	disableMic: "关闭麦克风",
+	enableMic: "启用麦克风",
+	speak: "说话",
+	finishRecording: "结束录音",
+	editorDisabled: "编辑器中已禁用麦克风",
+	conversation: "对话",
+	you: "你",
+	pendingReply: "正在处理回复…",
+	emptyChat: "暂无识别文本",
+	voice: "语音",
+	chooseVoice: "选择语音",
+	automaticLocal: "自动（本地）",
+	local: "本地",
+	remote: "远程",
+	missingVoice: "所选语音不可用",
+	noBrowserVoices: "没有可用的浏览器语音",
+	microphoneLevel: "麦克风音量"
+}, ke = {
+	en: "English",
+	de: "Deutsch",
+	ru: "Русский",
+	pt: "Português",
+	nl: "Nederlands",
+	fr: "Français",
+	it: "Italiano",
+	es: "Español",
+	pl: "Polski",
+	uk: "Українська",
+	"zh-cn": "简体中文"
+}, Ae = {
+	en: ve,
+	de: ye,
+	ru: be,
+	pt: xe,
+	nl: Se,
+	fr: Ce,
+	it: we,
+	es: Te,
+	pl: Ee,
+	uk: De,
+	"zh-cn": Oe
+};
+function je(e, t) {
+	return Ae[t][e];
+}
+function Me(e) {
+	let t = (e || "").toLowerCase().replace("_", "-");
+	if (t.startsWith("zh")) return "zh-cn";
+	let n = t.split("-")[0];
+	return n in ke ? n : "en";
+}
+// src/WakewordView.tsx
+var Ne = "M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3m5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72z", Pe = "M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.2 7.2 0 0 0-1.63-.94l-.36-2.54a.49.49 0 0 0-.49-.42h-3.84a.49.49 0 0 0-.49.42l-.36 2.54c-.59.23-1.13.54-1.63.94l-2.39-.96a.5.5 0 0 0-.61.22L2.74 8.84a.5.5 0 0 0 .12.64l2.03 1.58a6.8 6.8 0 0 0 0 1.88l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32c.12.21.37.3.61.22l2.39-.96c.5.39 1.04.7 1.63.94l.36 2.54c.04.24.25.42.49.42h3.84c.24 0 .45-.18.49-.42l.36-2.54c.59-.23 1.13-.54 1.63-.94l2.39.96c.24.09.49 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.64L19.14 12.94zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z", Fe = {
+	disabled: "micOff",
+	initializing: "initializing",
+	listening: "listening",
+	activated: "activated",
+	recording: "recording",
+	processing: "processing",
+	result: "result",
+	error: "error"
+}, Ie = t(function({ language: e, voiceURI: t, onChange: r }) {
+	let [i, c] = a(ge);
 	n(() => {
 		let e = window.speechSynthesis;
 		if (!e) return;
-		let t = () => l(_e());
+		let t = () => c(ge());
 		return t(), e.addEventListener("voiceschanged", t), () => e.removeEventListener("voiceschanged", t);
 	}, []);
-	let u = Se[e], d = c.some((e) => e.voiceURI === t);
+	let l = (t) => je(t, e), u = i.some((e) => e.voiceURI === t);
 	return /* @__PURE__ */ s("label", {
 		part: "voice-picker",
 		className: "voice-picker",
 		children: [
-			u.voice,
+			l("voice"),
 			/* @__PURE__ */ s("select", {
-				"aria-label": u.voice,
+				"aria-label": l("voice"),
 				value: t,
-				onChange: (e) => i(e.target.value),
+				onChange: (e) => r(e.target.value),
 				children: [
-					/* @__PURE__ */ s("option", {
-						value: he,
-						children: [
-							u.widgetDefault,
-							": ",
-							r || u.automatic
-						]
-					}),
 					/* @__PURE__ */ o("option", {
-						value: ge,
-						children: u.automatic
+						value: he,
+						children: l("automaticLocal")
 					}),
-					t !== "__widget_default__" && t !== "__auto_local__" && !d ? /* @__PURE__ */ o("option", {
+					t !== "__auto_local__" && !u ? /* @__PURE__ */ o("option", {
 						value: t,
 						disabled: !0,
-						children: u.missing
+						children: l("missingVoice")
 					}) : null,
-					c.map((e) => /* @__PURE__ */ s("option", {
+					i.map((e) => /* @__PURE__ */ s("option", {
 						value: e.voiceURI,
 						children: [
 							e.name,
 							" (",
-							e.localService === !0 ? u.local : u.remote,
+							e.localService === !0 ? l("local") : l("remote"),
 							") — ",
 							e.lang
 						]
 					}, e.voiceURI))
 				]
 			}),
-			c.length ? null : /* @__PURE__ */ o("small", { children: u.none })
+			i.length ? null : /* @__PURE__ */ o("small", { children: l("noBrowserVoices") })
 		]
 	});
-}), we = t(function({ messages: e, language: t, maxMessages: n }) {
+}), Le = t(function({ messages: e, language: t, maxMessages: n }) {
 	let a = i(null), c = i(null), l = () => {
 		a.current && (a.current.scrollTop = a.current.scrollHeight);
 	};
@@ -614,11 +1294,11 @@ var he = "__widget_default__", ge = "__auto_local__", _e = () => window.speechSy
 			e.disconnect(), r?.disconnect();
 		};
 	}, []);
-	let u = xe[t];
+	let u = (e) => je(e, t);
 	return /* @__PURE__ */ o("section", {
 		part: "chat",
 		className: "chat",
-		"aria-label": u.chat,
+		"aria-label": u("conversation"),
 		role: "log",
 		ref: a,
 		children: /* @__PURE__ */ o("div", {
@@ -629,24 +1309,21 @@ var he = "__widget_default__", ge = "__auto_local__", _e = () => window.speechSy
 				className: `chat-entry ${e.role} ${e.status || ""}`,
 				children: [/* @__PURE__ */ o("span", {
 					className: "chat-source",
-					children: e.role === "user" ? u.you : e.source || "smart-text2command"
-				}), /* @__PURE__ */ o("p", { children: e.status === "pending" ? u.pending : e.text })]
+					children: e.role === "user" ? u("you") : e.source || "smart-text2command"
+				}), /* @__PURE__ */ o("p", { children: e.status === "pending" ? u("pendingReply") : e.text })]
 			}, e.id)) : /* @__PURE__ */ o("p", {
 				className: "chat-empty",
-				children: u.empty
+				children: u("emptyChat")
 			})
 		})
 	});
 });
-function Te(e) {
-	let { snapshot: t } = e, n = xe[e.language], r = t.enabled;
+function Re(e) {
+	let { snapshot: t } = e, n = (t) => je(t, e.language), r = t.enabled;
 	return /* @__PURE__ */ s("div", {
 		part: "content",
 		className: `wakeword ${e.compact ? "compact" : ""} ${e.showChat ? "with-chat" : ""}`,
-		style: {
-			...e.accentColor ? { "--wake-accent": e.accentColor } : {},
-			...e.fontSize ? { fontSize: e.fontSize } : {}
-		},
+		style: { ...e.accentColor ? { "--wake-accent": e.accentColor } : {} },
 		children: [
 			/* @__PURE__ */ s("div", {
 				className: "top",
@@ -656,39 +1333,38 @@ function Te(e) {
 						part: "microphone",
 						className: `mic ${r ? "on" : ""}`,
 						"aria-pressed": r,
-						"aria-label": r ? n.on : n.off,
-						title: r ? n.on : n.off,
+						"aria-label": n(r ? "disableMic" : "enableMic"),
+						title: n(r ? "disableMic" : "enableMic"),
 						disabled: e.editMode || t.phase === "initializing",
 						onClick: e.onToggle,
 						children: /* @__PURE__ */ o("svg", {
 							viewBox: "0 0 24 24",
 							"aria-hidden": "true",
-							children: /* @__PURE__ */ o("path", { d: ye })
+							children: /* @__PURE__ */ o("path", { d: Ne })
 						})
 					}),
 					/* @__PURE__ */ s("div", {
 						part: "status",
 						className: "status",
-						children: [/* @__PURE__ */ o("strong", { children: e.editMode ? n.editor : n[t.phase] }), t.wakeword && !e.compact ? /* @__PURE__ */ o("small", { children: t.wakeword }) : null]
+						children: [/* @__PURE__ */ o("strong", { children: e.editMode ? n("editorDisabled") : n(Fe[t.phase]) }), t.wakeword && !e.compact ? /* @__PURE__ */ o("small", { children: t.wakeword }) : null]
 					}),
 					!e.editMode && e.speechEnabled ? /* @__PURE__ */ s("details", {
 						className: "voice-settings",
 						children: [/* @__PURE__ */ o("summary", {
 							part: "settings-button",
-							"aria-label": Se[e.language].settings,
-							title: Se[e.language].settings,
+							"aria-label": n("chooseVoice"),
+							title: n("chooseVoice"),
 							children: /* @__PURE__ */ o("svg", {
 								viewBox: "0 0 24 24",
 								"aria-hidden": "true",
-								children: /* @__PURE__ */ o("path", { d: be })
+								children: /* @__PURE__ */ o("path", { d: Pe })
 							})
 						}), /* @__PURE__ */ o("div", {
 							part: "settings-panel",
 							className: "voice-panel",
-							children: /* @__PURE__ */ o(Ce, {
+							children: /* @__PURE__ */ o(Ie, {
 								language: e.language,
 								voiceURI: e.voiceURI,
-								configuredVoiceURI: e.configuredVoiceURI,
 								onChange: e.onVoiceChange
 							})
 						})]
@@ -699,7 +1375,7 @@ function Te(e) {
 				part: "meter",
 				className: "meter",
 				role: "meter",
-				"aria-label": "Microphone level",
+				"aria-label": n("microphoneLevel"),
 				"aria-valuenow": Math.round(t.level * 100),
 				"aria-valuemin": 0,
 				"aria-valuemax": 100,
@@ -715,7 +1391,7 @@ function Te(e) {
 				role: "alert",
 				children: t.error
 			}) : null,
-			e.showChat ? /* @__PURE__ */ o(we, {
+			e.showChat ? /* @__PURE__ */ o(Le, {
 				messages: t.chat,
 				language: e.language,
 				maxMessages: e.maxChatMessages
@@ -726,19 +1402,19 @@ function Te(e) {
 					type: "button",
 					onClick: e.onPtt,
 					disabled: t.phase === "initializing" || t.phase === "processing" || t.phase === "recording",
-					children: n.ptt
+					children: n("speak")
 				}), t.phase === "recording" ? /* @__PURE__ */ o("button", {
 					type: "button",
 					onClick: e.onStop,
-					children: n.stop
+					children: n("finishRecording")
 				}) : null]
 			}) : null
 		]
 	});
 }
 // src/audio.ts
-var Ee = 16e3;
-function De(e) {
+var ze = 16e3;
+function Be(e) {
 	let t = new Uint8Array(e.length * 2), n = new DataView(t.buffer);
 	for (let t = 0; t < e.length; t++) {
 		let r = Math.max(-1, Math.min(1, e[t]));
@@ -748,13 +1424,13 @@ function De(e) {
 	for (let e = 0; e < t.length; e += 32768) r += String.fromCharCode(...t.subarray(e, e + 32768));
 	return btoa(r);
 }
-function Oe(e) {
+function Ve(e) {
 	if (!e.length) return 0;
 	let t = 0;
 	for (let n of e) t += n * n;
 	return Math.sqrt(t / e.length);
 }
-var ke = class {
+var He = class {
 	maxSamples;
 	chunks = [];
 	count = 0;
@@ -775,7 +1451,7 @@ var ke = class {
 	clear() {
 		this.chunks = [], this.count = 0;
 	}
-}, Ae = class {
+}, Ue = class {
 	options;
 	elapsed = 0;
 	speechMs = 0;
@@ -784,10 +1460,10 @@ var ke = class {
 		this.options = e;
 	}
 	push(e) {
-		let t = e.length / Ee * 1e3;
-		return this.elapsed += t, Oe(e) >= this.options.threshold ? (this.speechMs += t, this.silence = 0) : this.speechMs >= this.options.minSpeechMs && (this.silence += t), this.elapsed >= this.options.maxRecordMs || this.speechMs >= this.options.minSpeechMs && this.silence >= this.options.silenceMs ? "done" : this.speechMs < this.options.minSpeechMs && this.elapsed >= this.options.noSpeechMs ? "no-speech" : "continue";
+		let t = e.length / ze * 1e3;
+		return this.elapsed += t, Ve(e) >= this.options.threshold ? (this.speechMs += t, this.silence = 0) : this.speechMs >= this.options.minSpeechMs && (this.silence += t), this.elapsed >= this.options.maxRecordMs || this.speechMs >= this.options.minSpeechMs && this.silence >= this.options.silenceMs ? "done" : this.speechMs < this.options.minSpeechMs && this.elapsed >= this.options.noSpeechMs ? "no-speech" : "continue";
 	}
-}, je = class {
+}, We = class {
 	call;
 	onEvent;
 	onFailure;
@@ -846,7 +1522,7 @@ var ke = class {
 				action: "audio",
 				id: this.id,
 				seq: ++this.seq,
-				pcm: De(t)
+				pcm: Be(t)
 			};
 		} else this.stopping && !this.stopSent ? (this.stopSent = !0, e = {
 			action: "stop",
@@ -875,7 +1551,7 @@ var ke = class {
 			id: this.id
 		}).catch(() => {}));
 	}
-}, Me = Object.defineProperty, Ne = Object.getOwnPropertyDescriptor, Pe = Object.getOwnPropertyNames, Fe = Object.prototype.hasOwnProperty, Ie = ((e) => typeof c < "u" ? c : typeof Proxy < "u" ? new Proxy(e, { get: (e, t) => (typeof c < "u" ? c : e)[t] }) : e)(function(e) {
+}, Ge = Object.defineProperty, Ke = Object.getOwnPropertyDescriptor, qe = Object.getOwnPropertyNames, Je = Object.prototype.hasOwnProperty, Ye = ((e) => typeof c < "u" ? c : typeof Proxy < "u" ? new Proxy(e, { get: (e, t) => (typeof c < "u" ? c : e)[t] }) : e)(function(e) {
 	if (typeof c < "u") return c.apply(this, arguments);
 	throw Error("Dynamic require of \"" + e + "\" is not supported");
 }), C = (e, t, n) => () => {
@@ -885,22 +1561,22 @@ var ke = class {
 	} catch (e) {
 		throw n = [e], e;
 	}
-}, Le = (e, t) => {
-	for (var n in t) Me(e, n, {
+}, Xe = (e, t) => {
+	for (var n in t) Ge(e, n, {
 		get: t[n],
 		enumerable: !0
 	});
-}, Re = (e, t, n, r) => {
-	if (t && typeof t == "object" || typeof t == "function") for (let i of Pe(t)) !Fe.call(e, i) && i !== n && Me(e, i, {
+}, Ze = (e, t, n, r) => {
+	if (t && typeof t == "object" || typeof t == "function") for (let i of qe(t)) !Je.call(e, i) && i !== n && Ge(e, i, {
 		get: () => t[i],
-		enumerable: !(r = Ne(t, i)) || r.enumerable
+		enumerable: !(r = Ke(t, i)) || r.enumerable
 	});
 	return e;
-}, ze = (e) => Re(Me({}, "__esModule", { value: !0 }), e), Be, w, Ve, He, Ue, We, Ge, Ke = C(() => {
-	Be = /* @__PURE__ */ new Map(), w = [], Ve = /* @__PURE__ */ new WeakMap(), He = (e, t, n) => {
+}, Qe = (e) => Ze(Ge({}, "__esModule", { value: !0 }), e), w, T, $e, et, tt, nt, rt, it = C(() => {
+	w = /* @__PURE__ */ new Map(), T = [], $e = /* @__PURE__ */ new WeakMap(), et = (e, t, n) => {
 		if (t && typeof t.init == "function" && typeof t.createInferenceSessionHandler == "function") {
-			let r = Be.get(e);
-			if (r === void 0) Be.set(e, {
+			let r = w.get(e);
+			if (r === void 0) w.set(e, {
 				backend: t,
 				priority: n
 			});
@@ -909,17 +1585,17 @@ var ke = class {
 				if (r.priority === n && r.backend !== t) throw Error(`cannot register backend "${e}" using priority ${n}`);
 			}
 			if (n >= 0) {
-				let t = w.indexOf(e);
-				t !== -1 && w.splice(t, 1);
-				for (let t = 0; t < w.length; t++) if (Be.get(w[t]).priority <= n) {
-					w.splice(t, 0, e);
+				let t = T.indexOf(e);
+				t !== -1 && T.splice(t, 1);
+				for (let t = 0; t < T.length; t++) if (w.get(T[t]).priority <= n) {
+					T.splice(t, 0, e);
 					return;
 				}
-				w.push(e);
+				T.push(e);
 			}
 		} else throw TypeError("not a valid backend");
-	}, Ue = async (e) => {
-		let t = Be.get(e);
+	}, tt = async (e) => {
+		let t = w.get(e);
 		if (!t) return "backend not found.";
 		if (t.initialized) return t.backend;
 		if (t.aborted) return t.error;
@@ -927,8 +1603,8 @@ var ke = class {
 			let n = !!t.initPromise;
 			try {
 				if (!n) {
-					let n = t.backend, r = Ve.get(n);
-					t.initPromise = r ? r.then(async () => n.init(e), async () => n.init(e)) : n.init(e), Ve.set(n, t.initPromise);
+					let n = t.backend, r = $e.get(n);
+					t.initPromise = r ? r.then(async () => n.init(e), async () => n.init(e)) : n.init(e), $e.set(n, t.initPromise);
 				}
 				return await t.initPromise, t.initialized = !0, t.backend;
 			} catch (e) {
@@ -937,10 +1613,10 @@ var ke = class {
 				delete t.initPromise;
 			}
 		}
-	}, We = async (e) => {
-		let t = e.executionProviders || [], n = t.map((e) => typeof e == "string" ? e : e.name), r = n.length === 0 ? w : n, i, a = [], o = /* @__PURE__ */ new Set();
+	}, nt = async (e) => {
+		let t = e.executionProviders || [], n = t.map((e) => typeof e == "string" ? e : e.name), r = n.length === 0 ? T : n, i, a = [], o = /* @__PURE__ */ new Set();
 		for (let e of r) {
-			let t = await Ue(e);
+			let t = await tt(e);
 			typeof t == "string" ? a.push({
 				name: e,
 				err: t
@@ -950,11 +1626,11 @@ var ke = class {
 		for (let { name: e, err: t } of a) n.includes(e) && console.warn(`removing requested execution provider "${e}" from session options because it is not available: ${t}`);
 		let s = t.filter((e) => o.has(typeof e == "string" ? e : e.name));
 		return [i, new Proxy(e, { get: (e, t) => t === "executionProviders" ? s : Reflect.get(e, t) })];
-	}, Ge = async () => {
+	}, rt = async () => {
 		let e = [];
-		for (let t of w) {
-			if (typeof Be.get(t).backend.createLoraAdapterHandler != "function") continue;
-			let n = await Ue(t);
+		for (let t of T) {
+			if (typeof w.get(t).backend.createLoraAdapterHandler != "function") continue;
+			let n = await tt(t);
 			if (typeof n != "string") return n;
 			e.push({
 				name: t,
@@ -964,16 +1640,16 @@ var ke = class {
 		let t = e.length === 0 ? "" : ` ERR: ${e.map((e) => `[${e.name}] ${e.err}`).join(", ")}`;
 		throw Error(`no available backend supports LoRA adapters.${t}`);
 	};
-}), qe = C(() => {
-	Ke();
-}), Je, Ye = C(() => {
-	Je = "1.31.1";
-}), Xe, T, Ze = C(() => {
-	Ye(), Xe = "warning", T = {
+}), at = C(() => {
+	it();
+}), ot, st = C(() => {
+	ot = "1.31.1";
+}), ct, E, lt = C(() => {
+	st(), ct = "warning", E = {
 		wasm: {},
 		webgl: {},
 		webgpu: {},
-		versions: { common: Je },
+		versions: { common: ot },
 		set logLevel(e) {
 			if (e !== void 0) {
 				if (typeof e != "string" || [
@@ -983,53 +1659,53 @@ var ke = class {
 					"error",
 					"fatal"
 				].indexOf(e) === -1) throw Error(`Unsupported logging level: ${e}`);
-				Xe = e;
+				ct = e;
 			}
 		},
 		get logLevel() {
-			return Xe;
+			return ct;
 		}
-	}, Object.defineProperty(T, "logLevel", { enumerable: !0 });
-}), E, Qe = C(() => {
-	Ze(), E = T;
-}), $e, et, D, O, k, A, tt = C(() => {
-	Ze(), $e = (e, t) => {
-		(typeof T.trace > "u" ? !T.wasm.trace : !T.trace) || console.timeStamp(`${e}::ORT::${t}`);
-	}, et = (e, t) => {
+	}, Object.defineProperty(E, "logLevel", { enumerable: !0 });
+}), D, ut = C(() => {
+	lt(), D = E;
+}), dt, ft, O, k, A, pt, mt = C(() => {
+	lt(), dt = (e, t) => {
+		(typeof E.trace > "u" ? !E.wasm.trace : !E.trace) || console.timeStamp(`${e}::ORT::${t}`);
+	}, ft = (e, t) => {
 		let n = (/* @__PURE__ */ Error()).stack?.split(/\r\n|\r|\n/g) || [], r = !1;
 		for (let i = 0; i < n.length; i++) {
 			if (r && !n[i].includes("TRACE_FUNC")) {
 				let r = `FUNC_${e}::${n[i].trim().split(" ")[1]}`;
-				t && (r += `::${t}`), $e("CPU", r);
+				t && (r += `::${t}`), dt("CPU", r);
 				return;
 			}
 			n[i].includes("TRACE_FUNC") && (r = !0);
 		}
-	}, D = (e) => {
-		(typeof T.trace > "u" ? !T.wasm.trace : !T.trace) || et("BEGIN", e);
 	}, O = (e) => {
-		(typeof T.trace > "u" ? !T.wasm.trace : !T.trace) || et("END", e);
+		(typeof E.trace > "u" ? !E.wasm.trace : !E.trace) || ft("BEGIN", e);
 	}, k = (e) => {
-		(typeof T.trace > "u" ? !T.wasm.trace : !T.trace) || console.time(`ORT::${e}`);
+		(typeof E.trace > "u" ? !E.wasm.trace : !E.trace) || ft("END", e);
 	}, A = (e) => {
-		(typeof T.trace > "u" ? !T.wasm.trace : !T.trace) || console.timeEnd(`ORT::${e}`);
+		(typeof E.trace > "u" ? !E.wasm.trace : !E.trace) || console.time(`ORT::${e}`);
+	}, pt = (e) => {
+		(typeof E.trace > "u" ? !E.wasm.trace : !E.trace) || console.timeEnd(`ORT::${e}`);
 	};
-}), nt, rt = C(() => {
-	Ke(), tt(), nt = class e {
+}), ht, gt = C(() => {
+	it(), mt(), ht = class e {
 		constructor(e, t) {
 			this.backend = e, this.handler = t;
 		}
 		static async create(t) {
-			if (D(), typeof t != "string" && !(t instanceof Uint8Array)) throw TypeError("Unexpected argument[0]: must be 'path' or 'buffer'.");
-			let n = await Ge(), r = await n.createLoraAdapterHandler(t);
-			return O(), new e(n, r);
+			if (O(), typeof t != "string" && !(t instanceof Uint8Array)) throw TypeError("Unexpected argument[0]: must be 'path' or 'buffer'.");
+			let n = await rt(), r = await n.createLoraAdapterHandler(t);
+			return k(), new e(n, r);
 		}
 		async release() {
 			return this.handler.dispose();
 		}
 	};
-}), it, at, ot = C(() => {
-	it = (e, t) => {
+}), _t, vt, yt = C(() => {
+	_t = (e, t) => {
 		let n = typeof document < "u" ? document.createElement("canvas") : new OffscreenCanvas(1, 1);
 		n.width = e.dims[3], n.height = e.dims[2];
 		let r = n.getContext("2d");
@@ -1078,7 +1754,7 @@ var ke = class {
 			throw Error("toDataURL is not supported");
 		}
 		throw Error("Can not access image data");
-	}, at = (e, t) => {
+	}, vt = (e, t) => {
 		let n = typeof document < "u" ? document.createElement("canvas").getContext("2d") : new OffscreenCanvas(1, 1).getContext("2d"), r;
 		if (n != null) {
 			let i, a, o;
@@ -1123,8 +1799,8 @@ var ke = class {
 		} else throw Error("Can not access image data");
 		return r;
 	};
-}), st, ct, lt, ut, dt, ft, pt = C(() => {
-	xt(), st = (e, t) => {
+}), bt, xt, St, Ct, wt, Tt, Et = C(() => {
+	Pt(), bt = (e, t) => {
 		if (e === void 0) throw Error("Image buffer must be defined");
 		if (t.height === void 0 || t.width === void 0) throw Error("Image height and width must be defined");
 		if (t.tensorLayout === "NHWC") throw Error("NHWC Tensor layout is not supported yet");
@@ -1167,7 +1843,7 @@ var ke = class {
 			n,
 			r
 		]);
-	}, ct = async (e, t) => {
+	}, xt = async (e, t) => {
 		let n = typeof HTMLImageElement < "u" && e instanceof HTMLImageElement, r = typeof ImageData < "u" && e instanceof ImageData, i = typeof ImageBitmap < "u" && e instanceof ImageBitmap, a = typeof e == "string", o, s = t ?? {}, c = () => {
 			if (typeof document < "u") return document.createElement("canvas");
 			if (typeof OffscreenCanvas < "u") return new OffscreenCanvas(1, 1);
@@ -1201,7 +1877,7 @@ var ke = class {
 			let r = l(n);
 			if (r != null) {
 				let t = e.height, n = e.width;
-				return r.drawImage(e, 0, 0, n, t), o = r.getImageData(0, 0, n, t).data, s.height = t, s.width = n, st(o, s);
+				return r.drawImage(e, 0, 0, n, t), o = r.getImageData(0, 0, n, t).data, s.height = t, s.width = n, bt(o, s);
 			}
 			throw Error("Can not access image data");
 		} else {
@@ -1212,14 +1888,14 @@ var ke = class {
 				a.crossOrigin = "Anonymous", a.src = e, a.onload = () => {
 					r.width = a.width, r.height = a.height, i.drawImage(a, 0, 0, r.width, r.height);
 					let e = i.getImageData(0, 0, r.width, r.height);
-					s.height = r.height, s.width = r.width, t(st(e.data, s));
+					s.height = r.height, s.width = r.width, t(bt(e.data, s));
 				};
 			});
 			throw Error("Input data provided is not supported - aborted tensor creation");
 		}
-		if (o !== void 0) return st(o, s);
+		if (o !== void 0) return bt(o, s);
 		throw Error("Input data provided is not supported - aborted tensor creation");
-	}, lt = (e, t) => {
+	}, St = (e, t) => {
 		let { width: n, height: r, download: i, dispose: a } = t;
 		return new M({
 			location: "texture",
@@ -1234,7 +1910,7 @@ var ke = class {
 			download: i,
 			dispose: a
 		});
-	}, ut = (e, t) => {
+	}, Ct = (e, t) => {
 		let { dataType: n, dims: r, download: i, dispose: a } = t;
 		return new M({
 			location: "gpu-buffer",
@@ -1244,7 +1920,7 @@ var ke = class {
 			download: i,
 			dispose: a
 		});
-	}, dt = (e, t) => {
+	}, wt = (e, t) => {
 		let { dataType: n, dims: r, download: i, dispose: a } = t;
 		return new M({
 			location: "ml-tensor",
@@ -1254,13 +1930,13 @@ var ke = class {
 			download: i,
 			dispose: a
 		});
-	}, ft = (e, t, n) => new M({
+	}, Tt = (e, t, n) => new M({
 		location: "cpu-pinned",
 		type: e,
 		data: t,
 		dims: n ?? [t.length]
 	});
-}), j, mt, ht, gt, _t = C(() => {
+}), j, Dt, Ot, kt, At = C(() => {
 	j = /* @__PURE__ */ new Map([
 		["float32", Float32Array],
 		["uint8", Uint8Array],
@@ -1273,7 +1949,7 @@ var ke = class {
 		["uint32", Uint32Array],
 		["int4", Uint8Array],
 		["uint4", Uint8Array]
-	]), mt = /* @__PURE__ */ new Map([
+	]), Dt = /* @__PURE__ */ new Map([
 		[Float32Array, "float32"],
 		[Uint8Array, "uint8"],
 		[Int8Array, "int8"],
@@ -1282,15 +1958,15 @@ var ke = class {
 		[Int32Array, "int32"],
 		[Float64Array, "float64"],
 		[Uint32Array, "uint32"]
-	]), ht = !1, gt = () => {
-		if (!ht) {
-			ht = !0;
+	]), Ot = !1, kt = () => {
+		if (!Ot) {
+			Ot = !0;
 			let e = typeof BigInt64Array < "u" && BigInt64Array.from, t = typeof BigUint64Array < "u" && BigUint64Array.from, n = globalThis.Float16Array, r = typeof n < "u" && n.from;
-			e && (j.set("int64", BigInt64Array), mt.set(BigInt64Array, "int64")), t && (j.set("uint64", BigUint64Array), mt.set(BigUint64Array, "uint64")), r ? (j.set("float16", n), mt.set(n, "float16")) : j.set("float16", Uint16Array);
+			e && (j.set("int64", BigInt64Array), Dt.set(BigInt64Array, "int64")), t && (j.set("uint64", BigUint64Array), Dt.set(BigUint64Array, "uint64")), r ? (j.set("float16", n), Dt.set(n, "float16")) : j.set("float16", Uint16Array);
 		}
 	};
-}), vt, yt, bt = C(() => {
-	xt(), vt = (e) => {
+}), jt, Mt, Nt = C(() => {
+	Pt(), jt = (e) => {
 		let t = 1;
 		for (let n = 0; n < e.length; n++) {
 			let r = e[n];
@@ -1299,7 +1975,7 @@ var ke = class {
 			t *= r;
 		}
 		return t;
-	}, yt = (e, t) => {
+	}, Mt = (e, t) => {
 		switch (e.location) {
 			case "cpu": return new M(e.type, e.data, t);
 			case "cpu-pinned": return new M({
@@ -1329,10 +2005,10 @@ var ke = class {
 			default: throw Error(`tensorReshape: tensor location ${e.location} is not supported`);
 		}
 	};
-}), M, xt = C(() => {
-	ot(), pt(), _t(), bt(), M = class {
+}), M, Pt = C(() => {
+	yt(), Et(), At(), Nt(), M = class {
 		constructor(e, t, n) {
-			gt();
+			kt();
 			let r, i;
 			if (typeof e == "object" && "location" in e) switch (this.dataLocation = e.location, r = e.type, i = e.dims, e.location) {
 				case "cpu-pinned": {
@@ -1383,7 +2059,7 @@ var ke = class {
 					else throw TypeError(`Invalid element type of data array: ${t}.`);
 				} else if (e instanceof Uint8ClampedArray) r = "uint8", a = Uint8Array.from(e);
 				else {
-					let t = mt.get(e.constructor);
+					let t = Dt.get(e.constructor);
 					if (t === void 0) throw TypeError(`Unsupported type for tensor data: ${e.constructor}.`);
 					r = t, a = e;
 				}
@@ -1391,30 +2067,30 @@ var ke = class {
 				else if (!Array.isArray(o)) throw TypeError("A tensor's dims must be a number array");
 				i = o, this.cpuData = a, this.dataLocation = "cpu";
 			}
-			let a = vt(i);
+			let a = jt(i);
 			if (this.cpuData && a !== this.cpuData.length && (r !== "uint4" && r !== "int4" || Math.ceil(a / 2) !== this.cpuData.length)) throw Error(`Tensor's size(${a}) does not match data length(${this.cpuData.length}).`);
 			this.type = r, this.dims = i, this.size = a;
 		}
 		static async fromImage(e, t) {
-			return ct(e, t);
+			return xt(e, t);
 		}
 		static fromTexture(e, t) {
-			return lt(e, t);
+			return St(e, t);
 		}
 		static fromGpuBuffer(e, t) {
-			return ut(e, t);
+			return Ct(e, t);
 		}
 		static fromMLTensor(e, t) {
-			return dt(e, t);
+			return wt(e, t);
 		}
 		static fromPinnedBuffer(e, t, n) {
-			return ft(e, t, n);
+			return Tt(e, t, n);
 		}
 		toDataURL(e) {
-			return it(this, e);
+			return _t(this, e);
 		}
 		toImageData(e) {
-			return at(this, e);
+			return vt(this, e);
 		}
 		get data() {
 			if (this.ensureValid(), !this.cpuData) throw Error("The data is not on CPU. Use `getData()` to download GPU data to CPU, or use `texture` or `gpuBuffer` property to access the GPU data directly.");
@@ -1463,18 +2139,18 @@ var ke = class {
 		}
 		reshape(e) {
 			if (this.ensureValid(), this.downloader || this.disposer) throw Error("Cannot reshape a tensor that owns GPU resource.");
-			return yt(this, e);
+			return Mt(this, e);
 		}
 	};
-}), N, St = C(() => {
-	xt(), N = M;
-}), Ct, wt = C(() => {
-	Ke(), rt(), St(), tt(), Ct = class e {
+}), N, Ft = C(() => {
+	Pt(), N = M;
+}), It, Lt = C(() => {
+	it(), gt(), Ft(), mt(), It = class e {
 		constructor(e, t) {
 			this.handler = e, this.backend = t;
 		}
 		async run(e, t, n) {
-			D(), k("InferenceSession.run");
+			O(), A("InferenceSession.run");
 			let r = {}, i = {};
 			if (typeof e != "object" || !e || e instanceof N || Array.isArray(e)) throw TypeError("'feeds' must be an object that use input names as keys and OnnxValue as corresponding values.");
 			let a = !0;
@@ -1509,7 +2185,7 @@ var ke = class {
 			if (i.activeLoraAdapters !== void 0) {
 				if (!Array.isArray(i.activeLoraAdapters)) throw TypeError("'activeLoraAdapters' must be an array.");
 				o = i.activeLoraAdapters.map((e) => {
-					if (!(e instanceof nt)) throw TypeError("'activeLoraAdapters' must be an array of LoraAdapter objects.");
+					if (!(e instanceof ht)) throw TypeError("'activeLoraAdapters' must be an array of LoraAdapter objects.");
 					if (e.backend !== this.backend) throw Error("LoRA adapter was created by a different backend than the session.");
 					return e.handler;
 				});
@@ -1519,13 +2195,13 @@ var ke = class {
 				let t = s[e];
 				c[e] = t instanceof N ? t : new N(t.type, t.data, t.dims);
 			}
-			return A("InferenceSession.run"), O(), c;
+			return pt("InferenceSession.run"), k(), c;
 		}
 		async release() {
 			return this.handler.dispose();
 		}
 		static async create(t, n, r, i) {
-			D(), k("InferenceSession.create");
+			O(), A("InferenceSession.create");
 			let a, o = {};
 			if (typeof t == "string") {
 				if (a = t, typeof n == "object" && n) o = n;
@@ -1548,8 +2224,8 @@ var ke = class {
 				} else if (typeof n < "u") throw TypeError("'options' must be an object.");
 				a = new Uint8Array(e, s, c);
 			} else throw TypeError("Unexpected argument[0]: must be 'path' or 'buffer'.");
-			let [s, c] = await We(o), l = await s.createInferenceSessionHandler(a, c);
-			return A("InferenceSession.create"), O(), new e(l, s);
+			let [s, c] = await nt(o), l = await s.createInferenceSessionHandler(a, c);
+			return pt("InferenceSession.create"), k(), new e(l, s);
 		}
 		startProfiling() {
 			this.handler.startProfiling();
@@ -1570,35 +2246,35 @@ var ke = class {
 			return this.handler.outputMetadata;
 		}
 	};
-}), P, Tt = C(() => {
-	wt(), P = Ct;
-}), Et, Dt = C(() => {
-	rt(), Et = nt;
-}), Ot = C(() => {}), kt = C(() => {}), At = C(() => {}), jt = C(() => {});
-Le({}, {
+}), P, Rt = C(() => {
+	Lt(), P = It;
+}), zt, Bt = C(() => {
+	gt(), zt = ht;
+}), Vt = C(() => {}), Ht = C(() => {}), Ut = C(() => {}), Wt = C(() => {});
+Xe({}, {
 	InferenceSession: () => P,
-	LoraAdapter: () => Et,
-	TRACE: () => $e,
-	TRACE_EVENT_BEGIN: () => k,
-	TRACE_EVENT_END: () => A,
-	TRACE_FUNC_BEGIN: () => D,
-	TRACE_FUNC_END: () => O,
+	LoraAdapter: () => zt,
+	TRACE: () => dt,
+	TRACE_EVENT_BEGIN: () => A,
+	TRACE_EVENT_END: () => pt,
+	TRACE_FUNC_BEGIN: () => O,
+	TRACE_FUNC_END: () => k,
 	Tensor: () => N,
-	env: () => E,
-	registerBackend: () => He
+	env: () => D,
+	registerBackend: () => et
 });
 var F = C(() => {
-	qe(), Qe(), Tt(), Dt(), St(), Ot(), kt(), tt(), At(), jt();
-}), Mt = C(() => {}), Nt = {};
-Le(Nt, { default: () => It });
-var Pt, Ft, It, Lt = C(() => {
-	Hn(), R(), Zt(), Pt = "ort-wasm-proxy-worker", Ft = globalThis.self?.name === Pt, Ft && (self.onmessage = (e) => {
+	at(), ut(), Rt(), Bt(), Ft(), Vt(), Ht(), mt(), Ut(), Wt();
+}), Gt = C(() => {}), Kt = {};
+Xe(Kt, { default: () => Yt });
+var qt, Jt, Yt, Xt = C(() => {
+	tr(), R(), dn(), qt = "ort-wasm-proxy-worker", Jt = globalThis.self?.name === qt, Jt && (self.onmessage = (e) => {
 		let { type: t, in: n } = e.data;
 		try {
 			switch (t) {
 				case "init-wasm":
-					on(n.wasm).then(() => {
-						Dn(n).then(() => {
+					yn(n.wasm).then(() => {
+						Bn(n).then(() => {
 							postMessage({ type: t });
 						}, (e) => {
 							postMessage({
@@ -1615,7 +2291,7 @@ var Pt, Ft, It, Lt = C(() => {
 					break;
 				case "init-ep": {
 					let { epName: e, env: r } = n;
-					On(r, e).then(() => {
+					Vn(r, e).then(() => {
 						postMessage({ type: t });
 					}, (e) => {
 						postMessage({
@@ -1626,7 +2302,7 @@ var Pt, Ft, It, Lt = C(() => {
 					break;
 				}
 				case "copy-from": {
-					let { buffer: e } = n, r = jn(e);
+					let { buffer: e } = n, r = Wn(e);
 					postMessage({
 						type: t,
 						out: r
@@ -1635,7 +2311,7 @@ var Pt, Ft, It, Lt = C(() => {
 				}
 				case "create": {
 					let { model: e, options: r } = n;
-					Mn(e, r).then((e) => {
+					Gn(e, r).then((e) => {
 						postMessage({
 							type: t,
 							out: e
@@ -1649,18 +2325,18 @@ var Pt, Ft, It, Lt = C(() => {
 					break;
 				}
 				case "release":
-					Nn(n), postMessage({ type: t });
+					Kn(n), postMessage({ type: t });
 					break;
 				case "run": {
 					let { sessionId: e, inputIndices: r, inputs: i, outputIndices: a, options: o } = n;
-					zn(e, r, i, a, Array(a.length).fill(null), o).then((e) => {
+					Qn(e, r, i, a, Array(a.length).fill(null), o).then((e) => {
 						e.some((e) => e[3] !== "cpu") ? postMessage({
 							type: t,
 							err: "Proxy does not support non-cpu tensor location."
 						}) : postMessage({
 							type: t,
 							out: e
-						}, Vn([...i, ...e]));
+						}, er([...i, ...e]));
 					}, (e) => {
 						postMessage({
 							type: t,
@@ -1669,7 +2345,7 @@ var Pt, Ft, It, Lt = C(() => {
 					});
 					break;
 				}
-				case "end-profiling": Bn(n), postMessage({ type: t });
+				case "end-profiling": $n(n), postMessage({ type: t });
 			}
 		} catch (e) {
 			postMessage({
@@ -1677,54 +2353,54 @@ var Pt, Ft, It, Lt = C(() => {
 				err: e
 			});
 		}
-	}), It = Ft ? null : (e) => new Worker(e ?? I, {
+	}), Yt = Jt ? null : (e) => new Worker(e ?? I, {
 		type: "module",
-		name: Pt
+		name: qt
 	});
-}), Rt, zt, Bt, I, Vt, Ht, Ut, Wt, Gt, Kt, qt, Jt, Yt, Xt, Zt = C(() => {
-	Mt(), Rt = typeof location > "u" ? void 0 : location.origin, zt = import.meta.url > "file:" && import.meta.url < "file;", Bt = () => zt ? new URL(new URL("ort.wasm.min.mjs", import.meta.url).href, Rt).href : import.meta.url, I = Bt(), Vt = () => {
+}), Zt, Qt, $t, I, en, tn, nn, rn, an, on, sn, cn, ln, un, dn = C(() => {
+	Gt(), Zt = typeof location > "u" ? void 0 : location.origin, Qt = import.meta.url > "file:" && import.meta.url < "file;", $t = () => Qt ? new URL(new URL("ort.wasm.min.mjs", import.meta.url).href, Zt).href : import.meta.url, I = $t(), en = () => {
 		if (I && !I.startsWith("blob:")) return I.substring(0, I.lastIndexOf("/") + 1);
-	}, Ht = (e, t) => {
+	}, tn = (e, t) => {
 		try {
 			let n = t ?? I;
-			return (n ? new URL(e, n) : new URL(e)).origin === Rt;
+			return (n ? new URL(e, n) : new URL(e)).origin === Zt;
 		} catch {
 			return !1;
 		}
-	}, Ut = (e, t) => {
+	}, nn = (e, t) => {
 		let n = t ?? I;
 		try {
 			return (n ? new URL(e, n) : new URL(e)).href;
 		} catch {
 			return;
 		}
-	}, Wt = (e, t) => `${t ?? "./"}${e}`, Gt = async (e) => {
+	}, rn = (e, t) => `${t ?? "./"}${e}`, an = async (e) => {
 		let t = await (await fetch(e, { credentials: "same-origin" })).blob();
 		return URL.createObjectURL(t);
-	}, Kt = async (e) => (await import(
+	}, on = async (e) => (await import(
 		/*webpackIgnore:true*/
 		/*@vite-ignore*/
 		e
-)).default, qt = (Lt(), ze(Nt)).default, Jt = async () => {
+)).default, sn = (Xt(), Qe(Kt)).default, cn = async () => {
 		if (!I) throw Error("Failed to load proxy worker: cannot determine the script source URL.");
-		if (Ht(I)) return [void 0, qt()];
-		let e = await Gt(I);
-		return [e, qt(e)];
-	}, Yt = void 0, Xt = async (e, t, n, r) => {
-		let i = Yt && !(e || t);
+		if (tn(I)) return [void 0, sn()];
+		let e = await an(I);
+		return [e, sn(e)];
+	}, ln = void 0, un = async (e, t, n, r) => {
+		let i = ln && !(e || t);
 		if (i) {
-			if (I) i = Ht(I) || r && !n;
+			if (I) i = tn(I) || r && !n;
 			else if (r && !n) i = !0;
 			else throw Error("cannot determine the script source URL.");
 		}
-		if (i) return [void 0, Yt];
+		if (i) return [void 0, ln];
 		{
-			let r = "ort-wasm-simd-threaded.mjs", i = e ?? Ut(r, t), a = n && i && !Ht(i, t), o = a ? await Gt(i) : i ?? Wt(r, t);
-			return [a ? o : void 0, await Kt(o)];
+			let r = "ort-wasm-simd-threaded.mjs", i = e ?? nn(r, t), a = n && i && !tn(i, t), o = a ? await an(i) : i ?? rn(r, t);
+			return [a ? o : void 0, await on(o)];
 		}
 	};
-}), Qt, $t, en, tn, nn, rn, an, on, L, R = C(() => {
-	Zt(), $t = !1, en = !1, tn = !1, nn = () => {
+}), fn, pn, mn, hn, gn, _n, vn, yn, L, R = C(() => {
+	dn(), pn = !1, mn = !1, hn = !1, gn = () => {
 		if (typeof SharedArrayBuffer > "u") return !1;
 		try {
 			return typeof MessageChannel < "u" && new MessageChannel().port1.postMessage(new SharedArrayBuffer(1)), WebAssembly.validate(new Uint8Array([
@@ -1769,7 +2445,7 @@ var Pt, Ft, It, Lt = C(() => {
 		} catch {
 			return !1;
 		}
-	}, rn = () => {
+	}, _n = () => {
 		try {
 			return WebAssembly.validate(new Uint8Array([
 				0,
@@ -1826,7 +2502,7 @@ var Pt, Ft, It, Lt = C(() => {
 		} catch {
 			return !1;
 		}
-	}, an = () => {
+	}, vn = () => {
 		try {
 			return WebAssembly.validate(new Uint8Array([
 				0,
@@ -1873,20 +2549,20 @@ var Pt, Ft, It, Lt = C(() => {
 		} catch {
 			return !1;
 		}
-	}, on = async (e) => {
-		if ($t) return Promise.resolve();
-		if (en) throw Error("multiple calls to 'initializeWebAssembly()' detected.");
-		if (tn) throw Error("previous call to 'initializeWebAssembly()' failed.");
-		en = !0;
+	}, yn = async (e) => {
+		if (pn) return Promise.resolve();
+		if (mn) throw Error("multiple calls to 'initializeWebAssembly()' detected.");
+		if (hn) throw Error("previous call to 'initializeWebAssembly()' failed.");
+		mn = !0;
 		let t = e.initTimeout, n = e.numThreads;
 		if (e.simd !== !1) {
 			if (e.simd === "relaxed") {
-				if (!an()) throw Error("Relaxed WebAssembly SIMD is not supported in the current environment.");
-			} else if (!rn()) throw Error("WebAssembly SIMD is not supported in the current environment.");
+				if (!vn()) throw Error("Relaxed WebAssembly SIMD is not supported in the current environment.");
+			} else if (!_n()) throw Error("WebAssembly SIMD is not supported in the current environment.");
 		}
-		let r = nn();
+		let r = gn();
 		n > 1 && !r && (typeof self < "u" && !self.crossOriginIsolated && console.warn("env.wasm.numThreads is set to " + n + ", but this will not work unless you enable crossOriginIsolated mode. See https://web.dev/cross-origin-isolation-guide/ for more info."), console.warn("WebAssembly multi-threading is not supported in the current environment. Falling back to single-threading."), e.numThreads = n = 1);
-		let i = e.wasmPaths, a = typeof i == "string" ? i : void 0, o = i?.mjs, s = o?.href ?? o, c = i?.wasm, l = c?.href ?? c, u = e.wasmBinary, [d, f] = await Xt(s, a, n > 1, !!u || !!l), p = !1, m = [];
+		let i = e.wasmPaths, a = typeof i == "string" ? i : void 0, o = i?.mjs, s = o?.href ?? o, c = i?.wasm, l = c?.href ?? c, u = e.wasmBinary, [d, f] = await un(s, a, n > 1, !!u || !!l), p = !1, m = [];
 		if (t > 0 && m.push(new Promise((e) => {
 			setTimeout(() => {
 				p = !0, e();
@@ -1897,31 +2573,31 @@ var Pt, Ft, It, Lt = C(() => {
 			else if (l || a) r.locateFile = (e) => l ?? a + e;
 			else if (s && s.indexOf("blob:") !== 0) r.locateFile = (e) => new URL(e, s).href;
 			else if (d) {
-				let e = Vt();
+				let e = en();
 				e && (r.locateFile = (t) => e + t);
 			}
 			f(r).then((t) => {
-				en = !1, $t = !0, Qt = t, e(), d && URL.revokeObjectURL(d);
+				mn = !1, pn = !0, fn = t, e(), d && URL.revokeObjectURL(d);
 			}, (e) => {
-				en = !1, tn = !0, t(e);
+				mn = !1, hn = !0, t(e);
 			});
 		})), await Promise.race(m), p) throw Error(`WebAssembly backend initializing failed due to timeout: ${t}ms`);
 	}, L = () => {
-		if ($t && Qt) return Qt;
+		if (pn && fn) return fn;
 		throw Error("WebAssembly is not initialized yet.");
 	};
-}), z, sn, B, cn = C(() => {
+}), z, bn, B, xn = C(() => {
 	R(), z = (e, t) => {
 		let n = L(), r = n.lengthBytesUTF8(e) + 1, i = n._malloc(r);
 		return n.stringToUTF8(e, i, r), t.push(i), i;
-	}, sn = (e, t, n, r) => {
+	}, bn = (e, t, n, r) => {
 		if (typeof e == "object" && e) {
 			if (n.has(e)) throw Error("Circular reference in options");
 			n.add(e);
 		}
 		Object.entries(e).forEach(([e, i]) => {
 			let a = t ? t + e : e;
-			if (typeof i == "object") sn(i, a + ".", n, r);
+			if (typeof i == "object") bn(i, a + ".", n, r);
 			else if (typeof i == "string" || typeof i == "number") r(a, i.toString());
 			else if (typeof i == "boolean") r(a, i ? "1" : "0");
 			else throw Error(`Can't handle extra config type: ${typeof i}`);
@@ -1937,8 +2613,8 @@ var Pt, Ft, It, Lt = C(() => {
 			t.stackRestore(n);
 		}
 	};
-}), ln, un = C(() => {
-	R(), cn(), ln = (e, t) => {
+}), Sn, Cn = C(() => {
+	R(), xn(), Sn = (e, t) => {
 		let n = L(), r = 0, i = [], a = e || {};
 		try {
 			if (e?.logSeverityLevel === void 0) a.logSeverityLevel = 2;
@@ -1947,7 +2623,7 @@ var Pt, Ft, It, Lt = C(() => {
 			else if (typeof e.logVerbosityLevel != "number" || !Number.isInteger(e.logVerbosityLevel)) throw Error(`log verbosity level is not valid: ${e.logVerbosityLevel}`);
 			e?.terminate === void 0 && (a.terminate = !1);
 			let o = 0;
-			e?.tag !== void 0 && (o = z(e.tag, i)), r = n._OrtCreateRunOptions(a.logSeverityLevel, a.logVerbosityLevel, !!a.terminate, o), r === 0 && B("Can't create run options."), e?.extra !== void 0 && sn(e.extra, "", /* @__PURE__ */ new WeakSet(), (e, t) => {
+			e?.tag !== void 0 && (o = z(e.tag, i)), r = n._OrtCreateRunOptions(a.logSeverityLevel, a.logVerbosityLevel, !!a.terminate, o), r === 0 && B("Can't create run options."), e?.extra !== void 0 && bn(e.extra, "", /* @__PURE__ */ new WeakSet(), (e, t) => {
 				let a = z(e, i), o = z(t, i);
 				n._OrtAddRunConfigEntry(r, a, o) !== 0 && B(`Can't set a run config entry: ${e} - ${t}.`);
 			});
@@ -1957,8 +2633,8 @@ var Pt, Ft, It, Lt = C(() => {
 			throw r !== 0 && n._OrtReleaseRunOptions(r), i.forEach((e) => n._free(e)), e;
 		}
 	};
-}), dn, fn, pn, V, mn, hn, gn = C(() => {
-	R(), cn(), dn = (e) => {
+}), wn, Tn, En, V, Dn, On, kn = C(() => {
+	R(), xn(), wn = (e) => {
 		switch (e) {
 			case "disabled": return 0;
 			case "basic": return 1;
@@ -1967,20 +2643,20 @@ var Pt, Ft, It, Lt = C(() => {
 			case "all": return 99;
 			default: throw Error(`unsupported graph optimization level: ${e}`);
 		}
-	}, fn = (e) => {
+	}, Tn = (e) => {
 		switch (e) {
 			case "sequential": return 0;
 			case "parallel": return 1;
 			default: throw Error(`unsupported execution mode: ${e}`);
 		}
-	}, pn = (e) => {
+	}, En = (e) => {
 		e.extra ||= {}, e.extra.session || (e.extra.session = {});
 		let t = e.extra.session;
 		t.use_ort_model_bytes_directly ||= "1", e.executionProviders && e.executionProviders.some((e) => (typeof e == "string" ? e : e.name) === "webgpu") && (e.enableMemPattern = !1);
 	}, V = (e, t, n, r) => {
 		let i = z(t, r), a = z(n, r);
 		L()._OrtAddSessionConfigEntry(e, i, a) !== 0 && B(`Can't set a session config entry: ${t} - ${n}.`);
-	}, mn = async (e, t, n) => {
+	}, Dn = async (e, t, n) => {
 		let r = t.executionProviders;
 		for (let t of r) {
 			let r = typeof t == "string" ? t : t.name, i = [];
@@ -2016,16 +2692,16 @@ var Pt, Ft, It, Lt = C(() => {
 			}
 			c !== 0 && B(`Can't append execution provider: ${r}.`);
 		}
-	}, hn = async (e) => {
+	}, On = async (e) => {
 		let t = L(), n = 0, r = [], i = e || {};
-		pn(i);
+		En(i);
 		try {
-			let e = dn(i.graphOptimizationLevel ?? "all"), a = fn(i.executionMode ?? "sequential"), o = typeof i.logId == "string" ? z(i.logId, r) : 0, s = i.logSeverityLevel ?? 2;
+			let e = wn(i.graphOptimizationLevel ?? "all"), a = Tn(i.executionMode ?? "sequential"), o = typeof i.logId == "string" ? z(i.logId, r) : 0, s = i.logSeverityLevel ?? 2;
 			if (!Number.isInteger(s) || s < 0 || s > 4) throw Error(`log severity level is not valid: ${s}`);
 			let c = i.logVerbosityLevel ?? 0;
 			if (!Number.isInteger(c) || c < 0 || c > 4) throw Error(`log verbosity level is not valid: ${c}`);
 			let l = typeof i.optimizedModelFilePath == "string" ? z(i.optimizedModelFilePath, r) : 0;
-			if (n = t._OrtCreateSessionOptions(e, !!i.enableCpuMemArena, !!i.enableMemPattern, a, !!i.enableProfiling, 0, o, s, c, l), n === 0 && B("Can't create session options."), i.executionProviders && await mn(n, i, r), i.enableGraphCapture !== void 0) {
+			if (n = t._OrtCreateSessionOptions(e, !!i.enableCpuMemArena, !!i.enableMemPattern, a, !!i.enableProfiling, 0, o, s, c, l), n === 0 && B("Can't create session options."), i.executionProviders && await Dn(n, i, r), i.enableGraphCapture !== void 0) {
 				if (typeof i.enableGraphCapture != "boolean") throw Error(`enableGraphCapture must be a boolean value: ${i.enableGraphCapture}`);
 				V(n, "enableGraphCapture", i.enableGraphCapture.toString(), r);
 			}
@@ -2035,14 +2711,14 @@ var Pt, Ft, It, Lt = C(() => {
 				let i = z(e, r);
 				t._OrtAddFreeDimensionOverride(n, i, a) !== 0 && B(`Can't set a free dimension override: ${e} - ${a}.`);
 			}
-			return i.extra !== void 0 && sn(i.extra, "", /* @__PURE__ */ new WeakSet(), (e, t) => {
+			return i.extra !== void 0 && bn(i.extra, "", /* @__PURE__ */ new WeakSet(), (e, t) => {
 				V(n, e, t, r);
 			}), [n, r];
 		} catch (e) {
 			throw n !== 0 && t._OrtReleaseSessionOptions(n) !== 0 && B("Can't release session options."), r.forEach((e) => t._free(e)), e;
 		}
 	};
-}), H, _n, U, vn, yn, bn, xn, Sn, Cn = C(() => {
+}), H, An, U, jn, Mn, Nn, Pn, Fn, In = C(() => {
 	H = (e) => {
 		switch (e) {
 			case "int8": return 3;
@@ -2062,7 +2738,7 @@ var Pt, Ft, It, Lt = C(() => {
 			case "uint4": return 21;
 			default: throw Error(`unsupported data type: ${e}`);
 		}
-	}, _n = (e) => {
+	}, An = (e) => {
 		switch (e) {
 			case 3: return "int8";
 			case 2: return "uint8";
@@ -2108,7 +2784,7 @@ var Pt, Ft, It, Lt = C(() => {
 			.5
 		][e], r = typeof t == "number" ? t : t.reduce((e, t) => e * t, 1);
 		return n > 0 ? Math.ceil(r * n) : void 0;
-	}, vn = (e) => {
+	}, jn = (e) => {
 		switch (e) {
 			case "float16": return typeof Float16Array < "u" ? Float16Array : Uint16Array;
 			case "float32": return Float32Array;
@@ -2124,7 +2800,7 @@ var Pt, Ft, It, Lt = C(() => {
 			case "uint64": return BigUint64Array;
 			default: throw Error(`unsupported type: ${e}`);
 		}
-	}, yn = (e) => {
+	}, Mn = (e) => {
 		switch (e) {
 			case "verbose": return 0;
 			case "info": return 1;
@@ -2133,7 +2809,7 @@ var Pt, Ft, It, Lt = C(() => {
 			case "fatal": return 4;
 			default: throw Error(`unsupported logging level: ${e}`);
 		}
-	}, bn = (e) => e === "float32" || e === "float16" || e === "int32" || e === "int64" || e === "uint32" || e === "uint8" || e === "bool" || e === "uint4" || e === "int4", xn = (e) => e === "float32" || e === "float16" || e === "int32" || e === "int64" || e === "uint32" || e === "uint64" || e === "int8" || e === "uint8" || e === "bool" || e === "uint4" || e === "int4", Sn = (e) => {
+	}, Nn = (e) => e === "float32" || e === "float16" || e === "int32" || e === "int64" || e === "uint32" || e === "uint8" || e === "bool" || e === "uint4" || e === "int4", Pn = (e) => e === "float32" || e === "float16" || e === "int32" || e === "int64" || e === "uint32" || e === "uint64" || e === "int8" || e === "uint8" || e === "bool" || e === "uint4" || e === "int4", Fn = (e) => {
 		switch (e) {
 			case "none": return 0;
 			case "cpu": return 1;
@@ -2144,8 +2820,8 @@ var Pt, Ft, It, Lt = C(() => {
 			default: throw Error(`unsupported data location: ${e}`);
 		}
 	};
-}), wn, Tn = C(() => {
-	Mt(), wn = async (e) => {
+}), Ln, Rn = C(() => {
+	Gt(), Ln = async (e) => {
 		if (typeof e == "string") {
 			let t = await fetch(e);
 			if (!t.ok) throw Error(`failed to load external data file: ${e}`);
@@ -2177,12 +2853,12 @@ var Pt, Ft, It, Lt = C(() => {
 		}
 		return e instanceof Blob ? new Uint8Array(await e.arrayBuffer()) : e instanceof Uint8Array ? e : new Uint8Array(e);
 	};
-}), En, Dn, On, W, kn, An, jn, Mn, Nn, Pn, Fn, G, In, Ln, Rn, zn, Bn, Vn, Hn = C(() => {
-	F(), un(), gn(), Cn(), R(), cn(), Tn(), En = (e, t) => {
+}), zn, Bn, Vn, W, Hn, Un, Wn, Gn, Kn, qn, Jn, G, Yn, Xn, Zn, Qn, $n, er, tr = C(() => {
+	F(), Cn(), kn(), In(), R(), xn(), Rn(), zn = (e, t) => {
 		L()._OrtInit(e, t) !== 0 && B("Can't initialize onnxruntime.");
-	}, Dn = async (e) => {
-		En(e.wasm.numThreads, yn(e.logLevel));
-	}, On = async (e, t) => {
+	}, Bn = async (e) => {
+		zn(e.wasm.numThreads, Mn(e.logLevel));
+	}, Vn = async (e, t) => {
 		L().asyncInit?.();
 		let n = e.webgpu.adapter;
 		if (t === "webgpu") {
@@ -2201,7 +2877,7 @@ var Pt, Ft, It, Lt = C(() => {
 			}
 		}
 		if (t === "webnn" && (typeof navigator > "u" || !navigator.ml)) throw Error("WebNN is not supported in current environment");
-	}, W = /* @__PURE__ */ new Map(), kn = (e) => {
+	}, W = /* @__PURE__ */ new Map(), Hn = (e) => {
 		let t = L(), n = t.stackSave();
 		try {
 			let n = t.PTR_SIZE, r = t.stackAlloc(2 * n);
@@ -2211,7 +2887,7 @@ var Pt, Ft, It, Lt = C(() => {
 		} finally {
 			t.stackRestore(n);
 		}
-	}, An = (e, t) => {
+	}, Un = (e, t) => {
 		let n = L(), r = n.stackSave(), i = 0;
 		try {
 			let r = n.PTR_SIZE, a = n.stackAlloc(2 * r);
@@ -2233,20 +2909,20 @@ var Pt, Ft, It, Lt = C(() => {
 		} finally {
 			n.stackRestore(r), i !== 0 && n._OrtFree(i);
 		}
-	}, jn = (e) => {
+	}, Wn = (e) => {
 		let t = L(), n = t._malloc(e.byteLength);
 		if (n === 0) throw Error(`Can't create a session. failed to allocate a buffer of size ${e.byteLength}.`);
 		return t.HEAPU8.set(e, n), [n, e.byteLength];
-	}, Mn = async (e, t) => {
+	}, Gn = async (e, t) => {
 		let n, r, i = L();
-		Array.isArray(e) ? [n, r] = e : e.buffer === i.HEAPU8.buffer ? [n, r] = [e.byteOffset, e.byteLength] : [n, r] = jn(e);
+		Array.isArray(e) ? [n, r] = e : e.buffer === i.HEAPU8.buffer ? [n, r] = [e.byteOffset, e.byteLength] : [n, r] = Wn(e);
 		let a = 0, o = 0, s = [], c = [], l = [];
 		try {
-			if ([o, s] = await hn(t), t?.externalData && i.mountExternalData) {
+			if ([o, s] = await On(t), t?.externalData && i.mountExternalData) {
 				let e = [];
 				for (let n of t.externalData) {
 					let t = typeof n == "string" ? n : n.path, r = typeof n == "string" ? n : n.data;
-					e.push(wn(r).then((e) => {
+					e.push(Ln(r).then((e) => {
 						i.mountExternalData(t, e);
 					}));
 				}
@@ -2263,9 +2939,9 @@ var Pt, Ft, It, Lt = C(() => {
 				break;
 			}
 			a = await i._OrtCreateSession(n, r, o), i.webgpuOnCreateSession?.(a), a === 0 && B("Can't create a session."), i.jsepOnCreateSession?.(), i.currentContext && (i.webnnRegisterMLContext(a, i.currentContext), i.currentContext = void 0, i.shouldTransferToMLTensor = !0);
-			let [e, u] = kn(a), d = !!t?.enableGraphCapture, f = [], p = [], m = [], h = [];
+			let [e, u] = Hn(a), d = !!t?.enableGraphCapture, f = [], p = [], m = [], h = [];
 			for (let t = 0; t < e; t++) {
-				let [e, n, r] = An(a, t);
+				let [e, n, r] = Un(a, t);
 				e === 0 && B("Can't get an input name."), c.push(e);
 				let o = i.UTF8ToString(e);
 				f.push(o), m.push(n === 0 ? {
@@ -2274,12 +2950,12 @@ var Pt, Ft, It, Lt = C(() => {
 				} : {
 					name: o,
 					isTensor: !0,
-					type: _n(n),
+					type: An(n),
 					shape: r
 				});
 			}
 			for (let t = 0; t < u; t++) {
-				let [n, r, o] = An(a, t + e);
+				let [n, r, o] = Un(a, t + e);
 				n === 0 && B("Can't get an output name."), l.push(n);
 				let s = i.UTF8ToString(n);
 				p.push(s), h.push(r === 0 ? {
@@ -2288,7 +2964,7 @@ var Pt, Ft, It, Lt = C(() => {
 				} : {
 					name: s,
 					isTensor: !0,
-					type: _n(r),
+					type: An(r),
 					shape: o
 				});
 			}
@@ -2311,29 +2987,29 @@ var Pt, Ft, It, Lt = C(() => {
 		} finally {
 			i._free(n), o !== 0 && i._OrtReleaseSessionOptions(o) !== 0 && B("Can't release session options."), s.forEach((e) => i._free(e)), i.unmountExternalData?.();
 		}
-	}, Nn = (e) => {
+	}, Kn = (e) => {
 		let t = L(), n = W.get(e);
 		if (!n) throw Error(`cannot release session. invalid session id: ${e}`);
 		let [r, i, a, o, s] = n;
 		o && (s && t._OrtClearBoundOutputs(o.handle) !== 0 && B("Can't clear bound outputs."), t._OrtReleaseBinding(o.handle) !== 0 && B("Can't release IO binding.")), t.jsepOnReleaseSession?.(e), t.webnnOnReleaseSession?.(e), t.webgpuOnReleaseSession?.(e), i.forEach((e) => t._OrtFree(e)), a.forEach((e) => t._OrtFree(e)), t._OrtReleaseSession(r) !== 0 && B("Can't release session."), W.delete(e);
-	}, Pn = /* @__PURE__ */ new Map(), Fn = 1, G = /* @__PURE__ */ new Map(), In = (e) => {
+	}, qn = /* @__PURE__ */ new Map(), Jn = 1, G = /* @__PURE__ */ new Map(), Yn = (e) => {
 		let t = L(), n = t._malloc(e.byteLength);
 		if (n === 0) throw Error(`Can't create a LoRA adapter. failed to allocate a buffer of size ${e.byteLength}.`);
 		try {
 			t.HEAPU8.set(e, n);
 			let r = t._OrtCreateLoraAdapter(n, e.byteLength);
 			r === 0 && B("Can't create a LoRA adapter.");
-			let i = Fn++;
-			return Pn.set(i, r), i;
+			let i = Jn++;
+			return qn.set(i, r), i;
 		} finally {
 			t._free(n);
 		}
-	}, Ln = (e) => {
-		let t = L(), n = Pn.get(e);
+	}, Xn = (e) => {
+		let t = L(), n = qn.get(e);
 		if (n === void 0) throw Error(`cannot release LoRA adapter. invalid adapter id: ${e}`);
 		if (G.has(e)) throw Error(`cannot release LoRA adapter. the adapter is used by a run in progress. adapter id: ${e}`);
-		t._OrtReleaseLoraAdapter(n) !== 0 && B("Can't release LoRA adapter."), Pn.delete(e);
-	}, Rn = async (e, t, n, r, i, a, o = !1) => {
+		t._OrtReleaseLoraAdapter(n) !== 0 && B("Can't release LoRA adapter."), qn.delete(e);
+	}, Zn = async (e, t, n, r, i, a, o = !1) => {
 		if (!e) {
 			t.push(0);
 			return;
@@ -2381,12 +3057,12 @@ var Pt, Ft, It, Lt = C(() => {
 		let h = s.stackSave(), g = s.stackAlloc(4 * u.length);
 		try {
 			u.forEach((e, t) => s.setValue(g + t * c, e, c === 4 ? "i32" : "i64"));
-			let e = s._OrtCreateTensor(H(l), p, m, g, u.length, Sn(f));
+			let e = s._OrtCreateTensor(H(l), p, m, g, u.length, Fn(f));
 			e === 0 && B(`Can't create tensor for input/output. session=${r}, index=${a}.`), t.push(e);
 		} finally {
 			s.stackRestore(h);
 		}
-	}, zn = async (e, t, n, r, i, a, o = []) => {
+	}, Qn = async (e, t, n, r, i, a, o = []) => {
 		let s = L(), c = s.PTR_SIZE, l = W.get(e);
 		if (!l) throw Error(`cannot run inference. invalid session id: ${e}`);
 		let u = l[0], d = l[1], f = l[2], p = l[3], m = l[4];
@@ -2395,7 +3071,7 @@ var Pt, Ft, It, Lt = C(() => {
 		if (o.length > 0) {
 			if (p) throw Error("LoRA adapters are not supported for a session that uses IO binding, e.g. when an output is preferred to be on GPU, or when the WebNN execution provider produces an output.");
 			for (let e of o) {
-				let t = Pn.get(e);
+				let t = qn.get(e);
 				if (t === void 0) throw Error(`cannot run inference. invalid LoRA adapter id: ${e}`);
 				h.push(t);
 			}
@@ -2403,17 +3079,17 @@ var Pt, Ft, It, Lt = C(() => {
 		let g = t.length, _ = r.length, v = 0, y = [], b = [], x = [], ee = [], te = [], S = s.stackSave(), ne = s.stackAlloc(g * c), re = s.stackAlloc(g * c), ie = s.stackAlloc(_ * c), ae = s.stackAlloc(_ * c);
 		try {
 			for (let e of o) G.set(e, (G.get(e) ?? 0) + 1);
-			[v, y] = ln(a, h), k("wasm prepareInputOutputTensor");
-			for (let r = 0; r < g; r++) await Rn(n[r], b, ee, e, d[t[r]], t[r], m);
-			for (let t = 0; t < _; t++) await Rn(i[t], x, ee, e, f[r[t]], g + r[t], m);
-			A("wasm prepareInputOutputTensor");
+			[v, y] = Sn(a, h), A("wasm prepareInputOutputTensor");
+			for (let r = 0; r < g; r++) await Zn(n[r], b, ee, e, d[t[r]], t[r], m);
+			for (let t = 0; t < _; t++) await Zn(i[t], x, ee, e, f[r[t]], g + r[t], m);
+			pt("wasm prepareInputOutputTensor");
 			for (let e = 0; e < g; e++) s.setValue(ne + e * c, b[e], "*"), s.setValue(re + e * c, d[t[e]], "*");
 			for (let e = 0; e < _; e++) s.setValue(ie + e * c, x[e], "*"), s.setValue(ae + e * c, f[r[e]], "*");
 			s.jsepOnRunStart?.(u), s.webnnOnRunStart?.(u);
 			let l;
 			l = await s._OrtRun(u, re, ne, g, ae, _, ie, v), l !== 0 && B("failed to call OrtRun().");
 			let S = [], oe = [];
-			k("wasm ProcessOutputTensor");
+			A("wasm ProcessOutputTensor");
 			for (let t = 0; t < _; t++) {
 				let n = Number(s.getValue(ie + t * c, "*"));
 				if (n === x[t] || te.includes(x[t])) {
@@ -2429,7 +3105,7 @@ var Pt, Ft, It, Lt = C(() => {
 					for (let e = 0; e < m; e++) h.push(Number(s.getValue(f + e * c, i)));
 					s._OrtFree(f) !== 0 && B("Can't free memory for tensor dims.");
 					let g = h.reduce((e, t) => e * t, 1);
-					u = _n(a);
+					u = An(a);
 					let _ = p?.outputPreferredLocations[r[t]];
 					if (u === "string") {
 						if (_ === "gpu-buffer" || _ === "ml-tensor") throw Error("String tensor is not supported on GPU.");
@@ -2448,7 +3124,7 @@ var Pt, Ft, It, Lt = C(() => {
 						let e = s.jsepGetBuffer;
 						if (!e) throw Error("preferredLocation \"gpu-buffer\" is not supported without using WebGPU.");
 						let t = e(d), r = U(a, g);
-						if (r === void 0 || !bn(u)) throw Error(`Unsupported data type: ${u}`);
+						if (r === void 0 || !Nn(u)) throw Error(`Unsupported data type: ${u}`);
 						l = !0, S.push([
 							u,
 							h,
@@ -2464,7 +3140,7 @@ var Pt, Ft, It, Lt = C(() => {
 					} else if (_ === "ml-tensor" && g > 0) {
 						let t = s.webnnEnsureTensor, r = s.webnnIsGraphInputOutputTypeSupported;
 						if (!t || !r) throw Error("preferredLocation \"ml-tensor\" is not supported without using WebNN.");
-						if (U(a, g) === void 0 || !xn(u)) throw Error(`Unsupported data type: ${u}`);
+						if (U(a, g) === void 0 || !Pn(u)) throw Error(`Unsupported data type: ${u}`);
 						if (!r(e, u, !1)) throw Error(`preferredLocation "ml-tensor" for ${u} output is not supported by current WebNN Context.`);
 						let i = await t(e, d, a, h, !1);
 						l = !0, S.push([
@@ -2491,7 +3167,7 @@ var Pt, Ft, It, Lt = C(() => {
 							"cpu"
 						]);
 					} else {
-						let e = new (vn(u))(g);
+						let e = new (jn(u))(g);
 						new Uint8Array(e.buffer, e.byteOffset, e.byteLength).set(s.HEAPU8.subarray(d, d + e.byteLength)), S.push([
 							u,
 							h,
@@ -2512,7 +3188,7 @@ var Pt, Ft, It, Lt = C(() => {
 				!1
 			]));
 			for (let [e, t] of await Promise.all(oe)) S[e][2] = t;
-			return A("wasm ProcessOutputTensor"), S;
+			return pt("wasm ProcessOutputTensor"), S;
 		} finally {
 			s.webnnOnRunEnd?.(u), s.stackRestore(S), b.forEach((e) => s._OrtReleaseTensor(e)), x.forEach((e) => s._OrtReleaseTensor(e)), ee.forEach((e) => s._free(e)), v !== 0 && s._OrtReleaseRunOptions(v), y.forEach((e) => s._free(e));
 			for (let e of o) {
@@ -2520,12 +3196,12 @@ var Pt, Ft, It, Lt = C(() => {
 				t === 0 ? G.delete(e) : G.set(e, t);
 			}
 		}
-	}, Bn = (e) => {
+	}, $n = (e) => {
 		let t = L(), n = W.get(e);
 		if (!n) throw Error("invalid session id");
 		let r = n[0], i = t._OrtEndProfiling(r);
 		i === 0 && B("Can't get an profile file name."), t._OrtFree(i);
-	}, Vn = (e) => {
+	}, er = (e) => {
 		let t = [];
 		for (let n of e) {
 			let e = n[2];
@@ -2533,16 +3209,16 @@ var Pt, Ft, It, Lt = C(() => {
 		}
 		return t;
 	};
-}), K, q, J, Un, Wn, Gn, Kn, qn, Y, X, Jn, Yn, Xn, Zn, Qn, $n, er, tr, nr, rr, ir = C(() => {
-	F(), Hn(), R(), Zt(), Tn(), K = () => !!E.wasm.proxy && typeof document < "u", J = !1, Un = !1, Wn = !1, qn = /* @__PURE__ */ new Map(), Y = (e, t) => {
-		let n = qn.get(e);
-		n ? n.push(t) : qn.set(e, [t]);
+}), K, q, J, nr, rr, ir, ar, or, Y, X, sr, cr, lr, ur, dr, fr, pr, mr, hr, gr, _r = C(() => {
+	F(), tr(), R(), dn(), Rn(), K = () => !!D.wasm.proxy && typeof document < "u", J = !1, nr = !1, rr = !1, or = /* @__PURE__ */ new Map(), Y = (e, t) => {
+		let n = or.get(e);
+		n ? n.push(t) : or.set(e, [t]);
 	}, X = () => {
-		if (J || !Un || Wn || !q) throw Error("worker not ready");
-	}, Jn = (e) => {
+		if (J || !nr || rr || !q) throw Error("worker not ready");
+	}, sr = (e) => {
 		switch (e.data.type) {
 			case "init-wasm":
-				J = !1, e.data.err ? (Wn = !0, Kn[1](e.data.err)) : (Un = !0, Kn[0]()), Gn &&= (URL.revokeObjectURL(Gn), void 0);
+				J = !1, e.data.err ? (rr = !0, ar[1](e.data.err)) : (nr = !0, ar[0]()), ir &&= (URL.revokeObjectURL(ir), void 0);
 				break;
 			case "init-ep":
 			case "copy-from":
@@ -2550,62 +3226,62 @@ var Pt, Ft, It, Lt = C(() => {
 			case "release":
 			case "run":
 			case "end-profiling": {
-				let t = qn.get(e.data.type);
+				let t = or.get(e.data.type);
 				e.data.err ? t.shift()[1](e.data.err) : t.shift()[0](e.data.out);
 				break;
 			}
 		}
-	}, Yn = async () => {
-		if (!Un) {
+	}, cr = async () => {
+		if (!nr) {
 			if (J) throw Error("multiple calls to 'initWasm()' detected.");
-			if (Wn) throw Error("previous call to 'initWasm()' failed.");
+			if (rr) throw Error("previous call to 'initWasm()' failed.");
 			if (J = !0, K()) return new Promise((e, t) => {
-				q?.terminate(), Jt().then(([n, r]) => {
+				q?.terminate(), cn().then(([n, r]) => {
 					try {
-						q = r, q.onerror = (e) => t(e), q.onmessage = Jn, Kn = [e, t];
+						q = r, q.onerror = (e) => t(e), q.onmessage = sr, ar = [e, t];
 						let i = {
 							type: "init-wasm",
-							in: E
+							in: D
 						};
 						if (!i.in.wasm.wasmPaths && n) {
-							let e = Vt();
+							let e = en();
 							e && (i.in.wasm.wasmPaths = e);
 						}
-						q.postMessage(i), Gn = n;
+						q.postMessage(i), ir = n;
 					} catch (e) {
 						t(e);
 					}
 				}, t);
 			});
 			try {
-				await on(E.wasm), await Dn(E), Un = !0;
+				await yn(D.wasm), await Bn(D), nr = !0;
 			} catch (e) {
-				throw Wn = !0, e;
+				throw rr = !0, e;
 			} finally {
 				J = !1;
 			}
 		}
-	}, Xn = async (e) => {
+	}, lr = async (e) => {
 		if (K()) return X(), new Promise((t, n) => {
 			Y("init-ep", [t, n]);
 			let r = {
 				type: "init-ep",
 				in: {
 					epName: e,
-					env: E
+					env: D
 				}
 			};
 			q.postMessage(r);
 		});
-		await On(E, e);
-	}, Zn = async (e) => K() ? (X(), new Promise((t, n) => {
+		await Vn(D, e);
+	}, ur = async (e) => K() ? (X(), new Promise((t, n) => {
 		Y("copy-from", [t, n]);
 		let r = {
 			type: "copy-from",
 			in: { buffer: e }
 		};
 		q.postMessage(r, [e.buffer]);
-	})) : jn(e), Qn = async (e, t) => {
+	})) : Wn(e), dr = async (e, t) => {
 		if (K()) {
 			if (t?.preferredOutputLocation) throw Error("session option \"preferredOutputLocation\" is not supported for proxy.");
 			return X(), new Promise((n, r) => {
@@ -2620,8 +3296,8 @@ var Pt, Ft, It, Lt = C(() => {
 				e instanceof Uint8Array && a.push(e.buffer), q.postMessage(i, a);
 			});
 		}
-		return Mn(e, t);
-	}, $n = async (e) => {
+		return Gn(e, t);
+	}, fr = async (e) => {
 		if (K()) return X(), new Promise((t, n) => {
 			Y("release", [t, n]);
 			let r = {
@@ -2630,15 +3306,15 @@ var Pt, Ft, It, Lt = C(() => {
 			};
 			q.postMessage(r);
 		});
-		Nn(e);
-	}, er = async (e) => {
+		Kn(e);
+	}, pr = async (e) => {
 		if (K()) throw Error("LoRA adapter is not supported for proxy.");
-		let t = typeof e == "string" ? await wn(e) : e;
-		return In(t);
-	}, tr = async (e) => {
+		let t = typeof e == "string" ? await Ln(e) : e;
+		return Yn(t);
+	}, mr = async (e) => {
 		if (K()) throw Error("LoRA adapter is not supported for proxy.");
-		Ln(e);
-	}, nr = async (e, t, n, r, i, a, o) => {
+		Xn(e);
+	}, hr = async (e, t, n, r, i, a, o) => {
 		if (K()) {
 			if (o.length > 0) throw Error("LoRA adapter is not supported for proxy.");
 			if (n.some((e) => e[3] !== "cpu")) throw Error("input tensor on GPU is not supported for proxy.");
@@ -2655,11 +3331,11 @@ var Pt, Ft, It, Lt = C(() => {
 						options: a
 					}
 				};
-				q.postMessage(c, Vn(s));
+				q.postMessage(c, er(s));
 			});
 		}
-		return zn(e, t, n, r, i, a, o);
-	}, rr = async (e) => {
+		return Qn(e, t, n, r, i, a, o);
+	}, gr = async (e) => {
 		if (K()) return X(), new Promise((t, n) => {
 			Y("end-profiling", [t, n]);
 			let r = {
@@ -2668,19 +3344,19 @@ var Pt, Ft, It, Lt = C(() => {
 			};
 			q.postMessage(r);
 		});
-		Bn(e);
+		$n(e);
 	};
-}), ar, or = C(() => {
-	F(), ir(), ar = class {
+}), vr, yr = C(() => {
+	F(), _r(), vr = class {
 		async loadAdapter(e) {
-			D(), this.adapterId = await er(e), O();
+			O(), this.adapterId = await pr(e), k();
 		}
 		async dispose() {
-			return tr(this.adapterId);
+			return mr(this.adapterId);
 		}
 	};
-}), sr, cr, lr, ur = C(() => {
-	F(), or(), ir(), Cn(), Mt(), Tn(), sr = (e, t) => {
+}), br, xr, Sr, Cr = C(() => {
+	F(), yr(), _r(), In(), Gt(), Rn(), br = (e, t) => {
 		switch (e.location) {
 			case "cpu": return [
 				e.type,
@@ -2702,12 +3378,12 @@ var Pt, Ft, It, Lt = C(() => {
 			];
 			default: throw Error(`invalid data location: ${e.location} for ${t()}`);
 		}
-	}, cr = (e) => {
+	}, xr = (e) => {
 		switch (e[3]) {
 			case "cpu": return new N(e[0], e[2], e[1]);
 			case "gpu-buffer": {
 				let t = e[0];
-				if (!bn(t)) throw Error(`not supported data type: ${t} for deserializing GPU tensor`);
+				if (!Nn(t)) throw Error(`not supported data type: ${t} for deserializing GPU tensor`);
 				let { gpuBuffer: n, download: r, dispose: i } = e[2];
 				return N.fromGpuBuffer(n, {
 					dataType: t,
@@ -2718,7 +3394,7 @@ var Pt, Ft, It, Lt = C(() => {
 			}
 			case "ml-tensor": {
 				let t = e[0];
-				if (!xn(t)) throw Error(`not supported data type: ${t} for deserializing MLTensor tensor`);
+				if (!Pn(t)) throw Error(`not supported data type: ${t} for deserializing MLTensor tensor`);
 				let { mlTensor: n, download: r, dispose: i } = e[2];
 				return N.fromMLTensor(n, {
 					dataType: t,
@@ -2729,22 +3405,22 @@ var Pt, Ft, It, Lt = C(() => {
 			}
 			default: throw Error(`invalid data location: ${e[3]}`);
 		}
-	}, lr = class {
+	}, Sr = class {
 		async fetchModelAndCopyToWasmMemory(e) {
-			return Zn(await wn(e));
+			return ur(await Ln(e));
 		}
 		async loadModel(e, t) {
-			D();
+			O();
 			let n;
-			n = typeof e == "string" ? await this.fetchModelAndCopyToWasmMemory(e) : e, [this.sessionId, this.inputNames, this.outputNames, this.inputMetadata, this.outputMetadata] = await Qn(n, t), O();
+			n = typeof e == "string" ? await this.fetchModelAndCopyToWasmMemory(e) : e, [this.sessionId, this.inputNames, this.outputNames, this.inputMetadata, this.outputMetadata] = await dr(n, t), k();
 		}
 		async dispose() {
-			return $n(this.sessionId);
+			return fr(this.sessionId);
 		}
 		async run(e, t, n, r = []) {
-			D();
+			O();
 			let i = r.map((e) => {
-				if (!(e instanceof ar)) throw Error("LoRA adapter was not created by the WebAssembly backend.");
+				if (!(e instanceof vr)) throw Error("LoRA adapter was not created by the WebAssembly backend.");
 				return e.adapterId;
 			}), a = [], o = [];
 			Object.entries(e).forEach((e) => {
@@ -2758,69 +3434,69 @@ var Pt, Ft, It, Lt = C(() => {
 				if (r === -1) throw Error(`invalid output '${t}'`);
 				s.push(n), c.push(r);
 			});
-			let l = a.map((e, t) => sr(e, () => `input "${this.inputNames[o[t]]}"`)), u = s.map((e, t) => e ? sr(e, () => `output "${this.outputNames[c[t]]}"`) : null), d = await nr(this.sessionId, o, l, c, u, n, i), f = {};
-			for (let e = 0; e < d.length; e++) f[this.outputNames[c[e]]] = s[e] ?? cr(d[e]);
-			return O(), f;
+			let l = a.map((e, t) => br(e, () => `input "${this.inputNames[o[t]]}"`)), u = s.map((e, t) => e ? br(e, () => `output "${this.outputNames[c[t]]}"`) : null), d = await hr(this.sessionId, o, l, c, u, n, i), f = {};
+			for (let e = 0; e < d.length; e++) f[this.outputNames[c[e]]] = s[e] ?? xr(d[e]);
+			return k(), f;
 		}
 		startProfiling() {}
 		endProfiling() {
-			rr(this.sessionId);
+			gr(this.sessionId);
 		}
 	};
-}), dr, fr = C(() => {
-	dr = (e) => {
+}), wr, Tr = C(() => {
+	wr = (e) => {
 		if (e?.epContextDataRead) throw Error("session option \"epContextDataRead\" is not supported by ONNX Runtime Web");
 	};
-}), pr = {};
-Le(pr, {
-	OnnxruntimeWebAssemblyBackend: () => hr,
-	initializeFlags: () => mr,
-	wasmBackend: () => gr
+}), Er = {};
+Xe(Er, {
+	OnnxruntimeWebAssemblyBackend: () => Or,
+	initializeFlags: () => Dr,
+	wasmBackend: () => kr
 });
-var mr, hr, gr, _r = C(() => {
-	F(), or(), ir(), ur(), fr(), mr = () => {
-		(typeof E.wasm.initTimeout != "number" || E.wasm.initTimeout < 0) && (E.wasm.initTimeout = 0);
-		let e = E.wasm.simd;
-		if (typeof e != "boolean" && e !== void 0 && e !== "fixed" && e !== "relaxed" && (console.warn(`Property "env.wasm.simd" is set to unknown value "${e}". Reset it to \`false\` and ignore SIMD feature checking.`), E.wasm.simd = !1), typeof E.wasm.proxy != "boolean" && (E.wasm.proxy = !1), typeof E.wasm.trace != "boolean" && (E.wasm.trace = !1), typeof E.wasm.numThreads != "number" || !Number.isInteger(E.wasm.numThreads) || E.wasm.numThreads <= 0) {
-			if (typeof self < "u" && !self.crossOriginIsolated) E.wasm.numThreads = 1;
+var Dr, Or, kr, Ar = C(() => {
+	F(), yr(), _r(), Cr(), Tr(), Dr = () => {
+		(typeof D.wasm.initTimeout != "number" || D.wasm.initTimeout < 0) && (D.wasm.initTimeout = 0);
+		let e = D.wasm.simd;
+		if (typeof e != "boolean" && e !== void 0 && e !== "fixed" && e !== "relaxed" && (console.warn(`Property "env.wasm.simd" is set to unknown value "${e}". Reset it to \`false\` and ignore SIMD feature checking.`), D.wasm.simd = !1), typeof D.wasm.proxy != "boolean" && (D.wasm.proxy = !1), typeof D.wasm.trace != "boolean" && (D.wasm.trace = !1), typeof D.wasm.numThreads != "number" || !Number.isInteger(D.wasm.numThreads) || D.wasm.numThreads <= 0) {
+			if (typeof self < "u" && !self.crossOriginIsolated) D.wasm.numThreads = 1;
 			else {
-				let e = typeof navigator > "u" ? Ie("node:os").cpus().length : navigator.hardwareConcurrency;
-				E.wasm.numThreads = Math.min(4, Math.ceil((e || 1) / 2));
+				let e = typeof navigator > "u" ? Ye("node:os").cpus().length : navigator.hardwareConcurrency;
+				D.wasm.numThreads = Math.min(4, Math.ceil((e || 1) / 2));
 			}
 		}
-	}, hr = class {
+	}, Or = class {
 		async init(e) {
-			mr(), await Yn(), await Xn(e);
+			Dr(), await cr(), await lr(e);
 		}
 		async createInferenceSessionHandler(e, t) {
-			dr(t);
-			let n = new lr();
+			wr(t);
+			let n = new Sr();
 			return await n.loadModel(e, t), n;
 		}
 		async createLoraAdapterHandler(e) {
-			let t = new ar();
+			let t = new vr();
 			return await t.loadAdapter(e), t;
 		}
-	}, gr = new hr();
+	}, kr = new Or();
 });
 F(), F(), F();
-var vr = "1.31.1";
+var jr = "1.31.1";
 {
-	let e = (_r(), ze(pr)).wasmBackend;
-	He("cpu", e, 10), He("wasm", e, 10);
+	let e = (Ar(), Qe(Er)).wasmBackend;
+	et("cpu", e, 10), et("wasm", e, 10);
 }
-Object.defineProperty(E.versions, "web", {
-	value: vr,
+Object.defineProperty(D.versions, "web", {
+	value: jr,
 	enumerable: !0
 });
 // src/wakeword.ts
-var yr = {
+var Mr = {
 	io_broker: "io_broker.onnx",
 	hey_jarvis: "hey_jarvis_v0.1.onnx",
 	alexa: "alexa_v0.1.onnx",
 	hey_mycroft: "hey_mycroft_v0.1.onnx",
 	hey_rhasspy: "hey_rhasspy_v0.1.onnx"
-}, Z = 32, br = 76, xr = 8, Sr = 96, Cr = 16, wr = class {
+}, Z = 32, Nr = 76, Pr = 8, Fr = 96, Ir = 16, Lr = class {
 	mel;
 	embedding;
 	classifiers = [];
@@ -2829,7 +3505,7 @@ var yr = {
 	embeddings = [];
 	threshold = .5;
 	async initialize(e) {
-		await this.dispose(), E.wasm.numThreads = 1, E.wasm.proxy = !1, E.wasm.wasmPaths = {
+		await this.dispose(), D.wasm.numThreads = 1, D.wasm.proxy = !1, D.wasm.wasmPaths = {
 			mjs: new URL("wasm/ort-wasm-simd-threaded.mjs", e.assetBase).href,
 			wasm: new URL("wasm/ort-wasm-simd-threaded.wasm", e.assetBase).href
 		}, this.threshold = Math.max(.01, Math.min(1, e.threshold));
@@ -2841,7 +3517,7 @@ var yr = {
 		try {
 			this.mel = await P.create(await t("melspectrogram.onnx")), this.embedding = await P.create(await t("embedding_model.onnx"));
 			for (let n of e.names) {
-				let r = yr[n], i = r ? await P.create(await t(r)) : await P.create(await e.getUploadedModel(n));
+				let r = Mr[n], i = r ? await P.create(await t(r)) : await P.create(await e.getUploadedModel(n));
 				this.classifiers.push({
 					name: n,
 					session: i
@@ -2861,29 +3537,29 @@ var yr = {
 			for (let n = 0; n < Z; n++) t[n] = r[e * Z + n] / 10 + 2;
 			this.melRows.push(t);
 		}
-		for (; this.melProcessed + br <= this.melRows.length;) {
+		for (; this.melProcessed + Nr <= this.melRows.length;) {
 			let e = /* @__PURE__ */ new Float32Array(2432);
-			for (let t = 0; t < br; t++) e.set(this.melRows[this.melProcessed + t], t * Z);
+			for (let t = 0; t < Nr; t++) e.set(this.melRows[this.melProcessed + t], t * Z);
 			let t = (await this.embedding.run({ [this.embedding.inputNames[0]]: new N("float32", e, [
 				1,
-				br,
+				Nr,
 				Z,
 				1
 			]) }))[this.embedding.outputNames[0]].data;
-			if (t.length < Sr) throw Error("Unexpected embedding model output");
-			this.embeddings.push(t.slice(0, Sr)), this.melProcessed += xr;
+			if (t.length < Fr) throw Error("Unexpected embedding model output");
+			this.embeddings.push(t.slice(0, Fr)), this.melProcessed += Pr;
 		}
-		if (this.melProcessed > br) {
-			let e = this.melProcessed - br;
+		if (this.melProcessed > Nr) {
+			let e = this.melProcessed - Nr;
 			this.melRows.splice(0, e), this.melProcessed -= e;
 		}
-		if (this.embeddings.length > 64 && this.embeddings.splice(0, this.embeddings.length - 64), this.embeddings.length < Cr) return {
+		if (this.embeddings.length > 64 && this.embeddings.splice(0, this.embeddings.length - 64), this.embeddings.length < Ir) return {
 			detected: !1,
 			confidence: 0,
 			timestamp: Date.now()
 		};
 		let a = /* @__PURE__ */ new Float32Array(1536);
-		for (let e = 0; e < Cr; e++) a.set(this.embeddings[this.embeddings.length - Cr + e], e * Sr);
+		for (let e = 0; e < Ir; e++) a.set(this.embeddings[this.embeddings.length - Ir + e], e * Fr);
 		let o = {
 			name: "",
 			confidence: 0
@@ -2891,8 +3567,8 @@ var yr = {
 		for (let { name: e, session: t } of this.classifiers) {
 			let n = await t.run({ [t.inputNames[0]]: new N("float32", a, [
 				1,
-				Cr,
-				Sr
+				Ir,
+				Fr
 			]) }), r = Number(n[t.outputNames[0]].data[0]);
 			r > o.confidence && (o = {
 				name: e,
@@ -2917,19 +3593,19 @@ var yr = {
 		];
 		this.mel = void 0, this.embedding = void 0, this.classifiers = [], this.reset(), await Promise.all(e.filter((e) => !!e).map((e) => e.release()));
 	}
-}, Tr = /* @__PURE__ */ new Set([
+}, Rr = /* @__PURE__ */ new Set([
 	"success",
 	"clarification",
 	"cancelled",
 	"rejected",
 	"error"
 ]);
-function Er(e) {
+function zr(e) {
 	if (!e || typeof e != "object") throw Error("No response from smart-text2command");
 	let t = e;
 	return !("status" in t) && "message" in t && t.message && typeof t.message == "object" ? t.message : t;
 }
-var Dr = class {
+var Br = class {
 	transport;
 	instance;
 	mode;
@@ -2965,12 +3641,12 @@ var Dr = class {
 		}
 		let a;
 		try {
-			a = Er(i);
+			a = zr(i);
 		} catch (e) {
 			throw this.clarificationId = "", e;
 		}
 		if (typeof a.error == "string") throw this.clarificationId = "", Error(`smart-text2command: ${a.error}`);
-		if (!Tr.has(a.status) || typeof a.response != "string") throw this.clarificationId = "", Error("Invalid smart-text2command response");
+		if (!Rr.has(a.status) || typeof a.response != "string") throw this.clarificationId = "", Error("Invalid smart-text2command response");
 		let o = a.status;
 		if (o === "clarification" && typeof a.clarification?.id != "string") throw this.clarificationId = "", Error("Invalid smart-text2command clarification");
 		return this.clarificationId = o === "clarification" && typeof a.clarification?.id == "string" ? a.clarification.id : "", {
@@ -2979,11 +3655,11 @@ var Dr = class {
 		};
 	}
 };
-function Or(e, t, n, r) {
-	if (e === "smart-text2command") return new Dr(t, n, r);
+function Vr(e, t, n, r) {
+	if (e === "smart-text2command") return new Br(t, n, r);
 }
 // src/serverSpeech.ts
-var kr = class {
+var Hr = class {
 	audio;
 	url;
 	activity;
@@ -3019,7 +3695,7 @@ var kr = class {
 	cancel() {
 		++this.generation, this.audio &&= (this.audio.pause(), this.audio.onended = null, this.audio.onerror = null, void 0), this.url && URL.revokeObjectURL(this.url), this.url = void 0, this.activity?.(!1), this.activity = void 0;
 	}
-}, Ar = (e) => {
+}, Ur = (e) => {
 	let t = Number(e);
 	return Number.isFinite(t) ? Math.max(1, Math.min(200, Math.floor(t))) : 50;
 }, Q = new class {
@@ -3055,8 +3731,8 @@ var kr = class {
 	processor;
 	processorKey = "";
 	speechActive = !1;
-	serverSpeech = new kr();
-	constructor(e = () => new wr(), t = new ve()) {
+	serverSpeech = new Hr();
+	constructor(e = () => new Lr(), t = new _e()) {
 		this.createEngine = e, this.speech = t;
 	}
 	subscribe(e) {
@@ -3072,12 +3748,6 @@ var kr = class {
 			...this.options,
 			processorType: e.processorType,
 			processorInstance: e.processorInstance,
-			processorMode: e.processorMode,
-			forwardInstance: e.forwardInstance,
-			forwardCommand: e.forwardCommand,
-			resultState: e.resultState,
-			statusState: e.statusState,
-			errorState: e.errorState,
 			maxChatMessages: e.maxChatMessages,
 			speechEnabled: e.speechEnabled,
 			speechLanguage: e.speechLanguage,
@@ -3087,7 +3757,7 @@ var kr = class {
 		}, this.trimChat());
 	}
 	setChatLimit(e) {
-		this.chatRetentionLimit = Ar(e), this.trimChat();
+		this.chatRetentionLimit = Ur(e), this.trimChat();
 	}
 	chatRetentionLimit = 50;
 	trimChat() {
@@ -3099,15 +3769,6 @@ var kr = class {
 			...e
 		};
 		for (let e of this.listeners) e(this.snapshot);
-		e.phase && this.options?.statusState && this.writeState(this.options.statusState, e.phase), e.error && this.options?.errorState && this.writeState(this.options.errorState, e.error);
-	}
-	async writeState(e, t) {
-		try {
-			await this.socket?.setState(e, {
-				val: t,
-				ack: !1
-			});
-		} catch {}
 	}
 	async enable(e, t) {
 		if (this.snapshot.enabled || this.snapshot.phase === "initializing") return;
@@ -3140,7 +3801,7 @@ var kr = class {
 				}
 			}
 			if (n !== this.generation) return;
-			let r = new AudioContext({ sampleRate: Ee });
+			let r = new AudioContext({ sampleRate: ze });
 			this.context = r, await r.resume();
 			let i = await navigator.mediaDevices.getUserMedia({ audio: {
 				deviceId: t.microphone ? { ideal: t.microphone } : void 0,
@@ -3170,7 +3831,7 @@ var kr = class {
 				e.pcm && n === this.generation && this.onAudio(new Float32Array(e.pcm));
 			}, a.connect(s), s.connect(r.destination), i.getAudioTracks().forEach((e) => {
 				e.onended = () => void this.disable();
-			}), this.context = r, this.stream = i, this.source = a, this.node = s, this.ring = new ke(Math.round(Ee * t.ringBufferMs / 1e3)), this.publish({
+			}), this.context = r, this.stream = i, this.source = a, this.node = s, this.ring = new He(Math.round(ze * t.ringBufferMs / 1e3)), this.publish({
 				enabled: !0,
 				phase: "listening"
 			});
@@ -3240,13 +3901,13 @@ var kr = class {
 			wakeword: e,
 			text: ""
 		}), n.activationTone && this.tone(880), this.activeAt = Date.now(), this.segments.clear();
-		let r = this.generation, i = n.stripWakeword ? /* @__PURE__ */ new Float32Array() : this.ring?.snapshot() || /* @__PURE__ */ new Float32Array(), a = this.client = new je((e) => t.sendTo(n.parakeet, "live", e), (e) => this.onEvent(e), (e) => this.fail(e));
+		let r = this.generation, i = n.stripWakeword ? /* @__PURE__ */ new Float32Array() : this.ring?.snapshot() || /* @__PURE__ */ new Float32Array(), a = this.client = new We((e) => t.sendTo(n.parakeet, "live", e), (e) => this.onEvent(e), (e) => this.fail(e));
 		try {
 			if (await a.start(), r !== this.generation || this.client !== a) {
 				await a.cancel();
 				return;
 			}
-			this.vad = new Ae(n), this.publish({ phase: "recording" }), i.length && a.push(i);
+			this.vad = new Ue(n), this.publish({ phase: "recording" }), i.length && a.push(i);
 			let e = this.afterWake.splice(0);
 			for (let t of e) this.record(t);
 		} catch (e) {
@@ -3279,7 +3940,7 @@ var kr = class {
 			this.publish({
 				phase: "result",
 				text: e
-			}), e && this.deliver(e, this.client?.sessionId || ""), this.client = void 0, this.vad = void 0, this.ring?.clear(), this.engine?.reset(), window.setTimeout(() => {
+			}), e && this.deliver(e), this.client = void 0, this.vad = void 0, this.ring?.clear(), this.engine?.reset(), window.setTimeout(() => {
 				this.snapshot.phase === "result" && this.publish({
 					phase: "listening",
 					wakeword: ""
@@ -3290,34 +3951,25 @@ var kr = class {
 	joinText() {
 		return [...this.segments].sort(([e], [t]) => e - t).map(([, e]) => e.text).filter(Boolean).join(" ").trim();
 	}
-	async deliver(e, t) {
-		let n = this.socket, r = this.options;
-		if (!n || !r) return;
-		this.appendChat({
+	async deliver(e) {
+		let t = this.socket, n = this.options;
+		if (t && n && (this.appendChat({
 			role: "user",
 			text: e,
 			timestamp: this.activeAt
-		});
-		let i = {
-			text: e,
-			timestamp: this.activeAt,
-			source: "ai-parakeet-wakeword",
-			sessionId: t,
-			final: !0
-		};
-		if (r.resultState && await this.writeState(r.resultState, e), r.processorType === "smart-text2command") {
-			let t = this.appendChat({
+		}), n.processorType === "smart-text2command")) {
+			let r = this.appendChat({
 				role: "processor",
 				text: "",
 				timestamp: Date.now(),
 				status: "pending",
-				source: r.processorInstance || "smart-text2command"
+				source: n.processorInstance || "smart-text2command"
 			});
 			try {
-				let i = `${r.processorType}/${r.processorInstance}/${r.processorMode}`;
-				this.processorKey === i && this.processor || (this.processor = Or(r.processorType, n, r.processorInstance, r.processorMode), this.processorKey = i);
+				let i = `${n.processorType}/${n.processorInstance}/execute`;
+				this.processorKey === i && this.processor || (this.processor = Vr(n.processorType, t, n.processorInstance, "execute"), this.processorKey = i);
 				let a = await this.processor.process(e);
-				this.updateChat(t, {
+				this.updateChat(r, {
 					text: a.text,
 					status: a.status
 				});
@@ -3325,21 +3977,17 @@ var kr = class {
 				if (o?.speechEnabled && this.snapshot.enabled && a.text.trim()) {
 					let e = (e) => {
 						this.speechActive = e, this.wakeQueue = [], this.ring?.clear(), this.engine?.reset();
-					}, t = (e) => {
+					}, n = (e) => {
 						this.snapshot.enabled && this.publish({ error: `Speech synthesis failed (${e})` });
 					};
-					(o.speechEngine === "server" ? await this.serverSpeech.speak(n, o.parakeet, a.text, o.speechServerVoice || "", e, t) : await this.speech.speak(a.text, o.speechLanguage, e, o.speechVoiceURI, t)) === "unavailable" && this.snapshot.enabled && o.speechEngine !== "server" && this.publish({ error: `Speech voice unavailable for ${o.speechVoiceURI || o.speechLanguage}` });
+					(o.speechEngine === "server" ? await this.serverSpeech.speak(t, o.parakeet, a.text, o.speechServerVoice || "", e, n) : await this.speech.speak(a.text, o.speechLanguage, e, o.speechVoiceURI, n)) === "unavailable" && this.snapshot.enabled && o.speechEngine !== "server" && this.publish({ error: `Speech voice unavailable for ${o.speechVoiceURI || o.speechLanguage}` });
 				}
 			} catch (e) {
-				this.updateChat(t, {
+				this.updateChat(r, {
 					text: e.message,
 					status: "error"
 				}), this.publish({ error: e.message });
 			}
-		} else if (r.forwardInstance && r.forwardCommand) try {
-			await n.sendTo(r.forwardInstance, r.forwardCommand, i);
-		} catch (e) {
-			this.publish({ error: e.message });
 		}
 	}
 	appendChat(e) {
@@ -3367,10 +4015,10 @@ var kr = class {
 			level: 0
 		});
 	}
-}(), jr = "\n:host { display:block; width:100%; height:100%; color:inherit; font:inherit; }\n* { box-sizing:border-box; }\n.wakeword { width:100%; height:100%; min-height:0; display:flex; flex-direction:column; padding:var(--wakeword-padding, 16px); background:transparent; color:inherit; font:inherit; text-align:inherit; overflow:auto; }\n.wakeword.with-chat { overflow:hidden; }\n.top { position:relative; display:flex; align-items:center; gap:16px; }\n.mic { width:64px; height:64px; border:0; border-radius:50%; background:color-mix(in srgb, currentColor 12%, transparent); color:inherit; font:inherit; cursor:pointer; display:grid; place-items:center; flex:none; }\n.mic.on { background:var(--wake-accent, var(--iob-primary, #2563eb)); color:var(--iob-primary-contrast, #fff); box-shadow:0 0 0 5px color-mix(in srgb, var(--wake-accent, var(--iob-primary, #2563eb)) 18%, transparent); }\n.mic:disabled { opacity:.55; cursor:default; }\n.mic svg { width:34px; height:34px; fill:currentColor; }\n.status { display:flex; flex-direction:column; gap:4px; min-width:0; }\n.status strong { font-weight:inherit; }\n.status small { opacity:.7; }\n.meter { height:5px; background:color-mix(in srgb,currentColor 15%,transparent); border-radius:99px; margin-top:16px; overflow:hidden; }\n.meter span { display:block; height:100%; background:var(--wake-accent, var(--iob-primary, #2563eb)); transition:width .1s linear; }\n.voice-settings { margin-left:auto; flex:none; }\n.voice-settings summary { display:grid; place-items:center; width:34px; height:34px; list-style:none; border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); cursor:pointer; }\n.voice-settings summary::-webkit-details-marker { display:none; }\n.voice-settings summary:focus-visible { outline:2px solid var(--wake-accent, var(--iob-primary, #2563eb)); outline-offset:2px; }\n.voice-settings summary svg { width:21px; height:21px; fill:currentColor; }\n.voice-panel { position:absolute; z-index:10; top:100%; right:0; width:min(290px, 100%); padding:10px; background:var(--iob-paper, var(--iob-background, #fff)); border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); box-shadow:0 4px 16px rgba(0,0,0,.2); }\n.voice-picker { display:flex; flex-direction:column; align-items:stretch; gap:6px; min-width:0; }\n.voice-picker select { width:100%; min-width:0; padding:4px; color:inherit; background:var(--iob-paper, var(--iob-background, #fff)); border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); font:inherit; }\n.voice-picker small { font-size:.8em; }\n.text { margin:14px 0 0; overflow-wrap:anywhere; }\n.with-chat .text { max-height:3em; overflow-y:auto; }\n.error { color:var(--iob-error, #dc2626); margin:12px 0 0; }\n.chat { flex:1 1 0; min-height:0; margin-top:12px; padding:8px; overflow-y:auto; overscroll-behavior:contain; border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); }\n.chat-content { min-height:100%; }\n.chat-entry { max-width:90%; margin:0 0 10px; padding:6px 9px; border-radius:var(--iob-border-radius, 6px); background:var(--iob-paper, rgba(128,128,128,.08)); overflow-wrap:anywhere; }\n.chat-entry.user { margin-left:auto; background:color-mix(in srgb, var(--wake-accent, var(--iob-primary, #2563eb)) 14%, transparent); }\n.chat-entry.error { color:var(--iob-error, #dc2626); }\n.chat-entry p { margin:3px 0 0; white-space:pre-wrap; }\n.chat-source { font-size:.8em; opacity:.7; }\n.chat-empty { margin:0; opacity:.65; }\n.actions { display:flex; gap:8px; margin-top:14px; }\n.actions button { border:1px solid var(--wake-accent, var(--iob-primary, #2563eb)); color:var(--wake-accent, var(--iob-primary, #2563eb)); background:transparent; border-radius:var(--iob-border-radius, 6px); padding:6px 12px; cursor:pointer; font:inherit; }\n.actions button:disabled { opacity:.5; }\n.compact { padding:var(--wakeword-padding, 8px); }\n.compact .mic { width:42px; height:42px; }\n.compact .mic svg { width:25px; height:25px; }\n.compact .meter { margin-top:8px; }\n@media (prefers-reduced-motion:reduce) { .meter span { transition:none; } }\n", Mr = (e, t) => {
+}(), Wr = "\n:host { display:block; width:100%; height:100%; color:inherit; font:inherit; }\n* { box-sizing:border-box; }\n.wakeword { width:100%; height:100%; min-height:0; display:flex; flex-direction:column; padding:var(--wakeword-padding, 16px); background:transparent; color:inherit; font:inherit; text-align:inherit; overflow:auto; }\n.wakeword.with-chat { overflow:hidden; }\n.top { position:relative; display:flex; align-items:center; gap:16px; }\n.mic { width:64px; height:64px; border:0; border-radius:50%; background:color-mix(in srgb, currentColor 12%, transparent); color:inherit; font:inherit; cursor:pointer; display:grid; place-items:center; flex:none; }\n.mic.on { background:var(--wake-accent, var(--iob-primary, #2563eb)); color:var(--iob-primary-contrast, #fff); box-shadow:0 0 0 5px color-mix(in srgb, var(--wake-accent, var(--iob-primary, #2563eb)) 18%, transparent); }\n.mic:disabled { opacity:.55; cursor:default; }\n.mic svg { width:34px; height:34px; fill:currentColor; }\n.status { display:flex; flex-direction:column; gap:4px; min-width:0; }\n.status strong { font-weight:inherit; }\n.status small { opacity:.7; }\n.meter { height:5px; background:color-mix(in srgb,currentColor 15%,transparent); border-radius:99px; margin-top:16px; overflow:hidden; }\n.meter span { display:block; height:100%; background:var(--wake-accent, var(--iob-primary, #2563eb)); transition:width .1s linear; }\n.voice-settings { margin-left:auto; flex:none; }\n.voice-settings summary { display:grid; place-items:center; width:34px; height:34px; list-style:none; border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); cursor:pointer; }\n.voice-settings summary::-webkit-details-marker { display:none; }\n.voice-settings summary:focus-visible { outline:2px solid var(--wake-accent, var(--iob-primary, #2563eb)); outline-offset:2px; }\n.voice-settings summary svg { width:21px; height:21px; fill:currentColor; }\n.voice-panel { position:absolute; z-index:10; top:100%; right:0; width:min(290px, 100%); padding:10px; background:var(--iob-paper, var(--iob-background, #fff)); border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); box-shadow:0 4px 16px rgba(0,0,0,.2); }\n.voice-picker { display:flex; flex-direction:column; align-items:stretch; gap:6px; min-width:0; }\n.voice-picker select { width:100%; min-width:0; padding:4px; color:inherit; background:var(--iob-paper, var(--iob-background, #fff)); border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); font:inherit; }\n.voice-picker small { font-size:.8em; }\n.text { margin:14px 0 0; overflow-wrap:anywhere; }\n.with-chat .text { max-height:3em; overflow-y:auto; }\n.error { color:var(--iob-error, #dc2626); margin:12px 0 0; }\n.chat { flex:1 1 0; min-height:0; margin-top:12px; padding:8px; overflow-y:auto; overscroll-behavior:contain; border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); }\n.chat-content { min-height:100%; }\n.chat-entry { max-width:90%; margin:0 0 10px; padding:6px 9px; border-radius:var(--iob-border-radius, 6px); background:var(--iob-paper, rgba(128,128,128,.08)); overflow-wrap:anywhere; }\n.chat-entry.user { margin-left:auto; background:color-mix(in srgb, var(--wake-accent, var(--iob-primary, #2563eb)) 14%, transparent); }\n.chat-entry.error { color:var(--iob-error, #dc2626); }\n.chat-entry p { margin:3px 0 0; white-space:pre-wrap; }\n.chat-source { font-size:.8em; opacity:.7; }\n.chat-empty { margin:0; opacity:.65; }\n.actions { display:flex; gap:8px; margin-top:14px; }\n.actions button { border:1px solid var(--wake-accent, var(--iob-primary, #2563eb)); color:var(--wake-accent, var(--iob-primary, #2563eb)); background:transparent; border-radius:var(--iob-border-radius, 6px); padding:6px 12px; cursor:pointer; font:inherit; }\n.actions button:disabled { opacity:.5; }\n.compact { padding:var(--wakeword-padding, 8px); }\n.compact .mic { width:42px; height:42px; }\n.compact .mic svg { width:25px; height:25px; }\n.compact .meter { margin-top:8px; }\n@media (prefers-reduced-motion:reduce) { .meter span { transition:none; } }\n", Gr = (e, t) => {
 	let n = (e || `${t}.0`).replace(/^system\.adapter\./, "");
 	return RegExp(`^${t.replaceAll("-", "\\-")}\\.\\d+$`).test(n) ? n : `${t}.0`;
-}, $ = (e, t) => Number.isFinite(Number(e)) ? Number(e) : t, Nr = (e) => {
+}, $ = (e, t) => Number.isFinite(Number(e)) ? Number(e) : t, Kr = (e) => {
 	let t = (e || "").replace(/^system\.adapter\./, "");
 	return /^smart-text2command\.\d+$/.test(t) ? t : "";
 };
@@ -3380,21 +4028,21 @@ me("iob-wakeword", class extends pe {
 	#n = !1;
 	#r = null;
 	#i = Q.state;
-	#a = null;
+	#a = he;
 	#o = "";
 	#s = !1;
 	constructor() {
 		super();
 		let t = this.attachShadow({ mode: "open" }), n = document.createElement("style");
-		n.textContent = jr;
+		n.textContent = Wr;
 		let r = document.createElement("div");
 		r.style.height = "100%", t.append(n, r), this.#e = e(r);
 	}
 	disconnectedCallback() {
-		this.#t?.(), this.#t = void 0, this.#n = !1, this.#r = null, this.#s = !1, this.#o = "", this.#a = null, super.disconnectedCallback();
+		this.#t?.(), this.#t = void 0, this.#n = !1, this.#r = null, this.#s = !1, this.#o = "", this.#a = he, super.disconnectedCallback();
 	}
 	getStateIds(e) {
-		return [`system.adapter.${Mr(e.parakeet, "ai-parakeet")}.alive`];
+		return [`system.adapter.${Gr(e.parakeet, "ai-parakeet")}.alive`];
 	}
 	render() {
 		if (!this.#s) {
@@ -3404,14 +4052,14 @@ me("iob-wakeword", class extends pe {
 				this.#o = `iob-wakeword:voice:${location.pathname}:${e}`;
 				try {
 					let e = localStorage.getItem(this.#o);
-					this.#a = e === "" ? ge : e;
+					this.#a = e && e !== "__widget_default__" ? e : he;
 				} catch {}
 			}
 		}
 		this.#t ||= Q.subscribe((e) => {
 			this.#i = e, this.#u();
 		}), Q.setChatLimit(this.settings.maxChatMessages ?? 50), this.editMode && Q.state.enabled && Q.disable(), !this.editMode && this.socket && Q.updateDeliveryOptions(this.#c());
-		let e = Mr(this.settings.parakeet, "ai-parakeet");
+		let e = Gr(this.settings.parakeet, "ai-parakeet");
 		if (this.states[`system.adapter.${e}.alive`]?.val === !1 && Q.connectionLost("Adapter is not running"), this.socket !== this.#r) {
 			let e = this.#r;
 			if (this.#r = this.socket, this.#n = !1, e && Q.state.enabled) {
@@ -3424,9 +4072,9 @@ me("iob-wakeword", class extends pe {
 		!this.editMode && this.settings.autoStart && !this.#n && this.socket && (this.#n = !0, Q.enable(this.socket, this.#c())), this.#u();
 	}
 	#c() {
-		let e = this.settings, t = e.speechVoiceURI === "custom" ? (e.speechVoiceCustom || "").trim() || "(voice not specified)" : e.speechVoiceURI || "";
+		let e = this.settings;
 		return {
-			parakeet: Mr(e.parakeet, "ai-parakeet"),
+			parakeet: Gr(e.parakeet, "ai-parakeet"),
 			mode: e.mode || "wakeword",
 			microphone: e.microphone || "",
 			ringBufferMs: $(e.ringBufferMs, 1e3),
@@ -3437,48 +4085,40 @@ me("iob-wakeword", class extends pe {
 			noSpeechMs: $(e.noSpeechMs, 5e3),
 			maxRecordMs: $(e.maxRecordMs, 15e3),
 			showInterim: e.showInterim !== !1,
-			activationTone: !!e.activationTone,
-			completionTone: !!e.completionTone,
-			resultState: e.resultState || "",
-			statusState: e.statusState || "",
-			errorState: e.errorState || "",
+			activationTone: e.activationTone !== !1,
+			completionTone: e.completionTone !== !1,
 			processorType: e.processorType === "smart-text2command" ? "smart-text2command" : "none",
-			processorInstance: Nr(e.processorInstance),
-			processorMode: e.processorMode === "analyze" ? "analyze" : "execute",
-			forwardInstance: e.forwardInstance || "",
-			forwardCommand: e.forwardCommand || "",
-			maxChatMessages: Ar(e.maxChatMessages),
+			processorInstance: Kr(e.processorInstance),
+			maxChatMessages: Ur(e.maxChatMessages),
 			speechEnabled: !!e.speechEnabled,
 			speechEngine: e.speechEngine === "server" ? "server" : "browser",
 			speechServerVoice: e.speechServerVoice || "",
 			speechLanguage: this.#l(),
-			speechVoiceURI: this.#a === null ? t : this.#a === "__auto_local__" ? "" : this.#a
+			speechVoiceURI: this.#a === "__auto_local__" ? "" : this.#a
 		};
 	}
 	#l() {
-		return this.settings.language === "de" || this.settings.language === "en" ? this.settings.language : (this.systemLang || navigator.language).toLowerCase().startsWith("de") ? "de" : "en";
+		return Me(this.settings.language && this.settings.language !== "auto" ? this.settings.language : this.systemLang || navigator.language);
 	}
 	#u() {
-		let e = this.closest(".vis-widget")?.style, t = $(this.settings.fontSize, 0), n = e?.fontSize || t === 16 ? void 0 : t || void 0, r = this.settings.accentColor === "#2563eb" ? void 0 : this.settings.accentColor;
-		this.#e.render(/* @__PURE__ */ o(Te, {
+		let e = this.settings.accentColor === "#2563eb" ? void 0 : this.settings.accentColor;
+		this.#e.render(/* @__PURE__ */ o(Re, {
 			snapshot: this.#i,
 			mode: this.settings.mode || "wakeword",
 			language: this.#l(),
 			compact: !!this.settings.compact,
 			showText: this.settings.showText !== !1,
 			showChat: !!this.settings.showChat,
-			maxChatMessages: Ar(this.settings.maxChatMessages),
+			maxChatMessages: Ur(this.settings.maxChatMessages),
 			speechEnabled: !!this.settings.speechEnabled && this.settings.speechEngine !== "server",
-			voiceURI: this.#a ?? "__widget_default__",
-			configuredVoiceURI: this.settings.speechVoiceURI === "custom" ? this.settings.speechVoiceCustom || "" : this.settings.speechVoiceURI || "",
+			voiceURI: this.#a,
 			onVoiceChange: (e) => {
-				if (this.#a = e === "__widget_default__" ? null : e, this.#o) try {
-					this.#a === null ? localStorage.removeItem(this.#o) : localStorage.setItem(this.#o, this.#a);
+				if (this.#a = e, this.#o) try {
+					e === "__auto_local__" ? localStorage.removeItem(this.#o) : localStorage.setItem(this.#o, this.#a);
 				} catch {}
 				this.socket && Q.state.enabled && Q.updateDeliveryOptions(this.#c()), this.#u();
 			},
-			accentColor: r,
-			fontSize: n,
+			accentColor: e,
 			editMode: this.editMode,
 			onToggle: () => {
 				Q.state.enabled ? Q.disable() : this.socket && Q.enable(this.socket, this.#c());

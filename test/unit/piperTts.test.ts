@@ -1,6 +1,13 @@
 import { strict as assert } from 'node:assert';
 import { describe, it } from 'mocha';
-import { inspectPiperWav, PIPER_VOICES, PiperTts, parseSynthesizeRequest, piperBinaryAsset } from '../../src/lib/piperTts';
+import {
+    inspectPiperWav,
+    PIPER_VOICES,
+    PiperTts,
+    parseSynthesizeRequest,
+    piperBinaryAsset,
+    validateUploadedVoice,
+} from '../../src/lib/piperTts';
 
 describe('Piper sendTo contract', () => {
     it('offers built-in and downloadable voices with unique IDs', () => {
@@ -8,15 +15,28 @@ describe('Piper sendTo contract', () => {
         assert.equal(PIPER_VOICES.filter(voice => !voice.standard).length, 2);
         assert.equal(new Set(PIPER_VOICES.map(voice => voice.id)).size, PIPER_VOICES.length);
         const service = new PiperTts('unused');
-        assert.deepEqual(service.listVoices().map(voice => voice.value), PIPER_VOICES.map(voice => voice.id));
+        assert.deepEqual(
+            service.listVoices().map(voice => voice.value),
+            PIPER_VOICES.map(voice => voice.id),
+        );
     });
 
     it('normalizes text and accepts synthesis parameters', () => {
-        assert.deepEqual(parseSynthesizeRequest({ text: ' Guten  Tag\n', voice: 'de_DE-thorsten-low',
-            speaker: 0, lengthScale: 1.2 }, 'en_US-kristin-medium'), {
-            text: 'Guten Tag', voice: 'de_DE-thorsten-low', format: 'wav', speaker: 0,
-            lengthScale: 1.2, noiseScale: undefined, noiseW: undefined,
-        });
+        assert.deepEqual(
+            parseSynthesizeRequest(
+                { text: ' Guten  Tag\n', voice: 'de_DE-thorsten-low', speaker: 0, lengthScale: 1.2 },
+                'en_US-kristin-medium',
+            ),
+            {
+                text: 'Guten Tag',
+                voice: 'de_DE-thorsten-low',
+                format: 'wav',
+                speaker: 0,
+                lengthScale: 1.2,
+                noiseScale: undefined,
+                noiseW: undefined,
+            },
+        );
     });
 
     it('rejects unsupported voices, oversized text and unsafe parameters', () => {
@@ -24,11 +44,36 @@ describe('Piper sendTo contract', () => {
         assert.throws(() => parseSynthesizeRequest({ text: 'a'.repeat(1001) }, 'de_DE-thorsten-low'));
         assert.throws(() => parseSynthesizeRequest({ text: 'Hi', speaker: -1 }, 'de_DE-thorsten-low'));
         assert.throws(() => parseSynthesizeRequest({ text: 'Hi', format: 'mp3' }, 'de_DE-thorsten-low'));
+        assert.equal(
+            parseSynthesizeRequest({ text: 'Hi', voice: 'custom:my-voice' }, 'de_DE-thorsten-low').voice,
+            'custom:my-voice',
+        );
+        assert.throws(() => parseSynthesizeRequest({ text: 'Hi', voice: 'custom:../other' }, 'de_DE-thorsten-low'));
+    });
+
+    it('checks uploaded model and matching Piper configuration before use', () => {
+        const model = Buffer.alloc(2048);
+        const config = Buffer.from(
+            JSON.stringify({ audio: { sample_rate: 16000 }, espeak: { voice: 'de' }, phoneme_id_map: { a: [1] } }),
+        );
+        assert.doesNotThrow(() => validateUploadedVoice(model, config));
+        assert.throws(() => validateUploadedVoice(Buffer.alloc(4), config), /ONNX model/);
+        assert.throws(() => validateUploadedVoice(model, Buffer.from('{bad json'.padEnd(20, 'x'))), /invalid JSON/);
+        assert.throws(() => validateUploadedVoice(model, Buffer.from('null'.padEnd(20))), /not compatible/);
+        assert.throws(
+            () => validateUploadedVoice(model, Buffer.from(JSON.stringify({ audio: { sample_rate: 16000 } }))),
+            /not compatible/,
+        );
     });
 
     it('has a pinned runtime for the supported operating systems', () => {
-        for (const [platform, arch] of [['win32', 'x64'], ['linux', 'x64'], ['linux', 'arm64'],
-            ['darwin', 'x64'], ['darwin', 'arm64']]) {
+        for (const [platform, arch] of [
+            ['win32', 'x64'],
+            ['linux', 'x64'],
+            ['linux', 'arm64'],
+            ['darwin', 'x64'],
+            ['darwin', 'arm64'],
+        ]) {
             assert.match(piperBinaryAsset(platform, arch)?.sha256 || '', /^[a-f0-9]{64}$/);
         }
         assert.equal(piperBinaryAsset('freebsd', 'x64'), null);
@@ -49,7 +94,6 @@ describe('Piper sendTo contract', () => {
         wav.write('data', 36);
         wav.writeUInt32LE(4, 40);
         assert.deepEqual(inspectPiperWav(wav, 16000), { sampleRate: 16000, durationMs: 0 });
-        assert.throws(() => inspectPiperWav(Buffer.concat([wav, Buffer.from([13])]), 16000),
-            /invalid WAV audio/);
+        assert.throws(() => inspectPiperWav(Buffer.concat([wav, Buffer.from([13])]), 16000), /invalid WAV audio/);
     });
 });

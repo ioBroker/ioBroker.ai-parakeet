@@ -62,5 +62,7 @@
   "Speech synthesis (Piper)": "Sprachausgabe (Piper)",
   "Piper runs locally without Python. Standard voices are listed here; the runtime and a voice are downloaded automatically on first synthesis. Select another voice and download it in advance if desired.": "Piper läuft lokal ohne Python. Standardstimmen stehen hier zur Auswahl; Laufzeit und Stimme werden bei der ersten Sprachausgabe automatisch geladen. Eine weitere Stimme kann vorab ausgewählt und heruntergeladen werden.",
   "Default Piper voice": "Piper-Standardstimme",
-  "Download selected voice": "Ausgewählte Stimme herunterladen"
+  "Download selected voice": "Ausgewählte Stimme herunterladen",
+  "Upload two matching files for each custom voice: name.onnx and name.onnx.json. Use a Piper voice model compatible with Piper 2023.11.14-2, with an eSpeak voice and sample rate from 8 to 48 kHz. Model limit: 150 MiB; JSON config limit: 256 KiB. Check the voice license yourself. An incompatible model is rejected during synthesis.": "Für jede eigene Stimme zwei zusammengehörige Dateien hochladen: name.onnx und name.onnx.json. Das Piper-Stimmenmodell muss mit Piper 2023.11.14-2 kompatibel sein, eine eSpeak-Stimme enthalten und eine Abtastrate von 8 bis 48 kHz verwenden. Modellgrenze: 150 MiB; JSON-Konfiguration: 256 KiB. Bitte die Lizenz der Stimme selbst prüfen. Ein inkompatibles Modell wird bei der Sprachausgabe abgewiesen.",
+  "Upload custom Piper voice files": "Eigene Piper-Stimmdateien hochladen"
 }

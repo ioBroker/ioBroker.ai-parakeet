@@ -87,9 +87,9 @@ setTimeout(async () => {
     gear?.click();
     await nextFrame();
     const runtimeSelect = runtimeElement.shadowRoot?.querySelector('.voice-picker select') as HTMLSelectElement | null;
-    const voicesListed = details?.open && runtimeSelect?.options.length === 4 &&
-        /Local German \((lokal|local)\)/.test(runtimeSelect.options[2].textContent || '') &&
-        runtimeSelect.options[3].textContent?.includes('Remote German (remote)');
+    const voicesListed = details?.open && runtimeSelect?.options.length === 3 &&
+        /Local German \((lokal|local)\)/.test(runtimeSelect.options[1].textContent || '') &&
+        runtimeSelect.options[2].textContent?.includes('Remote German (remote)');
     if (runtimeSelect) {
         runtimeSelect.value = 'remote-de';
         runtimeSelect.dispatchEvent(new Event('change', { bubbles: true }));

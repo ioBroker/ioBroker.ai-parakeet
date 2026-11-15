@@ -8,8 +8,7 @@ const options: WidgetOptions = {
     ringBufferMs: 1000, stripWakeword: false, microphone: '',
     threshold: 0.01, minSpeechMs: 250, silenceMs: 1200, noSpeechMs: 5000, maxRecordMs: 15000,
     activationTone: false, completionTone: false, showInterim: true,
-    resultState: '', statusState: '', errorState: '', forwardInstance: '', forwardCommand: '',
-    processorType: 'none', processorInstance: '', processorMode: 'execute', maxChatMessages: 50,
+    processorType: 'none', processorInstance: '', maxChatMessages: 50,
     speechEnabled: false, speechLanguage: 'de', speechVoiceURI: '',
 };
 
