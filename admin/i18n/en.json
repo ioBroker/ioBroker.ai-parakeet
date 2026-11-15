@@ -58,5 +58,9 @@
   "Second wake word": "Second wake word",
   "Third wake word": "Third wake word",
   "Detection threshold": "Detection threshold",
-  "Upload ONNX wake word model": "Upload ONNX wake word model"
+  "Upload ONNX wake word model": "Upload ONNX wake word model",
+  "Speech synthesis (Piper)": "Speech synthesis (Piper)",
+  "Piper runs locally without Python. Standard voices are listed here; the runtime and a voice are downloaded automatically on first synthesis. Select another voice and download it in advance if desired.": "Piper runs locally without Python. Standard voices are listed here; the runtime and a voice are downloaded automatically on first synthesis. Select another voice and download it in advance if desired.",
+  "Default Piper voice": "Default Piper voice",
+  "Download selected voice": "Download selected voice"
 }

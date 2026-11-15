@@ -20,6 +20,7 @@ import { downloadFfmpegStatic, ffmpegStaticPath } from './lib/ffmpegStatic';
 import { translate, type TextId } from './lib/i18n';
 import { LiveSessions } from './lib/liveSessions';
 import { checkModel, downloadModel, MODEL, MODEL_SIZE, verifyModel } from './lib/modelFiles';
+import { PiperTts } from './lib/piperTts';
 import { directAdminHost, isSecureContextUrl, selectLanAddress } from './lib/network';
 import type { JobResult } from './lib/scheduler';
 import { adapterTimers } from './lib/timers';
@@ -29,7 +30,7 @@ import type { AiParakeetConfig } from './types';
 const DEFAULT_PORT = 9999;
 const MAX_FILE_BYTES = 64 * 1024 * 1024;
 const WILDCARD_ADDRESSES = ['', '0.0.0.0', '::'];
-const BUNDLED_WAKEWORDS = ['io_broker', 'iobroker_new', 'hey_jarvis', 'alexa', 'hey_mycroft', 'hey_rhasspy'];
+const BUNDLED_WAKEWORDS = ['io_broker', 'hey_jarvis', 'alexa', 'hey_mycroft', 'hey_rhasspy'];
 const MAX_WAKEWORD_MODEL_BYTES = 10 * 1024 * 1024;
 
 type Status = 'starting' | 'downloading' | 'verifying' | 'loading' | 'ready' | 'idle' | 'error';
@@ -79,6 +80,7 @@ export class AiParakeetAdapter extends Adapter {
     private server: ApiServer | null = null;
     /** Live test of admin over sendTo; works without the server, e.g. while its port is used */
     private live: LiveSessions | null = null;
+    private piper: PiperTts | null = null;
     private abort = new AbortController();
 
     private systemLanguage = 'en';
@@ -128,6 +130,7 @@ export class AiParakeetAdapter extends Adapter {
             configuredDir && isAbsolute(configuredDir)
                 ? configuredDir
                 : join(getAbsoluteDefaultDataDir(), 'ai-parakeet', 'models');
+        this.piper = new PiperTts(this.instanceDataDir(), this.log);
         const maxAudioSeconds = Math.round(num(cfg.maxAudioSeconds, 300, 5, 3600));
 
         this.engine = new Engine({
@@ -565,6 +568,24 @@ export class AiParakeetAdapter extends Adapter {
                 case 'transcribe':
                     response = await this.transcribeMessage(obj.message);
                     break;
+                case 'piperVoices':
+                    response = this.piper?.listVoices() || [];
+                    break;
+                case 'downloadPiperVoice': {
+                    const id = (obj.message as { voice?: unknown } | undefined)?.voice;
+                    if (typeof id !== 'string' || !this.piper) {
+                        throw new Error('Unknown Piper voice');
+                    }
+                    await this.piper.downloadVoice(id);
+                    response = { result: `Piper voice ${id} is ready` };
+                    break;
+                }
+                case 'synthesize':
+                    if (!this.piper) {
+                        throw new Error('Piper is not ready');
+                    }
+                    response = await this.piper.synthesize(obj.message, this.config.ttsVoice || 'de_DE-thorsten-low');
+                    break;
                 case 'status':
                     // message = { href } with the address of admin in the browser (admin with `_href`)
                     response = await this.statusHtml((obj.message as { href?: unknown } | null)?.href, obj.from);
@@ -708,6 +729,7 @@ export class AiParakeetAdapter extends Adapter {
     private async onUnload(callback: () => void): Promise<void> {
         try {
             this.abort.abort();
+            this.piper?.close();
             this.live?.closeAll();
             this.transcriber?.scheduler.cancelAll(new Error('The adapter stops'));
             await this.server?.stop();

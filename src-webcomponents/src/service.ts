@@ -3,6 +3,7 @@ import { ParakeetClient, type LiveAnswer, type LiveEvent } from './parakeet';
 import { OnnxWakewordEngine, type WakewordEngine } from './wakeword';
 import { createTextProcessor, type ProcessorMode, type ProcessorStatus, type ProcessorType, type TextProcessor } from './processors';
 import { BrowserSpeechOutput } from './speech';
+import { ServerSpeechOutput } from './serverSpeech';
 
 export type Phase = 'disabled' | 'initializing' | 'listening' | 'activated' | 'recording' | 'processing' | 'result' | 'error';
 export type Mode = 'wakeword' | 'ptt' | 'combined';
@@ -19,6 +20,7 @@ export interface WidgetOptions extends VadOptions {
     forwardInstance: string; forwardCommand: string;
     maxChatMessages: number;
     speechEnabled: boolean; speechLanguage: string; speechVoiceURI: string;
+    speechEngine?: 'browser' | 'server'; speechServerVoice?: string;
 }
 export interface VoiceResult { text: string; timestamp: number; source: string; sessionId: string; final: true }
 export interface ChatMessage {
@@ -58,6 +60,7 @@ export class VoiceControlService {
     private processor?: TextProcessor;
     private processorKey = '';
     private speechActive = false;
+    private readonly serverSpeech = new ServerSpeechOutput();
 
     constructor(private readonly createEngine: () => WakewordEngine = () => new OnnxWakewordEngine(),
         private readonly speech = new BrowserSpeechOutput()) {}
@@ -70,8 +73,9 @@ export class VoiceControlService {
     get state(): Snapshot { return this.snapshot; }
     updateDeliveryOptions(options: WidgetOptions): void {
         if (!this.options || !this.snapshot.enabled) return;
-        if (this.options.speechEnabled && !options.speechEnabled) {
+        if (this.options.speechEnabled && (!options.speechEnabled || this.options.speechEngine !== options.speechEngine)) {
             this.speech.cancel();
+            this.serverSpeech.cancel();
             this.speechActive = false;
             this.wakeQueue = [];
             this.ring?.clear();
@@ -84,7 +88,8 @@ export class VoiceControlService {
             statusState: options.statusState, errorState: options.errorState,
             maxChatMessages: options.maxChatMessages,
             speechEnabled: options.speechEnabled, speechLanguage: options.speechLanguage,
-            speechVoiceURI: options.speechVoiceURI };
+            speechVoiceURI: options.speechVoiceURI,
+            speechEngine: options.speechEngine, speechServerVoice: options.speechServerVoice };
         this.trimChat();
     }
     setChatLimit(value: number): void {
@@ -182,7 +187,7 @@ export class VoiceControlService {
         if (this.snapshot.enabled || this.snapshot.phase === 'initializing') this.fail(new Error(message));
     }
     private async release(): Promise<void> {
-        this.speech.cancel(); this.speechActive = false;
+        this.speech.cancel(); this.serverSpeech.cancel(); this.speechActive = false;
         this.wakeQueue = []; this.afterWake = [];
         const client = this.client; this.client = undefined;
         const cancel = client?.cancel();
@@ -318,15 +323,21 @@ export class VoiceControlService {
                 this.updateChat(pendingId, { text: reply.text, status: reply.status });
                 const speechOptions = this.options;
                 if (speechOptions?.speechEnabled && this.snapshot.enabled && reply.text.trim()) {
-                    const spoken = await this.speech.speak(reply.text, speechOptions.speechLanguage, active => {
+                    const activity = (active: boolean): void => {
                         this.speechActive = active;
                         this.wakeQueue = [];
                         this.ring?.clear();
                         this.engine?.reset();
-                    }, speechOptions.speechVoiceURI, reason => {
+                    };
+                    const failure = (reason: string): void => {
                         if (this.snapshot.enabled) this.publish({ error: `Speech synthesis failed (${reason})` });
-                    });
-                    if (spoken === 'unavailable' && this.snapshot.enabled) {
+                    };
+                    const spoken = speechOptions.speechEngine === 'server'
+                        ? await this.serverSpeech.speak(socket, speechOptions.parakeet, reply.text,
+                            speechOptions.speechServerVoice || '', activity, failure)
+                        : await this.speech.speak(reply.text, speechOptions.speechLanguage, activity,
+                            speechOptions.speechVoiceURI, failure);
+                    if (spoken === 'unavailable' && this.snapshot.enabled && speechOptions.speechEngine !== 'server') {
                         this.publish({ error: `Speech voice unavailable for ${speechOptions.speechVoiceURI || speechOptions.speechLanguage}` });
                     }
                 }

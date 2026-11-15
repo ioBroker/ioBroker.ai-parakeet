@@ -7,6 +7,8 @@ export interface CorrectionRow {
 }
 
 export interface AiParakeetConfig {
+    /** Default Piper voice for local text-to-speech */
+    ttsVoice: string;
     wakewordModel: string;
     wakewordModel2: string;
     wakewordModel3: string;

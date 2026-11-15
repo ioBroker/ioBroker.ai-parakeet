@@ -121,6 +121,42 @@
                 }
             }
         },
+        "_tts": {
+            "type": "panel",
+            "label": "Speech synthesis (Piper)",
+            "items": {
+                "_ttsInfo": {
+                    "type": "staticText",
+                    "text": "Piper runs locally without Python. Standard voices are listed here; the runtime and a voice are downloaded automatically on first synthesis. Select another voice and download it in advance if desired.",
+                    "xs": 12
+                },
+                "ttsVoice": {
+                    "type": "selectSendTo",
+                    "command": "piperVoices",
+                    "noTranslation": true,
+                    "label": "Default Piper voice",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 8,
+                    "md": 6,
+                    "lg": 5,
+                    "xl": 5
+                },
+                "_downloadPiperVoice": {
+                    "type": "sendTo",
+                    "command": "downloadPiperVoice",
+                    "jsonData": "{\"voice\":\"${data.ttsVoice}\"}",
+                    "label": "Download selected voice",
+                    "variant": "outlined",
+                    "hidden": "!_alive",
+                    "xs": 12,
+                    "sm": 4,
+                    "md": 3,
+                    "lg": 3,
+                    "xl": 3
+                }
+            }
+        },
         "_model": {
             "type": "panel",
             "label": "Model",

@@ -22,7 +22,6 @@ export interface WakewordEngine {
 
 const BUILTIN: Record<string, string> = {
     io_broker: 'io_broker.onnx',
-    iobroker_new: 'iobroker_new.onnx',
     hey_jarvis: 'hey_jarvis_v0.1.onnx',
     alexa: 'alexa_v0.1.onnx',
     hey_mycroft: 'hey_mycroft_v0.1.onnx',

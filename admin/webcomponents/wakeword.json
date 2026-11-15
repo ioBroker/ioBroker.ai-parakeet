@@ -324,9 +324,72 @@
         "type": "checkbox",
         "default": false,
         "label": {
-          "en": "Speak processor replies with a browser voice",
-          "de": "Antworten mit Browserstimme vorlesen"
+          "en": "Speak processor replies",
+          "de": "Antworten vorlesen"
         }
+      },
+      "speechEngine": {
+        "type": "select",
+        "default": "browser",
+        "label": {
+          "en": "Speech output",
+          "de": "Sprachausgabe"
+        },
+        "hidden": "!data.speechEnabled",
+        "options": [
+          {
+            "value": "browser",
+            "label": {
+              "en": "Browser voice",
+              "de": "Browserstimme"
+            }
+          },
+          {
+            "value": "server",
+            "label": {
+              "en": "Piper on adapter",
+              "de": "Piper im Adapter"
+            }
+          }
+        ]
+      },
+      "speechServerVoice": {
+        "type": "select",
+        "default": "",
+        "label": {
+          "en": "Piper voice",
+          "de": "Piper-Stimme"
+        },
+        "hidden": "!data.speechEnabled || data.speechEngine !== 'server'",
+        "options": [
+          {
+            "value": "",
+            "label": {
+              "en": "Adapter default",
+              "de": "Adapter-Standard"
+            }
+          },
+          {
+            "value": "de_DE-thorsten-low",
+            "label": "Deutsch - Thorsten"
+          },
+          {
+            "value": "de_DE-kerstin-low",
+            "label": "Deutsch - Kerstin"
+          },
+          {
+            "value": "en_US-kristin-medium",
+            "label": "English - Kristin"
+          },
+          {
+            "value": "fr_FR-siwis-low",
+            "label": "Français - Siwis"
+          },
+          {
+            "value": "es_ES-carlfm-x_low",
+            "label": "Español - CarlFM"
+          }
+        ]
       },
       "speechVoiceURI": {
         "type": "select",
@@ -335,7 +398,7 @@
           "en": "Speech voice",
           "de": "Sprachausgabe-Stimme"
         },
-        "hidden": "!data.speechEnabled",
+        "hidden": "!data.speechEnabled || data.speechEngine === 'server'",
         "options": [
           {
             "value": "",
@@ -364,7 +427,7 @@
           "en": "Voice name or URI (as shown by the browser)",
           "de": "Stimmenname oder URI (laut Browser)"
         },
-        "hidden": "!data.speechEnabled || data.speechVoiceURI !== 'custom'",
+        "hidden": "!data.speechEnabled || data.speechEngine === 'server' || data.speechVoiceURI !== 'custom'",
         "help": {
           "en": "Enter a voice available in the browser used by the VIS page. A remote voice may transmit reply text to its provider.",
           "de": "Eine im Browser der VIS-Seite verfügbare Stimme eintragen. Eine Remote-Stimme kann den Antworttext an ihren Anbieter übertragen."

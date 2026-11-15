@@ -58,5 +58,9 @@
   "Second wake word": "Zweites Aktivierungswort",
   "Third wake word": "Drittes Aktivierungswort",
   "Detection threshold": "Erkennungsschwelle",
-  "Upload ONNX wake word model": "ONNX-Modell für Aktivierungswort hochladen"
+  "Upload ONNX wake word model": "ONNX-Modell für Aktivierungswort hochladen",
+  "Speech synthesis (Piper)": "Sprachausgabe (Piper)",
+  "Piper runs locally without Python. Standard voices are listed here; the runtime and a voice are downloaded automatically on first synthesis. Select another voice and download it in advance if desired.": "Piper läuft lokal ohne Python. Standardstimmen stehen hier zur Auswahl; Laufzeit und Stimme werden bei der ersten Sprachausgabe automatisch geladen. Eine weitere Stimme kann vorab ausgewählt und heruntergeladen werden.",
+  "Default Piper voice": "Piper-Standardstimme",
+  "Download selected voice": "Ausgewählte Stimme herunterladen"
 }

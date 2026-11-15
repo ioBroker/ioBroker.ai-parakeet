@@ -2816,7 +2816,6 @@ Object.defineProperty(E.versions, "web", {
 // src/wakeword.ts
 var yr = {
 	io_broker: "io_broker.onnx",
-	iobroker_new: "iobroker_new.onnx",
 	hey_jarvis: "hey_jarvis_v0.1.onnx",
 	alexa: "alexa_v0.1.onnx",
 	hey_mycroft: "hey_mycroft_v0.1.onnx",
@@ -2983,8 +2982,44 @@ var Dr = class {
 function Or(e, t, n, r) {
 	if (e === "smart-text2command") return new Dr(t, n, r);
 }
-// src/service.ts
-var kr = (e) => {
+// src/serverSpeech.ts
+var kr = class {
+	audio;
+	url;
+	activity;
+	generation = 0;
+	async speak(e, t, n, r, i, a) {
+		if (!n.trim()) return "unavailable";
+		this.cancel();
+		let o = ++this.generation;
+		this.activity = i, i(!0);
+		try {
+			let s = await e.sendTo(t, "synthesize", {
+				text: n,
+				...r ? { voice: r } : {}
+			});
+			if (o !== this.generation) return "cancelled";
+			if (s?.error) throw Error(s.error);
+			if (!s?.audio || s.mimeType !== "audio/wav") throw Error("Piper returned no WAV audio");
+			let c = Uint8Array.from(atob(s.audio), (e) => e.charCodeAt(0));
+			if (!c.length || c.length > 8388608) throw Error("Piper WAV size is invalid");
+			this.url = URL.createObjectURL(new Blob([c.buffer], { type: "audio/wav" }));
+			let l = new Audio(this.url);
+			this.audio = l;
+			let u = () => {
+				o === this.generation && (this.audio = void 0, this.activity = void 0, this.url && URL.revokeObjectURL(this.url), this.url = void 0, i(!1));
+			};
+			return l.onended = u, l.onerror = () => {
+				o === this.generation && (u(), a("Audio playback failed"));
+			}, await l.play(), o === this.generation ? "spoken" : "cancelled";
+		} catch (e) {
+			return o === this.generation ? (this.cancel(), a(e.message), "unavailable") : "cancelled";
+		}
+	}
+	cancel() {
+		++this.generation, this.audio &&= (this.audio.pause(), this.audio.onended = null, this.audio.onerror = null, void 0), this.url && URL.revokeObjectURL(this.url), this.url = void 0, this.activity?.(!1), this.activity = void 0;
+	}
+}, Ar = (e) => {
 	let t = Number(e);
 	return Number.isFinite(t) ? Math.max(1, Math.min(200, Math.floor(t))) : 50;
 }, Q = new class {
@@ -3020,6 +3055,7 @@ var kr = (e) => {
 	processor;
 	processorKey = "";
 	speechActive = !1;
+	serverSpeech = new kr();
 	constructor(e = () => new wr(), t = new ve()) {
 		this.createEngine = e, this.speech = t;
 	}
@@ -3032,7 +3068,7 @@ var kr = (e) => {
 		return this.snapshot;
 	}
 	updateDeliveryOptions(e) {
-		this.options && this.snapshot.enabled && (this.options.speechEnabled && !e.speechEnabled && (this.speech.cancel(), this.speechActive = !1, this.wakeQueue = [], this.ring?.clear(), this.engine?.reset()), this.options = {
+		this.options && this.snapshot.enabled && (this.options.speechEnabled && (!e.speechEnabled || this.options.speechEngine !== e.speechEngine) && (this.speech.cancel(), this.serverSpeech.cancel(), this.speechActive = !1, this.wakeQueue = [], this.ring?.clear(), this.engine?.reset()), this.options = {
 			...this.options,
 			processorType: e.processorType,
 			processorInstance: e.processorInstance,
@@ -3045,11 +3081,13 @@ var kr = (e) => {
 			maxChatMessages: e.maxChatMessages,
 			speechEnabled: e.speechEnabled,
 			speechLanguage: e.speechLanguage,
-			speechVoiceURI: e.speechVoiceURI
+			speechVoiceURI: e.speechVoiceURI,
+			speechEngine: e.speechEngine,
+			speechServerVoice: e.speechServerVoice
 		}, this.trimChat());
 	}
 	setChatLimit(e) {
-		this.chatRetentionLimit = kr(e), this.trimChat();
+		this.chatRetentionLimit = Ar(e), this.trimChat();
 	}
 	chatRetentionLimit = 50;
 	trimChat() {
@@ -3156,7 +3194,7 @@ var kr = (e) => {
 		(this.snapshot.enabled || this.snapshot.phase === "initializing") && this.fail(Error(e));
 	}
 	async release() {
-		this.speech.cancel(), this.speechActive = !1, this.wakeQueue = [], this.afterWake = [];
+		this.speech.cancel(), this.serverSpeech.cancel(), this.speechActive = !1, this.wakeQueue = [], this.afterWake = [];
 		let e = this.client;
 		this.client = void 0;
 		let t = e?.cancel();
@@ -3284,11 +3322,14 @@ var kr = (e) => {
 					status: a.status
 				});
 				let o = this.options;
-				o?.speechEnabled && this.snapshot.enabled && a.text.trim() && await this.speech.speak(a.text, o.speechLanguage, (e) => {
-					this.speechActive = e, this.wakeQueue = [], this.ring?.clear(), this.engine?.reset();
-				}, o.speechVoiceURI, (e) => {
-					this.snapshot.enabled && this.publish({ error: `Speech synthesis failed (${e})` });
-				}) === "unavailable" && this.snapshot.enabled && this.publish({ error: `Speech voice unavailable for ${o.speechVoiceURI || o.speechLanguage}` });
+				if (o?.speechEnabled && this.snapshot.enabled && a.text.trim()) {
+					let e = (e) => {
+						this.speechActive = e, this.wakeQueue = [], this.ring?.clear(), this.engine?.reset();
+					}, t = (e) => {
+						this.snapshot.enabled && this.publish({ error: `Speech synthesis failed (${e})` });
+					};
+					(o.speechEngine === "server" ? await this.serverSpeech.speak(n, o.parakeet, a.text, o.speechServerVoice || "", e, t) : await this.speech.speak(a.text, o.speechLanguage, e, o.speechVoiceURI, t)) === "unavailable" && this.snapshot.enabled && o.speechEngine !== "server" && this.publish({ error: `Speech voice unavailable for ${o.speechVoiceURI || o.speechLanguage}` });
+				}
 			} catch (e) {
 				this.updateChat(t, {
 					text: e.message,
@@ -3326,10 +3367,10 @@ var kr = (e) => {
 			level: 0
 		});
 	}
-}(), Ar = "\n:host { display:block; width:100%; height:100%; color:inherit; font:inherit; }\n* { box-sizing:border-box; }\n.wakeword { width:100%; height:100%; min-height:0; display:flex; flex-direction:column; padding:var(--wakeword-padding, 16px); background:transparent; color:inherit; font:inherit; text-align:inherit; overflow:auto; }\n.wakeword.with-chat { overflow:hidden; }\n.top { position:relative; display:flex; align-items:center; gap:16px; }\n.mic { width:64px; height:64px; border:0; border-radius:50%; background:color-mix(in srgb, currentColor 12%, transparent); color:inherit; font:inherit; cursor:pointer; display:grid; place-items:center; flex:none; }\n.mic.on { background:var(--wake-accent, var(--iob-primary, #2563eb)); color:var(--iob-primary-contrast, #fff); box-shadow:0 0 0 5px color-mix(in srgb, var(--wake-accent, var(--iob-primary, #2563eb)) 18%, transparent); }\n.mic:disabled { opacity:.55; cursor:default; }\n.mic svg { width:34px; height:34px; fill:currentColor; }\n.status { display:flex; flex-direction:column; gap:4px; min-width:0; }\n.status strong { font-weight:inherit; }\n.status small { opacity:.7; }\n.meter { height:5px; background:color-mix(in srgb,currentColor 15%,transparent); border-radius:99px; margin-top:16px; overflow:hidden; }\n.meter span { display:block; height:100%; background:var(--wake-accent, var(--iob-primary, #2563eb)); transition:width .1s linear; }\n.voice-settings { margin-left:auto; flex:none; }\n.voice-settings summary { display:grid; place-items:center; width:34px; height:34px; list-style:none; border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); cursor:pointer; }\n.voice-settings summary::-webkit-details-marker { display:none; }\n.voice-settings summary:focus-visible { outline:2px solid var(--wake-accent, var(--iob-primary, #2563eb)); outline-offset:2px; }\n.voice-settings summary svg { width:21px; height:21px; fill:currentColor; }\n.voice-panel { position:absolute; z-index:10; top:100%; right:0; width:min(290px, 100%); padding:10px; background:var(--iob-paper, var(--iob-background, #fff)); border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); box-shadow:0 4px 16px rgba(0,0,0,.2); }\n.voice-picker { display:flex; flex-direction:column; align-items:stretch; gap:6px; min-width:0; }\n.voice-picker select { width:100%; min-width:0; padding:4px; color:inherit; background:var(--iob-paper, var(--iob-background, #fff)); border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); font:inherit; }\n.voice-picker small { font-size:.8em; }\n.text { margin:14px 0 0; overflow-wrap:anywhere; }\n.with-chat .text { max-height:3em; overflow-y:auto; }\n.error { color:var(--iob-error, #dc2626); margin:12px 0 0; }\n.chat { flex:1 1 0; min-height:0; margin-top:12px; padding:8px; overflow-y:auto; overscroll-behavior:contain; border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); }\n.chat-content { min-height:100%; }\n.chat-entry { max-width:90%; margin:0 0 10px; padding:6px 9px; border-radius:var(--iob-border-radius, 6px); background:var(--iob-paper, rgba(128,128,128,.08)); overflow-wrap:anywhere; }\n.chat-entry.user { margin-left:auto; background:color-mix(in srgb, var(--wake-accent, var(--iob-primary, #2563eb)) 14%, transparent); }\n.chat-entry.error { color:var(--iob-error, #dc2626); }\n.chat-entry p { margin:3px 0 0; white-space:pre-wrap; }\n.chat-source { font-size:.8em; opacity:.7; }\n.chat-empty { margin:0; opacity:.65; }\n.actions { display:flex; gap:8px; margin-top:14px; }\n.actions button { border:1px solid var(--wake-accent, var(--iob-primary, #2563eb)); color:var(--wake-accent, var(--iob-primary, #2563eb)); background:transparent; border-radius:var(--iob-border-radius, 6px); padding:6px 12px; cursor:pointer; font:inherit; }\n.actions button:disabled { opacity:.5; }\n.compact { padding:var(--wakeword-padding, 8px); }\n.compact .mic { width:42px; height:42px; }\n.compact .mic svg { width:25px; height:25px; }\n.compact .meter { margin-top:8px; }\n@media (prefers-reduced-motion:reduce) { .meter span { transition:none; } }\n", jr = (e, t) => {
+}(), jr = "\n:host { display:block; width:100%; height:100%; color:inherit; font:inherit; }\n* { box-sizing:border-box; }\n.wakeword { width:100%; height:100%; min-height:0; display:flex; flex-direction:column; padding:var(--wakeword-padding, 16px); background:transparent; color:inherit; font:inherit; text-align:inherit; overflow:auto; }\n.wakeword.with-chat { overflow:hidden; }\n.top { position:relative; display:flex; align-items:center; gap:16px; }\n.mic { width:64px; height:64px; border:0; border-radius:50%; background:color-mix(in srgb, currentColor 12%, transparent); color:inherit; font:inherit; cursor:pointer; display:grid; place-items:center; flex:none; }\n.mic.on { background:var(--wake-accent, var(--iob-primary, #2563eb)); color:var(--iob-primary-contrast, #fff); box-shadow:0 0 0 5px color-mix(in srgb, var(--wake-accent, var(--iob-primary, #2563eb)) 18%, transparent); }\n.mic:disabled { opacity:.55; cursor:default; }\n.mic svg { width:34px; height:34px; fill:currentColor; }\n.status { display:flex; flex-direction:column; gap:4px; min-width:0; }\n.status strong { font-weight:inherit; }\n.status small { opacity:.7; }\n.meter { height:5px; background:color-mix(in srgb,currentColor 15%,transparent); border-radius:99px; margin-top:16px; overflow:hidden; }\n.meter span { display:block; height:100%; background:var(--wake-accent, var(--iob-primary, #2563eb)); transition:width .1s linear; }\n.voice-settings { margin-left:auto; flex:none; }\n.voice-settings summary { display:grid; place-items:center; width:34px; height:34px; list-style:none; border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); cursor:pointer; }\n.voice-settings summary::-webkit-details-marker { display:none; }\n.voice-settings summary:focus-visible { outline:2px solid var(--wake-accent, var(--iob-primary, #2563eb)); outline-offset:2px; }\n.voice-settings summary svg { width:21px; height:21px; fill:currentColor; }\n.voice-panel { position:absolute; z-index:10; top:100%; right:0; width:min(290px, 100%); padding:10px; background:var(--iob-paper, var(--iob-background, #fff)); border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); box-shadow:0 4px 16px rgba(0,0,0,.2); }\n.voice-picker { display:flex; flex-direction:column; align-items:stretch; gap:6px; min-width:0; }\n.voice-picker select { width:100%; min-width:0; padding:4px; color:inherit; background:var(--iob-paper, var(--iob-background, #fff)); border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); font:inherit; }\n.voice-picker small { font-size:.8em; }\n.text { margin:14px 0 0; overflow-wrap:anywhere; }\n.with-chat .text { max-height:3em; overflow-y:auto; }\n.error { color:var(--iob-error, #dc2626); margin:12px 0 0; }\n.chat { flex:1 1 0; min-height:0; margin-top:12px; padding:8px; overflow-y:auto; overscroll-behavior:contain; border:1px solid var(--iob-divider, rgba(128,128,128,.25)); border-radius:var(--iob-border-radius, 6px); }\n.chat-content { min-height:100%; }\n.chat-entry { max-width:90%; margin:0 0 10px; padding:6px 9px; border-radius:var(--iob-border-radius, 6px); background:var(--iob-paper, rgba(128,128,128,.08)); overflow-wrap:anywhere; }\n.chat-entry.user { margin-left:auto; background:color-mix(in srgb, var(--wake-accent, var(--iob-primary, #2563eb)) 14%, transparent); }\n.chat-entry.error { color:var(--iob-error, #dc2626); }\n.chat-entry p { margin:3px 0 0; white-space:pre-wrap; }\n.chat-source { font-size:.8em; opacity:.7; }\n.chat-empty { margin:0; opacity:.65; }\n.actions { display:flex; gap:8px; margin-top:14px; }\n.actions button { border:1px solid var(--wake-accent, var(--iob-primary, #2563eb)); color:var(--wake-accent, var(--iob-primary, #2563eb)); background:transparent; border-radius:var(--iob-border-radius, 6px); padding:6px 12px; cursor:pointer; font:inherit; }\n.actions button:disabled { opacity:.5; }\n.compact { padding:var(--wakeword-padding, 8px); }\n.compact .mic { width:42px; height:42px; }\n.compact .mic svg { width:25px; height:25px; }\n.compact .meter { margin-top:8px; }\n@media (prefers-reduced-motion:reduce) { .meter span { transition:none; } }\n", Mr = (e, t) => {
 	let n = (e || `${t}.0`).replace(/^system\.adapter\./, "");
 	return RegExp(`^${t.replaceAll("-", "\\-")}\\.\\d+$`).test(n) ? n : `${t}.0`;
-}, $ = (e, t) => Number.isFinite(Number(e)) ? Number(e) : t, Mr = (e) => {
+}, $ = (e, t) => Number.isFinite(Number(e)) ? Number(e) : t, Nr = (e) => {
 	let t = (e || "").replace(/^system\.adapter\./, "");
 	return /^smart-text2command\.\d+$/.test(t) ? t : "";
 };
@@ -3345,7 +3386,7 @@ me("iob-wakeword", class extends pe {
 	constructor() {
 		super();
 		let t = this.attachShadow({ mode: "open" }), n = document.createElement("style");
-		n.textContent = Ar;
+		n.textContent = jr;
 		let r = document.createElement("div");
 		r.style.height = "100%", t.append(n, r), this.#e = e(r);
 	}
@@ -3353,7 +3394,7 @@ me("iob-wakeword", class extends pe {
 		this.#t?.(), this.#t = void 0, this.#n = !1, this.#r = null, this.#s = !1, this.#o = "", this.#a = null, super.disconnectedCallback();
 	}
 	getStateIds(e) {
-		return [`system.adapter.${jr(e.parakeet, "ai-parakeet")}.alive`];
+		return [`system.adapter.${Mr(e.parakeet, "ai-parakeet")}.alive`];
 	}
 	render() {
 		if (!this.#s) {
@@ -3370,7 +3411,7 @@ me("iob-wakeword", class extends pe {
 		this.#t ||= Q.subscribe((e) => {
 			this.#i = e, this.#u();
 		}), Q.setChatLimit(this.settings.maxChatMessages ?? 50), this.editMode && Q.state.enabled && Q.disable(), !this.editMode && this.socket && Q.updateDeliveryOptions(this.#c());
-		let e = jr(this.settings.parakeet, "ai-parakeet");
+		let e = Mr(this.settings.parakeet, "ai-parakeet");
 		if (this.states[`system.adapter.${e}.alive`]?.val === !1 && Q.connectionLost("Adapter is not running"), this.socket !== this.#r) {
 			let e = this.#r;
 			if (this.#r = this.socket, this.#n = !1, e && Q.state.enabled) {
@@ -3385,7 +3426,7 @@ me("iob-wakeword", class extends pe {
 	#c() {
 		let e = this.settings, t = e.speechVoiceURI === "custom" ? (e.speechVoiceCustom || "").trim() || "(voice not specified)" : e.speechVoiceURI || "";
 		return {
-			parakeet: jr(e.parakeet, "ai-parakeet"),
+			parakeet: Mr(e.parakeet, "ai-parakeet"),
 			mode: e.mode || "wakeword",
 			microphone: e.microphone || "",
 			ringBufferMs: $(e.ringBufferMs, 1e3),
@@ -3402,12 +3443,14 @@ me("iob-wakeword", class extends pe {
 			statusState: e.statusState || "",
 			errorState: e.errorState || "",
 			processorType: e.processorType === "smart-text2command" ? "smart-text2command" : "none",
-			processorInstance: Mr(e.processorInstance),
+			processorInstance: Nr(e.processorInstance),
 			processorMode: e.processorMode === "analyze" ? "analyze" : "execute",
 			forwardInstance: e.forwardInstance || "",
 			forwardCommand: e.forwardCommand || "",
-			maxChatMessages: kr(e.maxChatMessages),
+			maxChatMessages: Ar(e.maxChatMessages),
 			speechEnabled: !!e.speechEnabled,
+			speechEngine: e.speechEngine === "server" ? "server" : "browser",
+			speechServerVoice: e.speechServerVoice || "",
 			speechLanguage: this.#l(),
 			speechVoiceURI: this.#a === null ? t : this.#a === "__auto_local__" ? "" : this.#a
 		};
@@ -3424,8 +3467,8 @@ me("iob-wakeword", class extends pe {
 			compact: !!this.settings.compact,
 			showText: this.settings.showText !== !1,
 			showChat: !!this.settings.showChat,
-			maxChatMessages: kr(this.settings.maxChatMessages),
-			speechEnabled: !!this.settings.speechEnabled,
+			maxChatMessages: Ar(this.settings.maxChatMessages),
+			speechEnabled: !!this.settings.speechEnabled && this.settings.speechEngine !== "server",
 			voiceURI: this.#a ?? "__widget_default__",
 			configuredVoiceURI: this.settings.speechVoiceURI === "custom" ? this.settings.speechVoiceCustom || "" : this.settings.speechVoiceURI || "",
 			onVoiceChange: (e) => {

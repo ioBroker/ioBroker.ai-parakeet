@@ -158,6 +158,7 @@
     ]
   },
   "native": {
+    "ttsVoice": "de_DE-thorsten-low",
     "wakewordModel": "io_broker",
     "wakewordModel2": "",
     "wakewordModel3": "",

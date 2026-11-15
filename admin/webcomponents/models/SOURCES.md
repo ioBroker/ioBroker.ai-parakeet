@@ -1,11 +1,10 @@
 # Bundled model provenance
 
-| File                                                                                        | Source                                                                                                                   | License                       |
-| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ----------------------------- |
-| `io_broker.onnx`                                                                            | [ioBroker.assistant-satellite](https://github.com/ioBroker/ioBroker.assistant-satellite/blob/main/models/io_broker.onnx) | Repository MIT license        |
-| `iobroker_news.onnx`                                                                        | -                                                                                                                        | provided by GermanBluefox     |
-| `melspectrogram.onnx`, `embedding_model.onnx`                                               | [openWakeWord v0.5.1 release](https://github.com/dscripka/openWakeWord/releases/tag/v0.5.1)                              | CC BY-NC-SA 4.0 model license |
-| `hey_jarvis_v0.1.onnx`, `alexa_v0.1.onnx`, `hey_mycroft_v0.1.onnx`, `hey_rhasspy_v0.1.onnx` | [openWakeWord v0.5.1 release](https://github.com/dscripka/openWakeWord/releases/tag/v0.5.1)                              | CC BY-NC-SA 4.0 model license |
+| File                                                                                        | Source                                                                                      | License                       |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------- |
+| `io_broker.onnx`                                                                            | -                                                                                           | provided by GermanBluefox     |
+| `melspectrogram.onnx`, `embedding_model.onnx`                                               | [openWakeWord v0.5.1 release](https://github.com/dscripka/openWakeWord/releases/tag/v0.5.1) | CC BY-NC-SA 4.0 model license |
+| `hey_jarvis_v0.1.onnx`, `alexa_v0.1.onnx`, `hey_mycroft_v0.1.onnx`, `hey_rhasspy_v0.1.onnx` | [openWakeWord v0.5.1 release](https://github.com/dscripka/openWakeWord/releases/tag/v0.5.1) | CC BY-NC-SA 4.0 model license |
 
 OpenWakeWord code is Apache 2.0; [its README](https://github.com/dscripka/openWakeWord#license) assigns the included pretrained models the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 license](https://creativecommons.org/licenses/by-nc-sa/4.0/). The model files are separate from this adapter's MIT source code. Use requires compliance with the model licenses, including attribution and noncommercial restrictions.
 

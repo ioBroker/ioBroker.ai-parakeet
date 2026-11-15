@@ -18,6 +18,7 @@ interface Settings {
     processorType?: 'none' | 'smart-text2command'; processorInstance?: string;
     processorMode?: 'analyze' | 'execute'; showChat?: boolean; maxChatMessages?: number;
     speechEnabled?: boolean; speechVoiceURI?: string; speechVoiceCustom?: string;
+    speechEngine?: 'browser' | 'server'; speechServerVoice?: string;
 }
 const instance = (value: string | undefined, adapter: string): string => {
     const id = (value || `${adapter}.0`).replace(/^system\.adapter\./, '');
@@ -118,6 +119,8 @@ class WakewordElement extends IobWebComponent<Settings> {
             forwardInstance: s.forwardInstance || '', forwardCommand: s.forwardCommand || '',
             maxChatMessages: chatLimit(s.maxChatMessages),
             speechEnabled: !!s.speechEnabled,
+            speechEngine: s.speechEngine === 'server' ? 'server' : 'browser',
+            speechServerVoice: s.speechServerVoice || '',
             speechLanguage: this.#language(),
             speechVoiceURI: this.#voiceURI === null ? configuredVoice
                 : this.#voiceURI === AUTO_LOCAL_VOICE_SELECTION ? '' : this.#voiceURI,
@@ -137,7 +140,7 @@ class WakewordElement extends IobWebComponent<Settings> {
             snapshot={this.#state} mode={this.settings.mode || 'wakeword'} language={this.#language()}
             compact={!!this.settings.compact} showText={this.settings.showText !== false}
             showChat={!!this.settings.showChat} maxChatMessages={chatLimit(this.settings.maxChatMessages)}
-            speechEnabled={!!this.settings.speechEnabled} voiceURI={this.#voiceURI ?? DEFAULT_VOICE_SELECTION}
+            speechEnabled={!!this.settings.speechEnabled && this.settings.speechEngine !== 'server'} voiceURI={this.#voiceURI ?? DEFAULT_VOICE_SELECTION}
             configuredVoiceURI={this.settings.speechVoiceURI === 'custom' ? this.settings.speechVoiceCustom || ''
                 : this.settings.speechVoiceURI || ''}
             onVoiceChange={voiceURI => {
