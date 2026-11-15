@@ -323,7 +323,9 @@ export class VoiceControlService {
                         this.wakeQueue = [];
                         this.ring?.clear();
                         this.engine?.reset();
-                    }, speechOptions.speechVoiceURI);
+                    }, speechOptions.speechVoiceURI, reason => {
+                        if (this.snapshot.enabled) this.publish({ error: `Speech synthesis failed (${reason})` });
+                    });
                     if (spoken === 'unavailable' && this.snapshot.enabled) {
                         this.publish({ error: `Speech voice unavailable for ${speechOptions.speechVoiceURI || speechOptions.speechLanguage}` });
                     }

@@ -21,6 +21,9 @@ element.editMode = true;
 element.settings = { autoStart: true, parakeet: 'ai-parakeet.0', fontSize: 16, showChat: true, speechEnabled: true };
 const widget = document.createElement('div');
 widget.className = 'vis-widget';
+widget.id = 'voice-widget-smoke';
+const voiceKey = `iob-wakeword:voice:${location.pathname}:voice-widget-smoke`;
+localStorage.removeItem(voiceKey);
 Object.assign(widget.style, {
     fontSize: '28px', color: 'rgb(17, 34, 51)', fontStyle: 'italic',
     fontWeight: '700', textAlign: 'right', backgroundColor: 'rgb(238, 239, 240)',
@@ -36,7 +39,7 @@ document.head.append(projectStyle);
 setTimeout(async () => {
     const button = element.shadowRoot?.querySelector('button.mic') as HTMLButtonElement | null;
     const chat = element.shadowRoot?.querySelector('[part="chat"]') as HTMLElement | null;
-    const noVoicePicker = !element.shadowRoot?.querySelector('.voice-picker');
+    const editorNoMenu = !element.shadowRoot?.querySelector('.voice-settings');
     const content = element.shadowRoot?.querySelector('.wakeword') as HTMLElement | null;
     const status = element.shadowRoot?.querySelector('.status strong') as HTMLElement | null;
     const contentStyle = content && getComputedStyle(content);
@@ -45,7 +48,7 @@ setTimeout(async () => {
     const initialFontSize = contentStyle?.fontSize;
     widget.style.fontSize = '30px';
     const updatedFontSize = content && getComputedStyle(content).fontSize;
-    const cssOkay = button?.disabled && micCalls === 0 && !!chat && noVoicePicker &&
+    const cssOkay = button?.disabled && micCalls === 0 && !!chat && editorNoMenu &&
         initialFontSize === '28px' && updatedFontSize === '30px' &&
         contentStyle?.color === 'rgb(17, 34, 51)' &&
         contentStyle.fontStyle === 'italic' && statusStyle?.fontWeight === '700' &&
@@ -69,11 +72,37 @@ setTimeout(async () => {
     void chat?.clientHeight;
     await new Promise(resolve => setTimeout(resolve, 300));
     const afterResize = atBottom();
-    const okay = cssOkay && initialScroll && afterReply && afterResize;
+    const runtimeElement = document.createElement('iob-wakeword') as typeof element;
+    runtimeElement.editMode = false;
+    runtimeElement.settings = { autoStart: false, speechEnabled: true };
+    const runtimeWidget = document.createElement('div');
+    runtimeWidget.className = 'vis-widget';
+    runtimeWidget.id = 'voice-widget-smoke';
+    runtimeWidget.append(runtimeElement);
+    document.body.append(runtimeWidget);
+    await nextFrame();
+    const gear = runtimeElement.shadowRoot?.querySelector('.voice-settings summary') as HTMLElement | null;
+    const details = runtimeElement.shadowRoot?.querySelector('.voice-settings') as HTMLDetailsElement | null;
+    const menuClosed = !!gear && details?.open === false;
+    gear?.click();
+    await nextFrame();
+    const runtimeSelect = runtimeElement.shadowRoot?.querySelector('.voice-picker select') as HTMLSelectElement | null;
+    const voicesListed = details?.open && runtimeSelect?.options.length === 4 &&
+        /Local German \((lokal|local)\)/.test(runtimeSelect.options[2].textContent || '') &&
+        runtimeSelect.options[3].textContent?.includes('Remote German (remote)');
+    if (runtimeSelect) {
+        runtimeSelect.value = 'remote-de';
+        runtimeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    await nextFrame();
+    const voiceSaved = localStorage.getItem(voiceKey) === 'remote-de';
+    runtimeWidget.remove();
+    const okay = cssOkay && initialScroll && afterReply && afterResize && menuClosed && voicesListed && voiceSaved;
     document.body.dataset.result = okay ? 'pass' : 'fail';
     document.querySelector('#result')!.textContent = okay
-        ? 'PASS: voice picker is absent, chat stays at bottom, microphone stays off in editor'
-        : `FAIL: css=${cssOkay}, noVoicePicker=${noVoicePicker}, initialScroll=${initialScroll}, afterReply=${afterReply}, afterResize=${afterResize}, resizeObserver=${typeof ResizeObserver}, height=${beforeResizeHeight}/${chat?.clientHeight}, scrollHeight=${chat?.scrollHeight}, scrollTop=${chat?.scrollTop}`;
+        ? 'PASS: runtime gear lists voices and saves selection, editor has no menu, chat stays at bottom'
+        : `FAIL: css=${cssOkay}, menuClosed=${menuClosed}, voicesListed=${voicesListed}, voiceSaved=${voiceSaved}, initialScroll=${initialScroll}, afterReply=${afterReply}, afterResize=${afterResize}, resizeObserver=${typeof ResizeObserver}, height=${beforeResizeHeight}/${chat?.clientHeight}, scrollHeight=${chat?.scrollHeight}, scrollTop=${chat?.scrollTop}`;
     widget.remove();
+    localStorage.removeItem(voiceKey);
     projectStyle.remove();
 }, 500);

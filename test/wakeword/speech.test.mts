@@ -70,3 +70,49 @@ test('an explicitly selected voice can be local or remote', async () => {
     assert.equal(await output.speak('Hello', 'de', () => {}, 'missing'), 'unavailable');
     assert.equal(spoken.length, 2);
 });
+
+test('waits for a selected remote voice that arrives after local voices', async () => {
+    const local = { name: 'local', lang: 'de-DE', voiceURI: 'local', localService: true } as SpeechSynthesisVoice;
+    const remote = { name: 'Google Deutsch', lang: 'de-DE', voiceURI: 'Google Deutsch', localService: false } as SpeechSynthesisVoice;
+    const voices = [local];
+    const synthesis = new EventTarget() as SpeechSynthesis & { getVoices: () => SpeechSynthesisVoice[]; speak: (utterance: SpeechSynthesisUtterance) => void };
+    synthesis.getVoices = () => voices;
+    let spokenVoice: SpeechSynthesisVoice | undefined;
+    synthesis.speak = utterance => { spokenVoice = utterance.voice || undefined; };
+    class Utterance {
+        voice?: SpeechSynthesisVoice;
+        lang = '';
+        onend?: () => void;
+        onerror?: () => void;
+        constructor(public text: string) {}
+    }
+    Object.assign(globalThis, { window: globalThis, SpeechSynthesisUtterance: Utterance, speechSynthesis: synthesis });
+    const pending = new BrowserSpeechOutput().speak('Hallo', 'de', () => {}, 'Google Deutsch');
+    voices.push(remote);
+    synthesis.dispatchEvent(new Event('voiceschanged'));
+    assert.equal(await pending, 'spoken');
+    assert.equal(spokenVoice, remote);
+});
+
+test('reports asynchronous speech synthesis errors', async () => {
+    const remote = { name: 'Google Deutsch', lang: 'de-DE', voiceURI: 'Google Deutsch', localService: false } as SpeechSynthesisVoice;
+    let spoken: SpeechSynthesisUtterance | undefined;
+    class Utterance {
+        voice?: SpeechSynthesisVoice;
+        lang = '';
+        onend?: () => void;
+        onerror?: (event: { error: string }) => void;
+        constructor(public text: string) {}
+    }
+    Object.assign(globalThis, { window: globalThis, SpeechSynthesisUtterance: Utterance, speechSynthesis: {
+        getVoices: () => [remote], speak: (utterance: SpeechSynthesisUtterance) => { spoken = utterance; }, cancel: () => {},
+    } });
+    const activity: boolean[] = [];
+    const errors: string[] = [];
+    const result = await new BrowserSpeechOutput().speak('Hallo', 'de', active => activity.push(active), 'Google Deutsch',
+        error => errors.push(error));
+    assert.equal(result, 'spoken');
+    spoken?.onerror?.({ error: 'network' } as SpeechSynthesisErrorEvent);
+    assert.deepEqual(activity, [true, false]);
+    assert.deepEqual(errors, ['network']);
+});

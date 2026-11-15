@@ -4,6 +4,7 @@ import type { WebComponentSocket } from '@iobroker/web-components';
 import { WakewordView } from './WakewordView';
 import { chatLimit, voiceService, type Mode, type Snapshot, type SocketLike, type WidgetOptions } from './service';
 import { STYLES } from './styles';
+import { AUTO_LOCAL_VOICE_SELECTION, DEFAULT_VOICE_SELECTION } from './speech';
 
 interface Settings {
     [key: string]: string | number | boolean | undefined;
@@ -34,6 +35,9 @@ class WakewordElement extends IobWebComponent<Settings> {
     #autoStarted = false;
     #lastSocket: WebComponentSocket | null = null;
     #state: Snapshot = voiceService.state;
+    #voiceURI: string | null = null;
+    #voiceStorageKey = '';
+    #voiceLoaded = false;
     constructor() {
         super();
         const shadow = this.attachShadow({ mode: 'open' });
@@ -46,12 +50,26 @@ class WakewordElement extends IobWebComponent<Settings> {
         this.#unsubscribe?.(); this.#unsubscribe = undefined;
         this.#autoStarted = false;
         this.#lastSocket = null;
+        this.#voiceLoaded = false;
+        this.#voiceStorageKey = '';
+        this.#voiceURI = null;
         super.disconnectedCallback();
     }
     protected override getStateIds(settings: Settings): string[] {
         return [`system.adapter.${instance(settings.parakeet, 'ai-parakeet')}.alive`];
     }
     protected override render(): void {
+        if (!this.#voiceLoaded) {
+            this.#voiceLoaded = true;
+            const widgetId = this.closest<HTMLElement>('.vis-widget')?.id || this.id;
+            if (widgetId) {
+                this.#voiceStorageKey = `iob-wakeword:voice:${location.pathname}:${widgetId}`;
+                try {
+                    const saved = localStorage.getItem(this.#voiceStorageKey);
+                    this.#voiceURI = saved === '' ? AUTO_LOCAL_VOICE_SELECTION : saved;
+                } catch { /* storage unavailable */ }
+            }
+        }
         if (!this.#unsubscribe) this.#unsubscribe = voiceService.subscribe(state => { this.#state = state; this.#draw(); });
         voiceService.setChatLimit(this.settings.maxChatMessages ?? 50);
         if (this.editMode && voiceService.state.enabled) void voiceService.disable();
@@ -83,6 +101,8 @@ class WakewordElement extends IobWebComponent<Settings> {
     }
     #options(): WidgetOptions {
         const s = this.settings;
+        const configuredVoice = s.speechVoiceURI === 'custom' ? (s.speechVoiceCustom || '').trim() || '(voice not specified)'
+            : (s.speechVoiceURI || '');
         return {
             parakeet: instance(s.parakeet, 'ai-parakeet'),
             mode: s.mode || 'wakeword', microphone: s.microphone || '',
@@ -99,8 +119,8 @@ class WakewordElement extends IobWebComponent<Settings> {
             maxChatMessages: chatLimit(s.maxChatMessages),
             speechEnabled: !!s.speechEnabled,
             speechLanguage: this.#language(),
-            speechVoiceURI: s.speechVoiceURI === 'custom' ? (s.speechVoiceCustom || '').trim() || '(voice not specified)'
-                : (s.speechVoiceURI || ''),
+            speechVoiceURI: this.#voiceURI === null ? configuredVoice
+                : this.#voiceURI === AUTO_LOCAL_VOICE_SELECTION ? '' : this.#voiceURI,
         };
     }
     #language(): 'de' | 'en' {
@@ -117,6 +137,20 @@ class WakewordElement extends IobWebComponent<Settings> {
             snapshot={this.#state} mode={this.settings.mode || 'wakeword'} language={this.#language()}
             compact={!!this.settings.compact} showText={this.settings.showText !== false}
             showChat={!!this.settings.showChat} maxChatMessages={chatLimit(this.settings.maxChatMessages)}
+            speechEnabled={!!this.settings.speechEnabled} voiceURI={this.#voiceURI ?? DEFAULT_VOICE_SELECTION}
+            configuredVoiceURI={this.settings.speechVoiceURI === 'custom' ? this.settings.speechVoiceCustom || ''
+                : this.settings.speechVoiceURI || ''}
+            onVoiceChange={voiceURI => {
+                this.#voiceURI = voiceURI === DEFAULT_VOICE_SELECTION ? null : voiceURI;
+                if (this.#voiceStorageKey) {
+                    try {
+                        if (this.#voiceURI === null) localStorage.removeItem(this.#voiceStorageKey);
+                        else localStorage.setItem(this.#voiceStorageKey, this.#voiceURI);
+                    } catch { /* storage unavailable */ }
+                }
+                if (this.socket && voiceService.state.enabled) voiceService.updateDeliveryOptions(this.#options());
+                this.#draw();
+            }}
             accentColor={accentColor} fontSize={fontSize}
             editMode={this.editMode}
             onToggle={() => {

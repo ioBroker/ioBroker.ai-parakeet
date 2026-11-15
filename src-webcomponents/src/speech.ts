@@ -1,4 +1,7 @@
 /** Browser voices are device-specific; automatic selection stays local. */
+export const DEFAULT_VOICE_SELECTION = '__widget_default__';
+export const AUTO_LOCAL_VOICE_SELECTION = '__auto_local__';
+
 export const availableSpeechVoices = (): SpeechSynthesisVoice[] =>
     window.speechSynthesis?.getVoices() || [];
 
@@ -11,30 +14,32 @@ export class BrowserSpeechOutput {
     private generation = 0;
 
     async speak(text: string, language: string, onActivity: (active: boolean) => void,
-        voiceURI = ''): Promise<'spoken' | 'unavailable' | 'cancelled'> {
+        voiceURI = '', onFailure?: (reason: string) => void): Promise<'spoken' | 'unavailable' | 'cancelled'> {
         const synthesis = window.speechSynthesis;
         if (!text.trim() || !synthesis || typeof SpeechSynthesisUtterance === 'undefined') return 'unavailable';
         this.cancel();
         const generation = ++this.generation;
         const locale = language.toLowerCase();
         const base = locale.split('-')[0];
-        let voices = availableSpeechVoices();
-        if (!voices.length) {
+        const findVoice = (): SpeechSynthesisVoice | undefined => {
+            const voices = availableSpeechVoices();
+            if (voiceURI) return voices.find(candidate => candidate.voiceURI === voiceURI || candidate.name === voiceURI);
+            const localVoices = voices.filter(candidate => candidate.localService === true);
+            return localVoices.find(candidate => candidate.lang.toLowerCase() === locale) ||
+                localVoices.find(candidate => candidate.lang.toLowerCase().split('-')[0] === base);
+        };
+        let voice = findVoice();
+        if (!voice && typeof synthesis.addEventListener === 'function') {
             await new Promise<void>(resolve => {
-                const done = (): void => { clearTimeout(timer); synthesis.removeEventListener('voiceschanged', done); resolve(); };
-                const timer = window.setTimeout(done, 1500);
-                synthesis.addEventListener('voiceschanged', done);
-                if (synthesis.getVoices().length) done();
+                const done = (): void => { clearTimeout(timer); synthesis.removeEventListener('voiceschanged', refresh); resolve(); };
+                const refresh = (): void => { if (findVoice()) done(); };
+                const timer = window.setTimeout(done, voiceURI ? 5000 : 1500);
+                synthesis.addEventListener('voiceschanged', refresh);
+                refresh();
             });
-            voices = availableSpeechVoices();
+            voice = findVoice();
         }
         if (generation !== this.generation) return 'cancelled';
-        const voice = voiceURI
-            ? voices.find(candidate => candidate.voiceURI === voiceURI || candidate.name === voiceURI)
-            : voices.filter(candidate => candidate.localService === true)
-                .find(candidate => candidate.lang.toLowerCase() === locale) ||
-                voices.filter(candidate => candidate.localService === true)
-                    .find(candidate => candidate.lang.toLowerCase().split('-')[0] === base);
         if (!voice) return 'unavailable';
 
         const utterance = new SpeechSynthesisUtterance(text);
@@ -47,7 +52,11 @@ export class BrowserSpeechOutput {
             onActivity(false);
         };
         utterance.onend = finish;
-        utterance.onerror = finish;
+        utterance.onerror = event => {
+            if (generation !== this.generation) return;
+            finish();
+            onFailure?.(event.error || 'unknown');
+        };
         this.utterance = utterance;
         this.activity = onActivity;
         onActivity(true);
