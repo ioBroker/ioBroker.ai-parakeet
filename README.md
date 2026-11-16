@@ -183,7 +183,7 @@ The adapter is licensed under the MIT license. The model [nvidia/parakeet-tdt-0.
 
 ## VIS-2 wake word widget
 
-This adapter also provides the `<iob-wakeword>` Web Component for VIS-2. Build it with `npm ci` and `npm run build`; npm installs the Web Component dependencies through the workspace, and the component and its local model assets are then available under `admin/webcomponents/`. Add **Wake word microphone** to a VIS-2 view and select the `ai-parakeet` instance. No second adapter or instance is needed. The microphone button enables or disables listening. The widget setting **Start microphone when loaded** controls automatic activation in runtime; the VIS editor never starts capture.
+This adapter also provides the `<iob-wakeword>` Web Component for VIS-2. Build it with `npm ci` and `npm run build`; `build:webcomponents` installs the Web Component dependencies from `src-webcomponents/package-lock.json`, and the component and its local model assets are then available under `admin/webcomponents/`. Add **Wake word microphone** to a VIS-2 view and select the `ai-parakeet` instance. No second adapter or instance is needed. The microphone button enables or disables listening. The widget setting **Start microphone when loaded** controls automatic activation in runtime; the VIS editor never starts capture.
 
 The VIS-2 editor groups the widget settings into named tabs: **Common**, **Microphone and recognition**, **Display and chat**, **Text processing and output**, and **Speech output**. Editor labels and runtime text share translations for all eleven ioBroker languages. The two feedback sounds are enabled by default; saved `false` values remain off.
 
@@ -191,7 +191,13 @@ The widget supports wake word, push to talk and combined modes. Before activatio
 
 VIS-2 widget CSS controls the outer background, border, shadow and padding. Text styles such as color, font size, font family, weight and alignment inherit into the Web Component. Project CSS can style shadow content through `iob-wakeword::part(content)`, `::part(microphone)`, `::part(status)`, `::part(meter)` and `::part(transcript)`. For example: `#w00001 iob-wakeword::part(microphone) { border: 2px solid red; }`.
 
-For command processing, choose **Text processor: smart-text2command** and one of its installed instances in the widget settings. The list is an ioBroker `instance` field filtered to `smart-text2command`; no other adapter is offered. Each final transcript is sent to `processText` in `execute` mode with a new request ID and a stable session ID. A clarification ID from a reply is sent with the next spoken answer. **Show conversation** displays final transcripts and the adapter's `response`, including clarification and error replies. The number of messages kept in browser memory is configurable; the conversation is not saved or transmitted elsewhere. The processor integration is isolated in `src-webcomponents/src/processors.ts` so further adapter protocols can be added later.
+For command processing, choose **Text processor** `smart-text2command` or `assistant` and one of the installed instances of that adapter in the widget settings. Each processor has its own ioBroker `instance` field filtered to its adapter.
+
+With `smart-text2command`, each final transcript is sent to `processText` in `execute` mode with a new request ID and a stable session ID. A clarification ID from a reply is sent with the next spoken answer. **Show conversation** displays final transcripts and the adapter's `response`, including clarification and error replies.
+
+With `assistant` (ioBroker.assistant), each final transcript is sent to `ask` with `source: "vis-wakeword"`, and the `answer` is shown and optionally spoken. The assistant keeps the conversation history per source, so follow-up questions work. With **Speak processor replies** on, the request also sets `spoken: true`, and the assistant answers in a short form meant for speech. Because a language model can take longer, the widget waits up to 120 seconds for an answer (30 seconds for smart-text2command).
+
+The number of messages kept in browser memory is configurable; the widget does not save the conversation. The selected adapter receives the text and may log it (ioBroker.assistant keeps it in its journal). The processor integration is isolated in `src-webcomponents/src/processors.ts` so further adapter protocols can be added later.
 
 **Speak processor replies** is off by default. Select **Browser voice** or **Piper on adapter** in the widget settings. For browser speech, a gear icon in the running visualization opens the voice menu. It lists that browser's voices with `(local)` or `(remote)` labels. **Automatic (local)** is the default; choosing another browser voice is stored per widget and browser. The VIS-2 editor does not show the gear or start microphone capture. A remote browser voice may send reply text to its provider for synthesis. For Piper, the adapter's configured default voice or a widget override is used. The Piper choices are loaded from the adapter with `selectSendTo`; VIS-2 with `@iobroker/web-components` 0.8 support shows a dropdown, while older hosts fall back to a text field. Speech pauses wake word detection until playback ends; disabling the microphone stops the widget's speech output. Browser autoplay rules may require an initial click before speech can play.
 
@@ -240,6 +246,11 @@ Microphone access requires HTTPS or localhost and browser permission. Automatic 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
+- (@GermanBluefox) The wake word widget can send recognized text to ioBroker.assistant (`ask`) as an alternative to smart-text2command
+- (@GermanBluefox) Removed the npm workspace, so the release script works again
+
 ### 0.1.5 (2026-11-16)
 
 - A "wakeword" widget has been added as a web component capable of communicating with "smart-text2command." It is designed to be extensible for communication with the assistant adapter or other adapters.

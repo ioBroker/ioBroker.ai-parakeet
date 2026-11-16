@@ -64,7 +64,7 @@ const ChatHistory = memo(function ChatHistory({ messages, language, maxMessages 
         {messages.length ? messages.slice(-maxMessages).map(message => <div key={message.id}
             part={message.role === 'user' ? 'chat-user' : 'chat-reply'}
             className={`chat-entry ${message.role} ${message.status || ''}`}>
-            <span className="chat-source">{message.role === 'user' ? word('you') : message.source || 'smart-text2command'}</span>
+            <span className="chat-source">{message.role === 'user' ? word('you') : message.source || ''}</span>
             <p>{message.status === 'pending' ? word('pendingReply') : message.text}</p>
         </div>) : <p className="chat-empty">{word('emptyChat')}</p>}
         </div>

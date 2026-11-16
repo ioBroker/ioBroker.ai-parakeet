@@ -6,6 +6,7 @@ import { chatLimit, voiceService, type Mode, type Snapshot, type SocketLike, typ
 import { STYLES } from './styles';
 import { AUTO_LOCAL_VOICE_SELECTION } from './speech';
 import { widgetLanguage, type WidgetLanguage } from './i18n';
+import type { ProcessorType } from './processors';
 
 interface Settings {
     [key: string]: string | number | boolean | undefined;
@@ -15,7 +16,7 @@ interface Settings {
     activationTone?: boolean; completionTone?: boolean;
     showInterim?: boolean; compact?: boolean; language?: 'auto' | WidgetLanguage;
     accentColor?: string;
-    processorType?: 'none' | 'smart-text2command'; processorInstance?: string;
+    processorType?: ProcessorType; processorInstance?: string; assistantInstance?: string;
     showChat?: boolean; maxChatMessages?: number;
     speechEnabled?: boolean;
     speechEngine?: 'browser' | 'server'; speechServerVoice?: string;
@@ -25,9 +26,13 @@ const instance = (value: string | undefined, adapter: string): string => {
     return new RegExp(`^${adapter.replaceAll('-', '\\-')}\\.\\d+$`).test(id) ? id : `${adapter}.0`;
 };
 const numeric = (value: number | undefined, fallback: number): number => Number.isFinite(Number(value)) ? Number(value) : fallback;
-const selectedProcessorInstance = (value: string | undefined): string => {
-    const id = (value || '').replace(/^system\.adapter\./, '');
-    return /^smart-text2command\.\d+$/.test(id) ? id : '';
+/** Each processor has its own instance field, because a VIS instance field lists one adapter only. */
+const selectedProcessor = (s: Settings): { processorType: ProcessorType; processorInstance: string } => {
+    const type: ProcessorType = s.processorType === 'smart-text2command' || s.processorType === 'assistant'
+        ? s.processorType : 'none';
+    if (type === 'none') return { processorType: type, processorInstance: '' };
+    const id = ((type === 'assistant' ? s.assistantInstance : s.processorInstance) || '').replace(/^system\.adapter\./, '');
+    return { processorType: type, processorInstance: new RegExp(`^${type.replaceAll('-', '\\-')}\\.\\d+$`).test(id) ? id : '' };
 };
 
 class WakewordElement extends IobWebComponent<Settings> {
@@ -110,8 +115,7 @@ class WakewordElement extends IobWebComponent<Settings> {
             silenceMs: numeric(s.silenceMs, 1200), noSpeechMs: numeric(s.noSpeechMs, 5000),
             maxRecordMs: numeric(s.maxRecordMs, 15000), showInterim: s.showInterim !== false,
             activationTone: s.activationTone !== false, completionTone: s.completionTone !== false,
-            processorType: s.processorType === 'smart-text2command' ? 'smart-text2command' : 'none',
-            processorInstance: selectedProcessorInstance(s.processorInstance),
+            ...selectedProcessor(s),
             maxChatMessages: chatLimit(s.maxChatMessages),
             speechEnabled: !!s.speechEnabled,
             speechEngine: s.speechEngine === 'server' ? 'server' : 'browser',

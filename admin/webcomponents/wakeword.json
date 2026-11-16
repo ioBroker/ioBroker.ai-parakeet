@@ -610,6 +610,10 @@
               {
                 "value": "smart-text2command",
                 "label": "smart-text2command"
+              },
+              {
+                "value": "assistant",
+                "label": "assistant"
               }
             ]
           },
@@ -630,6 +634,24 @@
               "zh-cn": "处理器实例"
             },
             "hidden": "data.processorType !== 'smart-text2command'"
+          },
+          "assistantInstance": {
+            "type": "instance",
+            "adapter": "assistant",
+            "label": {
+              "en": "Processor instance",
+              "de": "Instanz für Textverarbeitung",
+              "ru": "Экземпляр обработчика",
+              "pt": "Instância do processador",
+              "nl": "Verwerkerinstantie",
+              "fr": "Instance du processeur",
+              "it": "Istanza dell’elaboratore",
+              "es": "Instancia del procesador",
+              "pl": "Instancja procesora",
+              "uk": "Екземпляр обробника",
+              "zh-cn": "处理器实例"
+            },
+            "hidden": "data.processorType !== 'assistant'"
           }
         }
       },

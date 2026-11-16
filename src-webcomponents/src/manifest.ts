@@ -53,9 +53,12 @@ export const manifest: WebComponentManifest = {
                 processorType: { type: 'select', default: 'none', label: label('textProcessor'), options: [
                     { value: 'none', label: label('none') },
                     { value: 'smart-text2command', label: 'smart-text2command' },
+                    { value: 'assistant', label: 'assistant' },
                 ] },
                 processorInstance: { type: 'instance', adapter: 'smart-text2command',
                     label: label('processorInstance'), hidden: "data.processorType !== 'smart-text2command'" },
+                assistantInstance: { type: 'instance', adapter: 'assistant',
+                    label: label('processorInstance'), hidden: "data.processorType !== 'assistant'" },
             } },
             speech: { type: 'panel', label: label('speechOutput'), items: {
                 speechEnabled: { type: 'checkbox', default: false, label: label('speakReplies') },

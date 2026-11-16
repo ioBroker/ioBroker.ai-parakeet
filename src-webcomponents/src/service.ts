@@ -298,13 +298,14 @@ export class VoiceControlService {
         const socket = this.socket, options = this.options;
         if (!socket || !options) return;
         this.appendChat({ role: 'user', text, timestamp: this.activeAt });
-        if (options.processorType === 'smart-text2command') {
+        if (options.processorType !== 'none') {
             const pendingId = this.appendChat({ role: 'processor', text: '', timestamp: Date.now(),
-                status: 'pending', source: options.processorInstance || 'smart-text2command' });
+                status: 'pending', source: options.processorInstance || options.processorType });
             try {
-                const key = `${options.processorType}/${options.processorInstance}/execute`;
+                const key = `${options.processorType}/${options.processorInstance}/execute/${options.speechEnabled}`;
                 if (this.processorKey !== key || !this.processor) {
-                    this.processor = createTextProcessor(options.processorType, socket, options.processorInstance, 'execute');
+                    this.processor = createTextProcessor(options.processorType, socket, options.processorInstance,
+                        'execute', options.speechEnabled);
                     this.processorKey = key;
                 }
                 const reply = await this.processor!.process(text);

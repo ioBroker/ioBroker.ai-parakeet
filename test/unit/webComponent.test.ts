@@ -53,13 +53,16 @@ describe('VIS-2 wake word web component', () => {
         assert.equal(new Set(names).size, names.length, 'each setting must occur only once');
         assert.deepEqual(names.sort(), `parakeet autoStart mode microphone ringBufferMs stripWakeword threshold
             minSpeechMs silenceMs noSpeechMs maxRecordMs activationTone completionTone showText showInterim
-            compact language accentColor processorType processorInstance showChat maxChatMessages speechEnabled
+            compact language accentColor processorType processorInstance assistantInstance showChat maxChatMessages speechEnabled
             speechEngine speechServerVoice`.split(/\s+/).sort());
         const settings = Object.assign({}, ...Object.values(groups).map((group: any) => group.items));
         assert.equal(settings.parakeet.adapter, 'ai-parakeet');
         assert.equal(settings.wakewordAdapter, undefined);
         assert.equal(settings.processorInstance.type, 'instance');
         assert.equal(settings.processorInstance.adapter, 'smart-text2command');
+        assert.equal(settings.assistantInstance.type, 'instance');
+        assert.equal(settings.assistantInstance.adapter, 'assistant');
+        assert.deepEqual(settings.processorType.options.map((option: any) => option.value), ['none', 'smart-text2command', 'assistant']);
         assert.equal(settings.showChat.type, 'checkbox');
         assert.equal(settings.maxChatMessages.type, 'number');
         assert.equal(settings.maxChatMessages.default, 50);

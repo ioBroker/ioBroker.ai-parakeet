@@ -1,4 +1,4 @@
-export type ProcessorType = 'none' | 'smart-text2command';
+export type ProcessorType = 'none' | 'smart-text2command' | 'assistant';
 export type ProcessorMode = 'analyze' | 'execute';
 export type ProcessorStatus = 'success' | 'clarification' | 'cancelled' | 'rejected' | 'error';
 
@@ -106,13 +106,72 @@ export class SmartText2CommandProcessor implements TextProcessor {
     }
 }
 
+interface AssistantResult {
+    answer?: unknown;
+    error?: unknown;
+}
+
+/** Conversation key of the widget in ioBroker.assistant (its history, journal and text.querySource). */
+export const ASSISTANT_SOURCE = 'vis-wakeword';
+
+/**
+ * ioBroker.assistant: `sendTo('assistant.N', 'ask', {text, source, spoken})` answers `{answer}` or `{error}`.
+ * The assistant keeps the conversation per `source`, so follow-up questions work without a clarification ID.
+ */
+export class AssistantProcessor implements TextProcessor {
+    private pending: Promise<void> = Promise.resolve();
+
+    constructor(
+        private readonly transport: ProcessorTransport,
+        private readonly instance: string,
+        private readonly spoken: boolean,
+    ) {
+        if (!/^assistant\.\d+$/.test(instance)) throw new Error('Invalid assistant instance');
+    }
+
+    process(text: string): Promise<ProcessorReply> {
+        const task = this.pending.then(() => this.processOne(text));
+        this.pending = task.then(() => undefined, () => undefined);
+        return task;
+    }
+
+    private async processOne(text: string): Promise<ProcessorReply> {
+        const normalized = text.trim();
+        if (!normalized || normalized.length > 1000) throw new Error('Recognized text must contain 1 to 1000 characters');
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        let raw: unknown;
+        try {
+            // A language model may take much longer than the rule-based smart-text2command.
+            raw = await Promise.race([
+                this.transport.sendTo<unknown>(this.instance, 'ask',
+                    { text: normalized, source: ASSISTANT_SOURCE, spoken: this.spoken }),
+                new Promise<never>((_, reject) => {
+                    timer = setTimeout(() => reject(new Error('assistant timed out')), 120_000);
+                }),
+            ]);
+        } finally {
+            if (timer) clearTimeout(timer);
+        }
+        if (!raw || typeof raw !== 'object') throw new Error('No response from assistant');
+        let result = raw as AssistantResult & { message?: unknown };
+        if (!('answer' in result) && !('error' in result) && result.message && typeof result.message === 'object') {
+            result = result.message as AssistantResult;
+        }
+        if (typeof result.error === 'string') throw new Error(`assistant: ${result.error}`);
+        if (typeof result.answer !== 'string') throw new Error('Invalid assistant response');
+        return { text: result.answer, status: 'success' };
+    }
+}
+
 /** Add future adapter protocols here without changing the voice capture pipeline. */
 export function createTextProcessor(
     type: ProcessorType,
     transport: ProcessorTransport,
     instance: string,
     mode: ProcessorMode,
+    spoken = false,
 ): TextProcessor | undefined {
     if (type === 'smart-text2command') return new SmartText2CommandProcessor(transport, instance, mode);
+    if (type === 'assistant') return new AssistantProcessor(transport, instance, spoken);
     return undefined;
 }
