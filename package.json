@@ -73,13 +73,12 @@
     "dev:upload": "dev-server upload",
     "dev:run": "dev-server run",
     "dev:watch": "dev-server watch --noStart",
-
     "release": "release-script",
     "release-patch": "release-script patch --yes",
     "release-minor": "release-script minor --yes",
     "release-major": "release-script major --yes",
     "update-packages": "npx -y npm-check-updates --upgrade",
-    "npm": "npm i"
+    "npm": "npm i && cd src-webcomponents && npm i"
   },
   "readmeFilename": "README.md"
 }

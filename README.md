@@ -250,6 +250,7 @@ Microphone access requires HTTPS or localhost and browser permission. Automatic 
 - An option to select the voice used for speech synthesis has been added.
 - "Piper TTS" has been integrated on the server side; audio data can be requested using the "sendTo" command.
 - Speech synthesis options (browser/server) have been added for clients that do not support native speech synthesis.
+- (GermanBluefox) Removed the prepublishOnly script and added CHANGELOG_OLD.md and the dependabot automerge workflow (#5)
 
 ### 0.1.4 (2026-11-09)
 
