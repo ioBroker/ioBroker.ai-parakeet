@@ -42,7 +42,16 @@ describe('VIS-2 wake word web component', () => {
     it('is published by voice and uses its instance for recognition and model settings', () => {
         const adapter = JSON.parse(readFileSync(join(ROOT, 'io-package.json'), 'utf8'));
         const manifest = JSON.parse(readFileSync(join(DIR, 'wakeword.json'), 'utf8'));
-        assert.ok(adapter.common.webComponents.includes('webcomponents/wakeword.json'));
+        // the short form of the manifest, written by `iob-web-components sync-io-package` in the build
+        assert.deepEqual(adapter.common.webComponents, [
+            {
+                manifest: 'webcomponents/wakeword.json',
+                tag: manifest.tag,
+                name: manifest.name,
+                icon: manifest.icon,
+                size: manifest.size,
+            },
+        ]);
         assert.equal(manifest.tag, 'iob-wakeword');
         assert.equal(manifest.settings.type, 'tabs');
         const groups = manifest.settings.items;

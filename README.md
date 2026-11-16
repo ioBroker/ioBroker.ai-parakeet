@@ -264,7 +264,8 @@ Microphone access requires HTTPS or localhost and browser permission. Automatic 
 -->
 ### **WORK IN PROGRESS**
 
-* (GermanBluefox) Fixed the findings of the repository checker: responsive sizes in the admin, missing translations, Dependabot auto-merge workflow and old news entries (#7)
+- (@GermanBluefox) Fixed the findings of the repository checker: responsive sizes in the admin, missing translations, Dependabot auto-merge workflow and old news entries (#7)
+- (@GermanBluefox) `common.webComponents` carries the short form of the wake word manifest (tag, name, icon, size), so that VIS-2, Aura and other hosts can list the widget before the adapter is installed; the build writes it with `iob-web-components sync-io-package`
 
 ### 0.1.7 (2026-11-16)
 

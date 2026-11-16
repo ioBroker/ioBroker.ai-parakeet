@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && iob-web-components sync-io-package ..",
     "check": "tsc --noEmit",
     "dev": "vite --host 127.0.0.1"
   },

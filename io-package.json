@@ -97,7 +97,28 @@
     "compact": false,
     "messagebox": true,
     "webComponents": [
-      "webcomponents/wakeword.json"
+      {
+        "manifest": "webcomponents/wakeword.json",
+        "tag": "iob-wakeword",
+        "name": {
+          "en": "Wake word microphone",
+          "de": "Aktivierungswort-Mikrofon",
+          "ru": "Микрофон с ключевым словом",
+          "pt": "Microfone com palavra de ativação",
+          "nl": "Wekwoordmicrofoon",
+          "fr": "Microphone à mot d’activation",
+          "it": "Microfono con parola di attivazione",
+          "es": "Micrófono con palabra de activación",
+          "pl": "Mikrofon ze słowem aktywacyjnym",
+          "uk": "Мікрофон із ключовим словом",
+          "zh-cn": "唤醒词麦克风"
+        },
+        "icon": "wakeword.svg",
+        "size": {
+          "width": 320,
+          "height": 220
+        }
+      }
     ],
     "stopTimeout": 5000,
     "type": "utility",
