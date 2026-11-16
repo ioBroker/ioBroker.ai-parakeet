@@ -51,7 +51,6 @@
     "url": "https://github.com/ioBroker/ioBroker.ai-parakeet/issues"
   },
   "main": "build/main.js",
-  "workspaces": ["src-webcomponents"],
   "files": [
     "admin/",
     "build/",
@@ -61,7 +60,7 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json && npm run build:webcomponents",
-    "build:webcomponents": "npm run build --prefix src-webcomponents",
+    "build:webcomponents": "npm ci --prefix src-webcomponents && npm run build --prefix src-webcomponents",
     "check": "tsc --noEmit -p tsconfig.json && npm run check --prefix src-webcomponents && tsc -p test/wakeword/tsconfig.json",
     "lint": "eslint -c eslint.config.mjs",
     "test:js": "mocha --config test/.mocharc.json \"test/unit/**/*.test.ts\"",

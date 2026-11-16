@@ -7,7 +7,7 @@ var c = /* @__PURE__ */ ((e) => typeof require < "u" ? require : typeof Proxy < 
 function u(e) {
 	return !!e.form;
 }
-// ../node_modules/@iobroker/web-components/build/manifest.js
+// node_modules/@iobroker/web-components/build/manifest.js
 var d = [
 	"header",
 	"staticText",
@@ -16,7 +16,7 @@ var d = [
 function f(e, t) {
 	return e == null ? "" : typeof e == "object" ? e[t] || e.en || Object.values(e).find((e) => !!e) || "" : String(e);
 }
-// ../node_modules/@iobroker/web-components/build/settings.js
+// node_modules/@iobroker/web-components/build/settings.js
 function p(e) {
 	let t = {};
 	for (let [n, r] of Object.entries(e.items || {})) r && !d.includes(r.type) && (t[n] = r.type);
@@ -47,7 +47,7 @@ function g(e, t) {
 	}
 	return n;
 }
-// ../node_modules/@iobroker/web-components/build/theme.js
+// node_modules/@iobroker/web-components/build/theme.js
 var _ = "\"Roboto\", \"Helvetica\", \"Arial\", sans-serif", v = Object.freeze({
 	type: "light",
 	primary: "#3399CC",
@@ -128,7 +128,7 @@ function re(e) {
 	for (let n of x) t[ne(n)] = `${e[n]}px`;
 	return t["color-scheme"] = e.type, t;
 }
-// ../node_modules/@iobroker/web-components/build/nativeDialog.js
+// node_modules/@iobroker/web-components/build/nativeDialog.js
 var ie = {
 	ok: {
 		en: "OK",
@@ -282,7 +282,7 @@ function ue(e, t = {}) {
 		r.body.append(a), c.showModal(), o.activeElement && o.activeElement !== v || (c.tabIndex = -1, c.focus());
 	});
 }
-// ../node_modules/@iobroker/web-components/build/element.js
+// node_modules/@iobroker/web-components/build/element.js
 function de(e) {
 	return [...new Set(e.filter((e) => typeof e == "string" && !!e))];
 }
