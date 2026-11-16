@@ -1,9 +1,9 @@
-// Live test of ioBroker.ai-parakeet as a web component (@iobroker/web-components), e.g. in the instance settings.
+// Live test of ioBroker.voice as a web component (@iobroker/web-components), e.g. in the instance settings.
 // It records the microphone and sends the audio with sendTo through the connection of the host (admin), so the
 // server of the adapter needs no HTTPS - only the page of the host must run on HTTPS or on localhost.
 // Plain JS without a build: it uses no base class, only the contract (socket, settings, theme, editMode).
 
-const ADAPTER = 'ai-parakeet';
+const ADAPTER = 'voice';
 /** An answer of the instance takes longer: it does not run, or admin lost its connection */
 const CALL_TIMEOUT = 15000;
 /** Audio that waits for the previous message; more means the connection is too slow */
@@ -28,7 +28,7 @@ const TEXTS = {
             'The browser blocks the microphone here: this page is opened over HTTP and not on localhost. Open admin over HTTPS, or as {local} in a browser on the ioBroker host.',
         needsBrowser: 'This browser cannot record the microphone (getUserMedia or AudioWorklet is missing).',
         noConnection: 'No connection to ioBroker.',
-        noInstance: 'No instance of ai-parakeet found.',
+        noInstance: 'No instance of ioBroker.voice found.',
         notRunning: 'The instance {instance} is not running.',
         editMode: 'The live test works outside of the editor.',
         ready: 'Ready · the audio goes through the connection of admin, no API key is needed',
@@ -73,7 +73,7 @@ const TEXTS = {
             'Der Browser sperrt hier das Mikrofon: Diese Seite ist über HTTP und nicht auf localhost geöffnet. Öffnen Sie den Admin über HTTPS oder als {local} in einem Browser auf dem ioBroker-Host.',
         needsBrowser: 'Dieser Browser kann das Mikrofon nicht aufnehmen (getUserMedia oder AudioWorklet fehlt).',
         noConnection: 'Keine Verbindung zu ioBroker.',
-        noInstance: 'Keine Instanz von ai-parakeet gefunden.',
+        noInstance: 'Keine Instanz von ioBroker.voice gefunden.',
         notRunning: 'Die Instanz {instance} läuft nicht.',
         editMode: 'Der Live-Test funktioniert außerhalb des Editors.',
         ready: 'Bereit · das Audio läuft über die Verbindung des Admins, kein API-Schlüssel nötig',
@@ -179,7 +179,7 @@ function toBase64(samples) {
     return btoa(binary);
 }
 
-class AiParakeetLive extends HTMLElement {
+class VoiceLive extends HTMLElement {
     #socket = null;
     #settings = {};
     #theme = null;
@@ -361,7 +361,7 @@ class AiParakeetLive extends HTMLElement {
         if (new RegExp(`^${ADAPTER}\\.\\d+$`).test(setting)) {
             return setting;
         }
-        // jsonConfig gives "ai-parakeet.${_instance}"; an admin without `_instance` in its patterns sends the
+        // jsonConfig gives "voice.${_instance}"; an admin without `_instance` in its patterns sends the
         // pattern as it is, then the address tells the settings of which instance are open
         const match = new RegExp(`system\\.adapter\\.${ADAPTER}\\.(\\d+)`).exec(decodeURIComponent(location.href));
         if (match) {
@@ -735,6 +735,6 @@ class AiParakeetLive extends HTMLElement {
     }
 }
 
-if (!customElements.get('ai-parakeet-live')) {
-    customElements.define('ai-parakeet-live', AiParakeetLive);
+if (!customElements.get('voice-live')) {
+    customElements.define('voice-live', VoiceLive);
 }

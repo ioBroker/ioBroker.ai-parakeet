@@ -137,7 +137,7 @@
                 "modelDir": {
                     "type": "text",
                     "label": "Model directory",
-                    "help": "Absolute path, e.g. on an SSD. Empty: iobroker-data/ai-parakeet/models",
+                    "help": "Absolute path, e.g. on an SSD. Empty: iobroker-data/voice/models",
                     "newLine": true,
                     "xs": 12,
                     "sm": 12,
@@ -349,7 +349,7 @@
                     "default": 0.5, "xs": 12, "sm": 6
                 },
                 "wakewordUpload": {
-                    "type": "fileSelector", "objectID": "ai-parakeet.%INSTANCE%",
+                    "type": "fileSelector", "objectID": "voice.%INSTANCE%",
                     "pattern": "wakeWords/*.onnx", "upload": "wakeWords/", "maxSize": 10485760,
                     "delete": true, "label": "Upload ONNX wake word model", "xs": 12
                 }
@@ -373,9 +373,9 @@
                 },
                 "_live": {
                     "type": "custom",
-                    "webComponent": "webcomponents/ai-parakeet-live.json",
+                    "webComponent": "webcomponents/voice-live.json",
                     "settings": {
-                        "instance": "ai-parakeet.${_instance}"
+                        "instance": "voice.${_instance}"
                     },
                     "height": 560,
                     "help": "The audio goes through the connection of admin: no HTTPS of the server and no API key needed. Admin itself must be opened over HTTPS or on localhost.",
@@ -506,7 +506,7 @@
                 },
                 "ttsVoiceUpload": {
                     "type": "fileSelector",
-                    "objectID": "ai-parakeet.%INSTANCE%",
+                    "objectID": "voice.%INSTANCE%",
                     "pattern": "ttsVoices/*.onnx*",
                     "upload": "ttsVoices/",
                     "maxSize": 157286400,

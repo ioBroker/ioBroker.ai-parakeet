@@ -16,17 +16,17 @@
     "zh-cn": "唤醒词麦克风"
   },
   "description": {
-    "en": "Local voice input through ai-parakeet",
-    "de": "Lokale Spracheingabe über ai-parakeet",
-    "ru": "Локальный голосовой ввод через ai-parakeet",
-    "pt": "Entrada de voz local via ai-parakeet",
-    "nl": "Lokale spraakinvoer via ai-parakeet",
-    "fr": "Entrée vocale locale via ai-parakeet",
-    "it": "Input vocale locale tramite ai-parakeet",
-    "es": "Entrada de voz local mediante ai-parakeet",
-    "pl": "Lokalne wprowadzanie głosowe przez ai-parakeet",
-    "uk": "Локальне голосове введення через ai-parakeet",
-    "zh-cn": "通过 ai-parakeet 进行本地语音输入"
+    "en": "Local voice input through ioBroker.voice",
+    "de": "Lokale Spracheingabe über ioBroker.voice",
+    "ru": "Локальный голосовой ввод через ioBroker.voice",
+    "pt": "Entrada de voz local via ioBroker.voice",
+    "nl": "Lokale spraakinvoer via ioBroker.voice",
+    "fr": "Entrée vocale locale via ioBroker.voice",
+    "it": "Input vocale locale tramite ioBroker.voice",
+    "es": "Entrada de voz local mediante ioBroker.voice",
+    "pl": "Lokalne wprowadzanie głosowe przez ioBroker.voice",
+    "uk": "Локальне голосове введення через ioBroker.voice",
+    "zh-cn": "通过 ioBroker.voice 进行本地语音输入"
   },
   "icon": "wakeword.svg",
   "module": "wakeword.js",
@@ -55,20 +55,20 @@
         "items": {
           "parakeet": {
             "type": "instance",
-            "adapter": "ai-parakeet",
-            "default": "ai-parakeet.0",
+            "adapter": "voice",
+            "default": "voice.0",
             "label": {
-              "en": "Parakeet instance",
-              "de": "Parakeet-Instanz",
-              "ru": "Экземпляр Parakeet",
-              "pt": "Instância Parakeet",
-              "nl": "Parakeet-instantie",
-              "fr": "Instance Parakeet",
-              "it": "Istanza Parakeet",
-              "es": "Instancia Parakeet",
-              "pl": "Instancja Parakeet",
-              "uk": "Екземпляр Parakeet",
-              "zh-cn": "Parakeet 实例"
+              "en": "Voice instance",
+              "de": "Voice-Instanz",
+              "ru": "Экземпляр voice",
+              "pt": "Instância voice",
+              "nl": "Voice-instantie",
+              "fr": "Instance voice",
+              "it": "Istanza voice",
+              "es": "Instancia voice",
+              "pl": "Instancja voice",
+              "uk": "Екземпляр voice",
+              "zh-cn": "Voice 实例"
             }
           },
           "autoStart": {

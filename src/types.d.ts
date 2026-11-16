@@ -6,7 +6,9 @@ export interface CorrectionRow {
     variants: string;
 }
 
-export interface AiParakeetConfig {
+export interface VoiceConfig {
+    /** Set once the settings were taken over from ai-parakeet.<n> (the name of this adapter up to 0.1.x) */
+    migratedFrom?: string;
     /** Default Piper voice for local text-to-speech */
     ttsVoice: string;
     wakewordModel: string;
@@ -27,7 +29,7 @@ export interface AiParakeetConfig {
     /** Serve the browser test page with live microphone streaming at "/" */
     testPage: boolean;
 
-    /** Directory of the model files. Empty = <iobroker-data>/ai-parakeet/models */
+    /** Directory of the model files. Empty = <iobroker-data>/voice/models */
     modelDir: string;
     /** Download the model if it is missing */
     autoDownload: boolean;

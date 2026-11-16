@@ -30,7 +30,7 @@ tests.integration(path.join(__dirname, '..'), {
                 this.timeout(60_000);
                 const harness = getHarness();
                 const modelDir = mkdtempSync(path.join(tmpdir(), 'parakeet-empty-'));
-                await harness.changeAdapterConfig('ai-parakeet', {
+                await harness.changeAdapterConfig('voice', {
                     native: {
                         bind: '127.0.0.1',
                         port: PORT,
@@ -41,12 +41,12 @@ tests.integration(path.join(__dirname, '..'), {
                 await harness.startAdapterAndWait();
 
                 await waitFor(async () => {
-                    const state = await harness.states.getStateAsync('ai-parakeet.0.info.status');
+                    const state = await harness.states.getStateAsync('voice.0.info.status');
                     return state?.val === 'error';
                 }, 30_000);
-                const connection = await harness.states.getStateAsync('ai-parakeet.0.info.connection');
+                const connection = await harness.states.getStateAsync('voice.0.info.connection');
                 assert.strictEqual(connection?.val, false);
-                const lastError = await harness.states.getStateAsync('ai-parakeet.0.info.lastError');
+                const lastError = await harness.states.getStateAsync('voice.0.info.lastError');
                 assert.match(String(lastError?.val), /model files are missing/);
 
                 const health = await fetch(`http://127.0.0.1:${PORT}/health`);
@@ -61,14 +61,14 @@ tests.integration(path.join(__dirname, '..'), {
                 assert.strictEqual(response.status, 503);
 
                 const answer = await new Promise<{ error?: string }>(resolve =>
-                    harness.sendTo('ai-parakeet.0', 'transcribe', { audio: 'AAAA' }, result =>
+                    harness.sendTo('voice.0', 'transcribe', { audio: 'AAAA' }, result =>
                         resolve(result as { error?: string }),
                     ),
                 );
                 assert.match(String(answer.error), /model files are missing/);
 
                 const status = await new Promise<unknown>(resolve =>
-                    harness.sendTo('ai-parakeet.0', 'status', {}, result => resolve(result)),
+                    harness.sendTo('voice.0', 'status', {}, result => resolve(result)),
                 );
                 assert.match(String(status), /\/v1\/audio\/transcriptions/);
             });

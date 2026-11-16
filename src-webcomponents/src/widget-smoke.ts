@@ -18,7 +18,7 @@ const element = document.createElement('iob-wakeword') as HTMLElement & {
     settings: Record<string, unknown>;
 };
 element.editMode = true;
-element.settings = { autoStart: true, parakeet: 'ai-parakeet.0', fontSize: 16, showChat: true, speechEnabled: true };
+element.settings = { autoStart: true, parakeet: 'voice.0', fontSize: 16, showChat: true, speechEnabled: true };
 const widget = document.createElement('div');
 widget.className = 'vis-widget';
 widget.id = 'voice-widget-smoke';

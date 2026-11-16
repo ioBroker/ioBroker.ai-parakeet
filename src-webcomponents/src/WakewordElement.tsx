@@ -62,7 +62,7 @@ class WakewordElement extends IobWebComponent<Settings> {
         super.disconnectedCallback();
     }
     protected override getStateIds(settings: Settings): string[] {
-        return [`system.adapter.${instance(settings.parakeet, 'ai-parakeet')}.alive`];
+        return [`system.adapter.${instance(settings.parakeet, 'voice')}.alive`];
     }
     protected override render(): void {
         if (!this.#voiceLoaded) {
@@ -80,7 +80,7 @@ class WakewordElement extends IobWebComponent<Settings> {
         voiceService.setChatLimit(this.settings.maxChatMessages ?? 50);
         if (this.editMode && voiceService.state.enabled) void voiceService.disable();
         if (!this.editMode && this.socket) voiceService.updateDeliveryOptions(this.#options());
-        const parakeet = instance(this.settings.parakeet, 'ai-parakeet');
+        const parakeet = instance(this.settings.parakeet, 'voice');
         if (this.states[`system.adapter.${parakeet}.alive`]?.val === false) {
             voiceService.connectionLost('Adapter is not running');
         }
@@ -108,7 +108,7 @@ class WakewordElement extends IobWebComponent<Settings> {
     #options(): WidgetOptions {
         const s = this.settings;
         return {
-            parakeet: instance(s.parakeet, 'ai-parakeet'),
+            parakeet: instance(s.parakeet, 'voice'),
             mode: s.mode || 'wakeword', microphone: s.microphone || '',
             ringBufferMs: numeric(s.ringBufferMs, 1000), stripWakeword: !!s.stripWakeword,
             threshold: numeric(s.threshold, 0.015), minSpeechMs: numeric(s.minSpeechMs, 250),

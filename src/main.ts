@@ -19,13 +19,14 @@ import { Engine, type EngineState } from './lib/engine';
 import { downloadFfmpegStatic, ffmpegStaticPath } from './lib/ffmpegStatic';
 import { translate, type TextId } from './lib/i18n';
 import { LiveSessions } from './lib/liveSessions';
+import { moveOldDir, OLD_ADAPTER_NAME, UPLOAD_FOLDERS } from './lib/migration';
 import { checkModel, downloadModel, MODEL, MODEL_SIZE, verifyModel } from './lib/modelFiles';
 import { CUSTOM_VOICE_NAME, PiperTts } from './lib/piperTts';
 import { directAdminHost, isSecureContextUrl, selectLanAddress } from './lib/network';
 import type { JobResult } from './lib/scheduler';
 import { adapterTimers } from './lib/timers';
 import { Transcriber } from './lib/transcriber';
-import type { AiParakeetConfig } from './types';
+import type { VoiceConfig } from './types';
 
 const DEFAULT_PORT = 9999;
 const MAX_FILE_BYTES = 64 * 1024 * 1024;
@@ -72,8 +73,8 @@ function formPath(message: unknown): string | undefined {
     return typeof path === 'string' ? path : undefined;
 }
 
-export class AiParakeetAdapter extends Adapter {
-    declare config: AiParakeetConfig;
+export class VoiceAdapter extends Adapter {
+    declare config: VoiceConfig;
 
     private engine: Engine | null = null;
     private transcriber: Transcriber | null = null;
@@ -85,6 +86,8 @@ export class AiParakeetAdapter extends Adapter {
 
     private systemLanguage = 'en';
     private modelDir = '';
+    /** Data directory of the instance; the old one of ai-parakeet if it could not be moved */
+    private dataDir = '';
     private port = DEFAULT_PORT;
     private serverRunning = false;
     private modelState: 'checking' | 'downloading' | 'verifying' | 'available' | 'error' = 'checking';
@@ -99,7 +102,7 @@ export class AiParakeetAdapter extends Adapter {
     public constructor(options: Partial<AdapterOptions> = {}) {
         super({
             ...options,
-            name: 'ai-parakeet',
+            name: 'voice',
             ready: () => this.onReady(),
             unload: callback => this.onUnload(callback),
             message: obj => this.onMessage(obj),
@@ -108,6 +111,10 @@ export class AiParakeetAdapter extends Adapter {
     }
 
     private async onReady(): Promise<void> {
+        if (await this.takeOverOldSettings()) {
+            // The instance restarts with the settings of ai-parakeet.
+            return;
+        }
         await this.setState('info.connection', false, true);
         await this.setState('info.status', 'starting', true);
         await this.setState('info.lastError', '', true);
@@ -126,10 +133,22 @@ export class AiParakeetAdapter extends Adapter {
         if (configuredDir && !isAbsolute(configuredDir)) {
             this.log.warn(`The model directory "${configuredDir}" is not absolute. Using the default directory.`);
         }
+        // Up to 0.1.x the adapter was called ai-parakeet: use its downloads instead of loading them again.
+        const dataRoot = getAbsoluteDefaultDataDir();
         this.modelDir =
             configuredDir && isAbsolute(configuredDir)
                 ? configuredDir
-                : join(getAbsoluteDefaultDataDir(), 'ai-parakeet', 'models');
+                : await moveOldDir(
+                      join(dataRoot, OLD_ADAPTER_NAME, 'models'),
+                      join(dataRoot, 'voice', 'models'),
+                      this.log,
+                  );
+        this.dataDir = await moveOldDir(
+            join(dataRoot, `${OLD_ADAPTER_NAME}.${this.instance}`),
+            this.instanceDataDir(),
+            this.log,
+        );
+        await this.copyOldUploads();
         this.piper = new PiperTts(this.instanceDataDir(), this.log, name => this.readUploadedPiperVoice(name));
         const maxAudioSeconds = Math.round(num(cfg.maxAudioSeconds, 300, 5, 3600));
 
@@ -470,7 +489,7 @@ export class AiParakeetAdapter extends Adapter {
         return `<table>${table}</table>${assistant}`;
     }
 
-    /** sendTo('ai-parakeet.0', 'transcribe', { file | audio | pcm, sampleRate, prompt, segments }) */
+    /** sendTo('voice.0', 'transcribe', { file | audio | pcm, sampleRate, prompt, segments }) */
     private async transcribeMessage(message: unknown): Promise<Record<string, unknown>> {
         const transcriber = this.transcriber;
         if (!transcriber) {
@@ -712,7 +731,87 @@ export class AiParakeetAdapter extends Adapter {
         return existsSync(file) ? file : '';
     }
 
+    /**
+     * Up to 0.1.x this adapter was called ai-parakeet. If an instance ai-parakeet.<n> with the same number exists,
+     * this instance takes over its settings once and stops it (both would use the same port). Returns true if the
+     * settings were written: the instance then restarts with them.
+     */
+    private async takeOverOldSettings(): Promise<boolean> {
+        if (this.config.migratedFrom !== undefined) {
+            return false;
+        }
+        const oldId = `system.adapter.${OLD_ADAPTER_NAME}.${this.instance}`;
+        try {
+            const old = await this.getForeignObjectAsync(oldId);
+            if (old?.type !== 'instance' || !old.native) {
+                return false;
+            }
+            if (old.common?.enabled) {
+                await this.extendForeignObjectAsync(oldId, { common: { enabled: false } });
+            }
+            this.log.info(
+                `Took over the settings of ${OLD_ADAPTER_NAME}.${this.instance} and stopped it. The instance restarts with them. ` +
+                    `Change scripts and VIS widgets to ${this.namespace} and delete ${OLD_ADAPTER_NAME}.${this.instance} afterwards.`,
+            );
+            await this.extendForeignObjectAsync(`system.adapter.${this.namespace}`, {
+                native: { ...old.native, migratedFrom: `${OLD_ADAPTER_NAME}.${this.instance}` },
+            });
+            return true;
+        } catch (error) {
+            this.log.warn(`Could not take over the settings of ${oldId}: ${(error as Error).message}`);
+            return false;
+        }
+    }
+
+    /** Copies the wake word models and Piper voices uploaded to ai-parakeet.<n> that this instance does not have. */
+    private async copyOldUploads(): Promise<void> {
+        const oldNamespace = `${OLD_ADAPTER_NAME}.${this.instance}`;
+        try {
+            const meta = await this.getForeignObjectAsync(oldNamespace);
+            if (meta?.type !== 'meta') {
+                return;
+            }
+        } catch {
+            return;
+        }
+        let copied = 0;
+        for (const folder of UPLOAD_FOLDERS) {
+            let files: ioBroker.ReadDirResult[];
+            try {
+                files = await this.readDirAsync(oldNamespace, `${folder}/`);
+            } catch {
+                continue;
+            }
+            const present = new Set<string>();
+            try {
+                for (const file of await this.readDirAsync(this.namespace, `${folder}/`)) {
+                    present.add(file.file);
+                }
+            } catch {
+                // nothing uploaded yet
+            }
+            for (const file of files) {
+                if (file.isDir || present.has(file.file)) {
+                    continue;
+                }
+                try {
+                    const { file: data } = await this.readFileAsync(oldNamespace, `${folder}/${file.file}`);
+                    await this.writeFileAsync(this.namespace, `${folder}/${file.file}`, data);
+                    copied++;
+                } catch (error) {
+                    this.log.warn(`Could not copy ${oldNamespace}/${folder}/${file.file}: ${(error as Error).message}`);
+                }
+            }
+        }
+        if (copied) {
+            this.log.info(`Copied ${copied} uploaded file(s) from ${oldNamespace}`);
+        }
+    }
+
     private instanceDataDir(): string {
+        if (this.dataDir) {
+            return this.dataDir;
+        }
         try {
             return getAbsoluteInstanceDataDir(this);
         } catch {
@@ -795,8 +894,8 @@ export class AiParakeetAdapter extends Adapter {
 
 if (require.main !== module) {
     // Export the constructor in compact mode
-    module.exports = (options: Partial<AdapterOptions> | undefined) => new AiParakeetAdapter(options);
+    module.exports = (options: Partial<AdapterOptions> | undefined) => new VoiceAdapter(options);
 } else {
     // otherwise start the instance directly
-    (() => new AiParakeetAdapter())();
+    (() => new VoiceAdapter())();
 }

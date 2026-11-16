@@ -4,7 +4,7 @@ import { chatLimit, VoiceControlService, type SocketLike, type WidgetOptions } f
 import type { WakewordEngine, WakewordResult } from '../../src-webcomponents/src/wakeword';
 
 const options: WidgetOptions = {
-    mode: 'ptt', parakeet: 'ai-parakeet.0',
+    mode: 'ptt', parakeet: 'voice.0',
     ringBufferMs: 1000, stripWakeword: false, microphone: '',
     threshold: 0.01, minSpeechMs: 250, silenceMs: 1200, noSpeechMs: 5000, maxRecordMs: 15000,
     activationTone: false, completionTone: false, showInterim: true,

@@ -489,9 +489,9 @@ var he = "__auto_local__", ge = () => window.speechSynthesis?.getVoices() || [],
 	}
 }, ve = {
 	widgetName: "Wake word microphone",
-	description: "Local voice input through ai-parakeet",
+	description: "Local voice input through ioBroker.voice",
 	common: "Common",
-	parakeetInstance: "Parakeet instance",
+	parakeetInstance: "Voice instance",
 	autoStart: "Start microphone when loaded",
 	activationMode: "Activation mode",
 	wakeword: "Wake word",
@@ -553,9 +553,9 @@ var he = "__auto_local__", ge = () => window.speechSynthesis?.getVoices() || [],
 	microphoneLevel: "Microphone level"
 }, ye = {
 	widgetName: "Aktivierungswort-Mikrofon",
-	description: "Lokale Spracheingabe über ai-parakeet",
+	description: "Lokale Spracheingabe über ioBroker.voice",
 	common: "Allgemein",
-	parakeetInstance: "Parakeet-Instanz",
+	parakeetInstance: "Voice-Instanz",
 	autoStart: "Mikrofon beim Laden aktivieren",
 	activationMode: "Aktivierungsmodus",
 	wakeword: "Aktivierungswort",
@@ -617,9 +617,9 @@ var he = "__auto_local__", ge = () => window.speechSynthesis?.getVoices() || [],
 	microphoneLevel: "Mikrofonpegel"
 }, be = {
 	widgetName: "Микрофон с ключевым словом",
-	description: "Локальный голосовой ввод через ai-parakeet",
+	description: "Локальный голосовой ввод через ioBroker.voice",
 	common: "Общие",
-	parakeetInstance: "Экземпляр Parakeet",
+	parakeetInstance: "Экземпляр voice",
 	autoStart: "Включать микрофон при загрузке",
 	activationMode: "Режим активации",
 	wakeword: "Ключевое слово",
@@ -681,9 +681,9 @@ var he = "__auto_local__", ge = () => window.speechSynthesis?.getVoices() || [],
 	microphoneLevel: "Уровень микрофона"
 }, xe = {
 	widgetName: "Microfone com palavra de ativação",
-	description: "Entrada de voz local via ai-parakeet",
+	description: "Entrada de voz local via ioBroker.voice",
 	common: "Comum",
-	parakeetInstance: "Instância Parakeet",
+	parakeetInstance: "Instância voice",
 	autoStart: "Ativar microfone ao carregar",
 	activationMode: "Modo de ativação",
 	wakeword: "Palavra de ativação",
@@ -745,9 +745,9 @@ var he = "__auto_local__", ge = () => window.speechSynthesis?.getVoices() || [],
 	microphoneLevel: "Nível do microfone"
 }, Se = {
 	widgetName: "Wekwoordmicrofoon",
-	description: "Lokale spraakinvoer via ai-parakeet",
+	description: "Lokale spraakinvoer via ioBroker.voice",
 	common: "Algemeen",
-	parakeetInstance: "Parakeet-instantie",
+	parakeetInstance: "Voice-instantie",
 	autoStart: "Microfoon inschakelen bij laden",
 	activationMode: "Activeringsmodus",
 	wakeword: "Wekwoord",
@@ -809,9 +809,9 @@ var he = "__auto_local__", ge = () => window.speechSynthesis?.getVoices() || [],
 	microphoneLevel: "Microfoonniveau"
 }, Ce = {
 	widgetName: "Microphone à mot d’activation",
-	description: "Entrée vocale locale via ai-parakeet",
+	description: "Entrée vocale locale via ioBroker.voice",
 	common: "Commun",
-	parakeetInstance: "Instance Parakeet",
+	parakeetInstance: "Instance voice",
 	autoStart: "Activer le microphone au chargement",
 	activationMode: "Mode d’activation",
 	wakeword: "Mot d’activation",
@@ -873,9 +873,9 @@ var he = "__auto_local__", ge = () => window.speechSynthesis?.getVoices() || [],
 	microphoneLevel: "Niveau du microphone"
 }, we = {
 	widgetName: "Microfono con parola di attivazione",
-	description: "Input vocale locale tramite ai-parakeet",
+	description: "Input vocale locale tramite ioBroker.voice",
 	common: "Comune",
-	parakeetInstance: "Istanza Parakeet",
+	parakeetInstance: "Istanza voice",
 	autoStart: "Attiva microfono al caricamento",
 	activationMode: "Modalità di attivazione",
 	wakeword: "Parola di attivazione",
@@ -937,9 +937,9 @@ var he = "__auto_local__", ge = () => window.speechSynthesis?.getVoices() || [],
 	microphoneLevel: "Livello del microfono"
 }, Te = {
 	widgetName: "Micrófono con palabra de activación",
-	description: "Entrada de voz local mediante ai-parakeet",
+	description: "Entrada de voz local mediante ioBroker.voice",
 	common: "Común",
-	parakeetInstance: "Instancia Parakeet",
+	parakeetInstance: "Instancia voice",
 	autoStart: "Activar micrófono al cargar",
 	activationMode: "Modo de activación",
 	wakeword: "Palabra de activación",
@@ -1001,9 +1001,9 @@ var he = "__auto_local__", ge = () => window.speechSynthesis?.getVoices() || [],
 	microphoneLevel: "Nivel del micrófono"
 }, Ee = {
 	widgetName: "Mikrofon ze słowem aktywacyjnym",
-	description: "Lokalne wprowadzanie głosowe przez ai-parakeet",
+	description: "Lokalne wprowadzanie głosowe przez ioBroker.voice",
 	common: "Ogólne",
-	parakeetInstance: "Instancja Parakeet",
+	parakeetInstance: "Instancja voice",
 	autoStart: "Włącz mikrofon przy ładowaniu",
 	activationMode: "Tryb aktywacji",
 	wakeword: "Słowo aktywacyjne",
@@ -1065,9 +1065,9 @@ var he = "__auto_local__", ge = () => window.speechSynthesis?.getVoices() || [],
 	microphoneLevel: "Poziom mikrofonu"
 }, De = {
 	widgetName: "Мікрофон із ключовим словом",
-	description: "Локальне голосове введення через ai-parakeet",
+	description: "Локальне голосове введення через ioBroker.voice",
 	common: "Загальні",
-	parakeetInstance: "Екземпляр Parakeet",
+	parakeetInstance: "Екземпляр voice",
 	autoStart: "Вмикати мікрофон під час завантаження",
 	activationMode: "Режим активації",
 	wakeword: "Ключове слово",
@@ -1129,9 +1129,9 @@ var he = "__auto_local__", ge = () => window.speechSynthesis?.getVoices() || [],
 	microphoneLevel: "Рівень мікрофона"
 }, Oe = {
 	widgetName: "唤醒词麦克风",
-	description: "通过 ai-parakeet 进行本地语音输入",
+	description: "通过 ioBroker.voice 进行本地语音输入",
 	common: "通用",
-	parakeetInstance: "Parakeet 实例",
+	parakeetInstance: "Voice 实例",
 	autoStart: "加载时启用麦克风",
 	activationMode: "激活模式",
 	wakeword: "唤醒词",
@@ -4087,7 +4087,7 @@ me("iob-wakeword", class extends pe {
 		this.#t?.(), this.#t = void 0, this.#n = !1, this.#r = null, this.#s = !1, this.#o = "", this.#a = he, super.disconnectedCallback();
 	}
 	getStateIds(e) {
-		return [`system.adapter.${Kr(e.parakeet, "ai-parakeet")}.alive`];
+		return [`system.adapter.${Kr(e.parakeet, "voice")}.alive`];
 	}
 	render() {
 		if (!this.#s) {
@@ -4104,7 +4104,7 @@ me("iob-wakeword", class extends pe {
 		this.#t ||= $.subscribe((e) => {
 			this.#i = e, this.#u();
 		}), $.setChatLimit(this.settings.maxChatMessages ?? 50), this.editMode && $.state.enabled && $.disable(), !this.editMode && this.socket && $.updateDeliveryOptions(this.#c());
-		let e = Kr(this.settings.parakeet, "ai-parakeet");
+		let e = Kr(this.settings.parakeet, "voice");
 		if (this.states[`system.adapter.${e}.alive`]?.val === !1 && $.connectionLost("Adapter is not running"), this.socket !== this.#r) {
 			let e = this.#r;
 			if (this.#r = this.socket, this.#n = !1, e && $.state.enabled) {
@@ -4119,7 +4119,7 @@ me("iob-wakeword", class extends pe {
 	#c() {
 		let e = this.settings;
 		return {
-			parakeet: Kr(e.parakeet, "ai-parakeet"),
+			parakeet: Kr(e.parakeet, "voice"),
 			mode: e.mode || "wakeword",
 			microphone: e.microphone || "",
 			ringBufferMs: qr(e.ringBufferMs, 1e3),

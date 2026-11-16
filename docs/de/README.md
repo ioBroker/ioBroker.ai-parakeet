@@ -1,14 +1,34 @@
-![Logo](../../admin/ai-parakeet.svg)
+![Logo](../../admin/voice.svg)
 
-# ioBroker.ai-parakeet
+# ioBroker.voice
 
-Lokale Offline-Spracherkennung für ioBroker mit [NVIDIA Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3). Das Modell läuft mit ONNX Runtime auf der CPU des ioBroker-Hosts. Es braucht weder Cloud noch Grafikkarte noch Docker.
+Lokale Offline-Sprachsteuerung für ioBroker: Spracherkennung mit [NVIDIA Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3), Sprachausgabe mit [Piper](https://github.com/rhasspy/piper) und ein Wakeword-Mikrofon für VIS-2. Alles läuft auf der CPU des ioBroker-Hosts. Es braucht weder Cloud noch Grafikkarte noch Docker.
+
+Bis Version 0.1.x hieß dieser Adapter **ai-parakeet**, siehe [Umstieg von ai-parakeet](#umstieg-von-ai-parakeet).
 
 - **25 europäische Sprachen**, die Sprache wird automatisch erkannt (Deutsch, Englisch, Französisch, Italienisch, Spanisch, Niederländisch, Polnisch, Russisch, Ukrainisch, Portugiesisch und weitere), mit Satzzeichen und Groß-/Kleinschreibung
 - **OpenAI-kompatible API** `POST /v1/audio/transcriptions`: Alles, was die Whisper-API von OpenAI nutzen kann, kann auch diesen Adapter nutzen, z. B. [ioBroker.assistant](https://github.com/ioBroker/ioBroker.assistant)
 - **sendTo** für Skripte, z. B. um Sprachnachrichten zu transkribieren
 - **Live-Test** des Mikrofons in den Instanz-Einstellungen und eine **Testseite** mit Live-Erkennung im Browser
 - **Korrekturwörterbuch** für Wörter, die das Modell nicht kennt
+- **Sprachausgabe** mit Piper und ein **Wakeword-Mikrofon** für VIS-2, das den Text an smart-text2command oder ioBroker.assistant schicken kann (Details in der [englischen Beschreibung](../../README.md))
+
+## Umstieg von ai-parakeet
+
+**voice** installieren und eine Instanz mit derselben Nummer wie die alte anlegen (`voice.0` für `ai-parakeet.0`). Beim ersten Start
+
+- übernimmt sie einmal die Einstellungen von `ai-parakeet.0`, stoppt diese Instanz (beide würden denselben Port nutzen) und startet neu,
+- verschiebt sie das heruntergeladene Modell von `iobroker-data/ai-parakeet/models` nach `iobroker-data/voice/models`, die 670 MB werden also nicht noch einmal geladen (ein in den Einstellungen gesetzter Modellordner bleibt, wie er ist),
+- verschiebt sie Piper-Runtime, Piper-Stimmen und das heruntergeladene ffmpeg von `iobroker-data/ai-parakeet.0` nach `iobroker-data/voice.0`,
+- kopiert sie die hochgeladenen Wakeword-Modelle und Piper-Stimmen.
+
+Selbst umstellen muss man:
+
+- Skripte: aus `sendTo('ai-parakeet.0', …)` wird `sendTo('voice.0', …)`,
+- VIS-2: im Wakeword-Widget die Instanz von `voice` wählen,
+- ioBroker.assistant: für die Spracherkennung die Instanz von `voice` wählen (braucht eine Assistant-Version, die `voice` kennt).
+
+Danach die Instanz `ai-parakeet.0` und den Adapter ai-parakeet löschen.
 
 ## Geschwindigkeit und Speicher
 
@@ -66,7 +86,7 @@ Antwort bei `json`: `{"text": "Schalte das Licht im Wohnzimmer ein."}`
 Das Audio kann auch direkt als Body mit `Content-Type: audio/wav` geschickt werden, die Felder stehen dann im Query-String (`?response_format=text`).
 
 - **WAV** (PCM 8/16/24/32 Bit oder Float, beliebige Abtastrate, mono oder stereo) wird direkt gelesen.
-- **MP3, OGG/Opus, M4A, WebM, FLAC** brauchen [ffmpeg](https://ffmpeg.org/). Entweder auf dem Host installieren (`sudo apt install ffmpeg`) oder im Reiter **Erkennung** auf **ffmpeg herunterladen** klicken: Das lädt das statische ffmpeg von [ffmpeg-static](https://github.com/eugeneware/ffmpeg-static) (20–30 MB, entpackt etwa 80 MB, geprüft mit fester SHA-256) nach `iobroker-data/ai-parakeet.0/ffmpeg`, so wie ioBroker.assistant. Es wird sofort ohne Neustart benutzt, solange kein Pfad eingetragen ist. ioBroker.assistant schickt WAV und braucht hier kein ffmpeg.
+- **MP3, OGG/Opus, M4A, WebM, FLAC** brauchen [ffmpeg](https://ffmpeg.org/). Entweder auf dem Host installieren (`sudo apt install ffmpeg`) oder im Reiter **Erkennung** auf **ffmpeg herunterladen** klicken: Das lädt das statische ffmpeg von [ffmpeg-static](https://github.com/eugeneware/ffmpeg-static) (20–30 MB, entpackt etwa 80 MB, geprüft mit fester SHA-256) nach `iobroker-data/voice.0/ffmpeg`, so wie ioBroker.assistant. Es wird sofort ohne Neustart benutzt, solange kein Pfad eingetragen ist. ioBroker.assistant schickt WAV und braucht hier kein ffmpeg.
 - Aufnahmen über der **maximalen Audiolänge** (Standard 300 s) werden abgelehnt. Aufnahmen über 90 s werden in Fenstern von 60 s erkannt.
 - `GET /v1/models` listet das Modell, `GET /health` zeigt den Status (ohne Schlüssel).
 - `/v1/audio/translations` wird nicht unterstützt: Parakeet transkribiert nur.
@@ -81,7 +101,7 @@ curl http://192.168.1.10:9999/v1/audio/transcriptions -F file=@befehl.wav -F res
 
 ```js
 // eine Datei auf dem Host der Instanz (WAV, mit ffmpeg jedes Format)
-sendTo('ai-parakeet.0', 'transcribe', { file: '/opt/iobroker/sprachnachricht.ogg' }, result => {
+sendTo('voice.0', 'transcribe', { file: '/opt/iobroker/sprachnachricht.ogg' }, result => {
     if (result.error) {
         log(result.error, 'warn');
     } else {
@@ -90,29 +110,29 @@ sendTo('ai-parakeet.0', 'transcribe', { file: '/opt/iobroker/sprachnachricht.ogg
 });
 
 // eine Audiodatei als Buffer oder base64-Text
-sendTo('ai-parakeet.0', 'transcribe', { audio: fs.readFileSync('/tmp/a.wav'), prompt: 'ioBroker, Wohnzimmer' }, console.log);
+sendTo('voice.0', 'transcribe', { audio: fs.readFileSync('/tmp/a.wav'), prompt: 'ioBroker, Wohnzimmer' }, console.log);
 
 // rohes 16-Bit-Mono-PCM
-sendTo('ai-parakeet.0', 'transcribe', { pcm: buffer, sampleRate: 16000 }, console.log);
+sendTo('voice.0', 'transcribe', { pcm: buffer, sampleRate: 16000 }, console.log);
 ```
 
 Die Antwort enthält `text` (mit Korrekturen), `rawText` (wie vom Modell erkannt), `audioSeconds`, `inferenceMs` und `queueMs`. Mit `segments: true` zusätzlich die Sätze mit Start- und Endzeit.
 
-`sendTo('ai-parakeet.0', 'getEndpoint', {}, console.log)` liefert die Adresse der API.
+`sendTo('voice.0', 'getEndpoint', {}, console.log)` liefert die Adresse der API.
 
 ## Live-Test im Admin
 
 Der Tab **Live-Test** der Instanz-Einstellungen nimmt das Mikrofon direkt dort auf und zeigt den erkannten Text live an, mit Zwischenergebnissen, dem Text mit und ohne Korrekturwörterbuch und den Rechenzeiten. Das Audio läuft über die Verbindung des Admins (`sendTo`), nicht zum Server des Adapters: Der Server braucht dafür weder HTTPS noch einen API-Schlüssel, und es funktioniert auch, wenn der Port des Servers belegt ist. Das Mikrofon erlaubt der Browser trotzdem nur, wenn der Admin selbst über HTTPS oder auf `localhost` geöffnet ist; sonst sagt der Tab das.
 
-Der Tab ist eine Web-Komponente von [`@iobroker/web-components`](https://github.com/ioBroker/web-components) (`admin/webcomponents/ai-parakeet-live.json`) und braucht einen Admin, der sie anzeigt. Andere Hosts von Web-Komponenten können sie ebenfalls zeigen; ihre Einstellung **Instanz** wählt die Instanz.
+Der Tab ist eine Web-Komponente von [`@iobroker/web-components`](https://github.com/ioBroker/web-components) (`admin/webcomponents/voice-live.json`) und braucht einen Admin, der sie anzeigt. Andere Hosts von Web-Komponenten können sie ebenfalls zeigen; ihre Einstellung **Instanz** wählt die Instanz.
 
 Der Live-Test schickt 16-Bit-Audio in Nachrichten von etwa 0,2 s (etwa 32 KB/s) und bekommt mit jeder Antwort die neuen Ergebnisse:
 
 ```js
-sendTo('ai-parakeet.0', 'live', { action: 'start' });                   // → { id, sampleRate, corrections }
-sendTo('ai-parakeet.0', 'live', { action: 'audio', id, seq: 1, pcm });  // pcm: 16 kHz mono 16 Bit LE als base64 → { events }
-sendTo('ai-parakeet.0', 'live', { action: 'stop', id, seq: 2 });        // → { events }
-sendTo('ai-parakeet.0', 'live', { action: 'poll', id });                // → { events }, bis ein Ereignis "done" oder "error" kommt
+sendTo('voice.0', 'live', { action: 'start' });                   // → { id, sampleRate, corrections }
+sendTo('voice.0', 'live', { action: 'audio', id, seq: 1, pcm });  // pcm: 16 kHz mono 16 Bit LE als base64 → { events }
+sendTo('voice.0', 'live', { action: 'stop', id, seq: 2 });        // → { events }
+sendTo('voice.0', 'live', { action: 'poll', id });                // → { events }, bis ein Ereignis "done" oder "error" kommt
 ```
 
 Eine Sitzung ohne Nachricht für 15 s wird verworfen.
@@ -136,7 +156,7 @@ Wörter, die das Modell regelmäßig falsch erkennt, lassen sich ersetzen. Jede 
 | IP-Adresse, Port | 0.0.0.0, 9999 | Adresse des Servers. 0.0.0.0 macht ihn im ganzen Netzwerk erreichbar |
 | API-Schlüssel | leer | Clients müssen ihn als `Authorization: Bearer <key>` senden. Empfohlen, wenn das Netzwerk nicht vertrauenswürdig ist |
 | HTTPS | aus | Nötig für das Mikrofon der Testseite auf anderen Rechnern |
-| Modellverzeichnis | `iobroker-data/ai-parakeet/models` | Z. B. ein Verzeichnis auf einer SSD. Es ist nicht Teil des ioBroker-Backups |
+| Modellverzeichnis | `iobroker-data/voice/models` | Z. B. ein Verzeichnis auf einer SSD. Es ist nicht Teil des ioBroker-Backups |
 | CPU-Threads | 0 (automatisch) | Kerne - 1, höchstens 4. Auf einem ausgelasteten Host können weniger Threads schneller sein |
 | Entladen nach Leerlauf-Minuten | 0 | Gibt den Speicher frei, wenn das Modell nicht genutzt wird. Erneutes Laden dauert einige Sekunden |
 | Freien Speicher prüfen | an | Lädt das Modell nicht bei weniger als 1,1 GB freiem Speicher |

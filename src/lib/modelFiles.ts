@@ -249,7 +249,7 @@ async function downloadPart(
     const handle = await open(part, offset ? 'a' : 'w');
     try {
         const response = await fetch(url, {
-            headers: { 'User-Agent': 'ioBroker.ai-parakeet', ...(offset ? { Range: `bytes=${offset}-` } : {}) },
+            headers: { 'User-Agent': 'ioBroker.voice', ...(offset ? { Range: `bytes=${offset}-` } : {}) },
             signal: controller.signal,
         });
         if (offset && response.status === 200) {

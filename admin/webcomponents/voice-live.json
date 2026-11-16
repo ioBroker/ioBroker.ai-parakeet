@@ -1,16 +1,16 @@
 {
     "$schema": "https://raw.githubusercontent.com/ioBroker/web-components/main/schemas/manifest.json",
     "manifestVersion": 1,
-    "tag": "ai-parakeet-live",
+    "tag": "voice-live",
     "name": {
         "en": "Live speech recognition",
         "de": "Live-Spracherkennung"
     },
     "description": {
-        "en": "Records the microphone and shows the text that ai-parakeet recognizes, live. The audio goes through the connection of the host, so the server of the adapter needs no HTTPS.",
-        "de": "Nimmt das Mikrofon auf und zeigt live den Text, den ai-parakeet erkennt. Das Audio läuft über die Verbindung des Hosts, der Server des Adapters braucht daher kein HTTPS."
+        "en": "Records the microphone and shows the text that ioBroker.voice recognizes, live. The audio goes through the connection of the host, so the server of the adapter needs no HTTPS.",
+        "de": "Nimmt das Mikrofon auf und zeigt live den Text, den ioBroker.voice erkennt. Das Audio läuft über die Verbindung des Hosts, der Server des Adapters braucht daher kein HTTPS."
     },
-    "module": "ai-parakeet-live.js",
+    "module": "voice-live.js",
     "size": {
         "width": 800,
         "height": 560
@@ -20,7 +20,7 @@
         "items": {
             "instance": {
                 "type": "instance",
-                "adapter": "ai-parakeet",
+                "adapter": "voice",
                 "label": {
                     "en": "Instance",
                     "de": "Instanz"

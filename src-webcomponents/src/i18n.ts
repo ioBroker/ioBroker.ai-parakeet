@@ -1,7 +1,7 @@
 /** Widget editor and runtime text. Add a language here and in LANGUAGE_NAMES. */
 const en = {
-    widgetName: 'Wake word microphone', description: 'Local voice input through ai-parakeet',
-    common: 'Common', parakeetInstance: 'Parakeet instance', autoStart: 'Start microphone when loaded',
+    widgetName: 'Wake word microphone', description: 'Local voice input through ioBroker.voice',
+    common: 'Common', parakeetInstance: 'Voice instance', autoStart: 'Start microphone when loaded',
     activationMode: 'Activation mode', wakeword: 'Wake word', pushToTalk: 'Push to talk', both: 'Both',
     microphoneRecognition: 'Microphone and recognition', activationSound: 'Activation sound',
     completionSound: 'Completion sound', microphoneDevice: 'Microphone device ID (optional)',
@@ -29,8 +29,8 @@ export type WidgetTextKey = keyof typeof en;
 type Dictionary = Record<WidgetTextKey, string>;
 
 const de: Dictionary = {
-    widgetName: 'Aktivierungswort-Mikrofon', description: 'Lokale Spracheingabe über ai-parakeet',
-    common: 'Allgemein', parakeetInstance: 'Parakeet-Instanz', autoStart: 'Mikrofon beim Laden aktivieren',
+    widgetName: 'Aktivierungswort-Mikrofon', description: 'Lokale Spracheingabe über ioBroker.voice',
+    common: 'Allgemein', parakeetInstance: 'Voice-Instanz', autoStart: 'Mikrofon beim Laden aktivieren',
     activationMode: 'Aktivierungsmodus', wakeword: 'Aktivierungswort', pushToTalk: 'Sprechtaste', both: 'Beide',
     microphoneRecognition: 'Mikrofon und Erkennung', activationSound: 'Aktivierungston',
     completionSound: 'Abschlusston', microphoneDevice: 'Mikrofon-Geräte-ID (optional)',
@@ -56,8 +56,8 @@ const de: Dictionary = {
 };
 
 const ru: Dictionary = {
-    widgetName: 'Микрофон с ключевым словом', description: 'Локальный голосовой ввод через ai-parakeet',
-    common: 'Общие', parakeetInstance: 'Экземпляр Parakeet', autoStart: 'Включать микрофон при загрузке',
+    widgetName: 'Микрофон с ключевым словом', description: 'Локальный голосовой ввод через ioBroker.voice',
+    common: 'Общие', parakeetInstance: 'Экземпляр voice', autoStart: 'Включать микрофон при загрузке',
     activationMode: 'Режим активации', wakeword: 'Ключевое слово', pushToTalk: 'Нажать и говорить', both: 'Оба',
     microphoneRecognition: 'Микрофон и распознавание', activationSound: 'Звук активации',
     completionSound: 'Звук завершения', microphoneDevice: 'ID микрофона (необязательно)',
@@ -83,8 +83,8 @@ const ru: Dictionary = {
 };
 
 const pt: Dictionary = {
-    widgetName: 'Microfone com palavra de ativação', description: 'Entrada de voz local via ai-parakeet',
-    common: 'Comum', parakeetInstance: 'Instância Parakeet', autoStart: 'Ativar microfone ao carregar',
+    widgetName: 'Microfone com palavra de ativação', description: 'Entrada de voz local via ioBroker.voice',
+    common: 'Comum', parakeetInstance: 'Instância voice', autoStart: 'Ativar microfone ao carregar',
     activationMode: 'Modo de ativação', wakeword: 'Palavra de ativação', pushToTalk: 'Premir para falar', both: 'Ambos',
     microphoneRecognition: 'Microfone e reconhecimento', activationSound: 'Som de ativação',
     completionSound: 'Som de conclusão', microphoneDevice: 'ID do microfone (opcional)',
@@ -111,8 +111,8 @@ const pt: Dictionary = {
 };
 
 const nl: Dictionary = {
-    widgetName: 'Wekwoordmicrofoon', description: 'Lokale spraakinvoer via ai-parakeet',
-    common: 'Algemeen', parakeetInstance: 'Parakeet-instantie', autoStart: 'Microfoon inschakelen bij laden',
+    widgetName: 'Wekwoordmicrofoon', description: 'Lokale spraakinvoer via ioBroker.voice',
+    common: 'Algemeen', parakeetInstance: 'Voice-instantie', autoStart: 'Microfoon inschakelen bij laden',
     activationMode: 'Activeringsmodus', wakeword: 'Wekwoord', pushToTalk: 'Druk om te spreken', both: 'Beide',
     microphoneRecognition: 'Microfoon en herkenning', activationSound: 'Activeringsgeluid',
     completionSound: 'Voltooiingsgeluid', microphoneDevice: 'Microfoonapparaat-ID (optioneel)',
@@ -139,8 +139,8 @@ const nl: Dictionary = {
 };
 
 const fr: Dictionary = {
-    widgetName: 'Microphone à mot d’activation', description: 'Entrée vocale locale via ai-parakeet',
-    common: 'Commun', parakeetInstance: 'Instance Parakeet', autoStart: 'Activer le microphone au chargement',
+    widgetName: 'Microphone à mot d’activation', description: 'Entrée vocale locale via ioBroker.voice',
+    common: 'Commun', parakeetInstance: 'Instance voice', autoStart: 'Activer le microphone au chargement',
     activationMode: 'Mode d’activation', wakeword: 'Mot d’activation', pushToTalk: 'Appuyer pour parler', both: 'Les deux',
     microphoneRecognition: 'Microphone et reconnaissance', activationSound: 'Son d’activation',
     completionSound: 'Son de fin', microphoneDevice: 'ID du microphone (facultatif)',
@@ -167,8 +167,8 @@ const fr: Dictionary = {
 };
 
 const it: Dictionary = {
-    widgetName: 'Microfono con parola di attivazione', description: 'Input vocale locale tramite ai-parakeet',
-    common: 'Comune', parakeetInstance: 'Istanza Parakeet', autoStart: 'Attiva microfono al caricamento',
+    widgetName: 'Microfono con parola di attivazione', description: 'Input vocale locale tramite ioBroker.voice',
+    common: 'Comune', parakeetInstance: 'Istanza voice', autoStart: 'Attiva microfono al caricamento',
     activationMode: 'Modalità di attivazione', wakeword: 'Parola di attivazione', pushToTalk: 'Premi per parlare', both: 'Entrambi',
     microphoneRecognition: 'Microfono e riconoscimento', activationSound: 'Suono di attivazione',
     completionSound: 'Suono di completamento', microphoneDevice: 'ID microfono (facoltativo)',
@@ -195,8 +195,8 @@ const it: Dictionary = {
 };
 
 const es: Dictionary = {
-    widgetName: 'Micrófono con palabra de activación', description: 'Entrada de voz local mediante ai-parakeet',
-    common: 'Común', parakeetInstance: 'Instancia Parakeet', autoStart: 'Activar micrófono al cargar',
+    widgetName: 'Micrófono con palabra de activación', description: 'Entrada de voz local mediante ioBroker.voice',
+    common: 'Común', parakeetInstance: 'Instancia voice', autoStart: 'Activar micrófono al cargar',
     activationMode: 'Modo de activación', wakeword: 'Palabra de activación', pushToTalk: 'Pulsar para hablar', both: 'Ambos',
     microphoneRecognition: 'Micrófono y reconocimiento', activationSound: 'Sonido de activación',
     completionSound: 'Sonido de finalización', microphoneDevice: 'ID del micrófono (opcional)',
@@ -223,8 +223,8 @@ const es: Dictionary = {
 };
 
 const pl: Dictionary = {
-    widgetName: 'Mikrofon ze słowem aktywacyjnym', description: 'Lokalne wprowadzanie głosowe przez ai-parakeet',
-    common: 'Ogólne', parakeetInstance: 'Instancja Parakeet', autoStart: 'Włącz mikrofon przy ładowaniu',
+    widgetName: 'Mikrofon ze słowem aktywacyjnym', description: 'Lokalne wprowadzanie głosowe przez ioBroker.voice',
+    common: 'Ogólne', parakeetInstance: 'Instancja voice', autoStart: 'Włącz mikrofon przy ładowaniu',
     activationMode: 'Tryb aktywacji', wakeword: 'Słowo aktywacyjne', pushToTalk: 'Naciśnij i mów', both: 'Oba',
     microphoneRecognition: 'Mikrofon i rozpoznawanie', activationSound: 'Dźwięk aktywacji',
     completionSound: 'Dźwięk zakończenia', microphoneDevice: 'ID mikrofonu (opcjonalnie)',
@@ -251,8 +251,8 @@ const pl: Dictionary = {
 };
 
 const uk: Dictionary = {
-    widgetName: 'Мікрофон із ключовим словом', description: 'Локальне голосове введення через ai-parakeet',
-    common: 'Загальні', parakeetInstance: 'Екземпляр Parakeet', autoStart: 'Вмикати мікрофон під час завантаження',
+    widgetName: 'Мікрофон із ключовим словом', description: 'Локальне голосове введення через ioBroker.voice',
+    common: 'Загальні', parakeetInstance: 'Екземпляр voice', autoStart: 'Вмикати мікрофон під час завантаження',
     activationMode: 'Режим активації', wakeword: 'Ключове слово', pushToTalk: 'Натиснути й говорити', both: 'Обидва',
     microphoneRecognition: 'Мікрофон і розпізнавання', activationSound: 'Звук активації',
     completionSound: 'Звук завершення', microphoneDevice: 'ID мікрофона (необов’язково)',
@@ -279,8 +279,8 @@ const uk: Dictionary = {
 };
 
 const zhCn: Dictionary = {
-    widgetName: '唤醒词麦克风', description: '通过 ai-parakeet 进行本地语音输入',
-    common: '通用', parakeetInstance: 'Parakeet 实例', autoStart: '加载时启用麦克风',
+    widgetName: '唤醒词麦克风', description: '通过 ioBroker.voice 进行本地语音输入',
+    common: '通用', parakeetInstance: 'Voice 实例', autoStart: '加载时启用麦克风',
     activationMode: '激活模式', wakeword: '唤醒词', pushToTalk: '按住说话', both: '两者',
     microphoneRecognition: '麦克风与识别', activationSound: '激活提示音',
     completionSound: '完成提示音', microphoneDevice: '麦克风设备 ID（可选）',

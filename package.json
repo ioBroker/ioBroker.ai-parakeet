@@ -1,20 +1,25 @@
 {
-  "name": "iobroker.ai-parakeet",
+  "name": "iobroker.voice",
   "version": "0.1.6",
-  "description": "Local speech recognition with NVIDIA Parakeet TDT 0.6B v3 on the CPU: OpenAI-compatible transcription API, sendTo and a live test page",
+  "description": "Local, offline voice for ioBroker: speech recognition with NVIDIA Parakeet TDT 0.6B v3 on the CPU with an OpenAI-compatible API, speech synthesis with Piper and a wake word microphone widget for VIS-2",
   "author": {
     "name": "oweitman",
     "email": "oweitman@gmx.de"
   },
   "contributors": [],
-  "homepage": "https://github.com/ioBroker/ioBroker.ai-parakeet",
+  "homepage": "https://github.com/ioBroker/ioBroker.voice",
   "license": "MIT",
   "keywords": [
     "ioBroker",
+    "voice",
     "ai",
     "speech recognition",
     "speech-to-text",
     "stt",
+    "text-to-speech",
+    "tts",
+    "piper",
+    "wake word",
     "transcription",
     "parakeet",
     "whisper",
@@ -23,7 +28,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ioBroker/ioBroker.ai-parakeet"
+    "url": "https://github.com/ioBroker/ioBroker.voice"
   },
   "engines": {
     "node": ">=22.19.0"
@@ -48,7 +53,7 @@
     "typescript": "~6.0.3"
   },
   "bugs": {
-    "url": "https://github.com/ioBroker/ioBroker.ai-parakeet/issues"
+    "url": "https://github.com/ioBroker/ioBroker.voice/issues"
   },
   "main": "build/main.js",
   "files": [

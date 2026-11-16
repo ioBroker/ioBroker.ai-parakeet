@@ -25,9 +25,9 @@ test('server speech requests WAV and releases playback resources', async () => {
     }, setState: async () => undefined } as SocketLike;
     const speech = new ServerSpeechOutput();
     const failures: string[] = [];
-    assert.equal(await speech.speak(socket, 'ai-parakeet.0', 'Hallo', 'de_DE-thorsten-low',
+    assert.equal(await speech.speak(socket, 'voice.0', 'Hallo', 'de_DE-thorsten-low',
         value => activities.push(value), reason => failures.push(reason)), 'spoken');
-    assert.deepEqual(calls, [{ instance: 'ai-parakeet.0', command: 'synthesize',
+    assert.deepEqual(calls, [{ instance: 'voice.0', command: 'synthesize',
         message: { text: 'Hallo', voice: 'de_DE-thorsten-low' } }]);
     assert.deepEqual(activities, [true]);
     audio?.onended?.();
@@ -43,7 +43,7 @@ test('server speech cancels an outstanding synthesis response', async () => {
     }), setState: async () => undefined };
     const speech = new ServerSpeechOutput();
     const activities: boolean[] = [];
-    const pending = speech.speak(socket, 'ai-parakeet.0', 'Hallo', '', value => activities.push(value), () => {});
+    const pending = speech.speak(socket, 'voice.0', 'Hallo', '', value => activities.push(value), () => {});
     speech.cancel();
     finish?.({ audio: '', mimeType: 'audio/wav' });
     assert.equal(await pending, 'cancelled');

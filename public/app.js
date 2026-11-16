@@ -1,4 +1,4 @@
-// Test page of ioBroker.ai-parakeet: streams the microphone (16 kHz Float32) over a WebSocket to the adapter
+// Test page of ioBroker.voice: streams the microphone (16 kHz Float32) over a WebSocket to the adapter
 const TEXTS = {
   en: {
     title: 'Live speech recognition',
@@ -105,9 +105,9 @@ let displayedSession = null;
 let checking = false;
 let needsKey = false;
 
-try { keyInput.value = sessionStorage.getItem('ai-parakeet-key') || ''; } catch { /* storage blocked */ }
+try { keyInput.value = sessionStorage.getItem('voice-key') || ''; } catch { /* storage blocked */ }
 keyInput.oninput = () => {
-  try { sessionStorage.setItem('ai-parakeet-key', keyInput.value); } catch { /* storage blocked */ }
+  try { sessionStorage.setItem('voice-key', keyInput.value); } catch { /* storage blocked */ }
   void health();
 };
 

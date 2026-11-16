@@ -17,7 +17,7 @@ export const manifest: WebComponentManifest = {
         type: 'tabs',
         items: {
             general: { type: 'panel', label: label('common'), items: {
-                parakeet: { type: 'instance', adapter: 'ai-parakeet', default: 'ai-parakeet.0', label: label('parakeetInstance') },
+                parakeet: { type: 'instance', adapter: 'voice', default: 'voice.0', label: label('parakeetInstance') },
                 autoStart: { type: 'checkbox', default: false, label: label('autoStart') },
                 mode: { type: 'select', default: 'wakeword', label: label('activationMode'), options: [
                     { value: 'wakeword', label: label('wakeword') },

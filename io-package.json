@@ -1,6 +1,6 @@
 {
   "common": {
-    "name": "ai-parakeet",
+    "name": "voice",
     "version": "0.1.6",
     "news": {
       "0.1.6": {
@@ -83,39 +83,44 @@
       }
     },
     "titleLang": {
-      "en": "AI speech recognition (Parakeet)",
-      "de": "KI-Spracherkennung (Parakeet)",
-      "ru": "ИИ распознавание речи (Parakeet)",
-      "pt": "Reconhecimento de fala IA (Parakeet)",
-      "nl": "AI-spraakherkenning (Parakeet)",
-      "fr": "Reconnaissance vocale IA (Parakeet)",
-      "it": "Riconoscimento vocale IA (Parakeet)",
-      "es": "Reconocimiento de voz IA (Parakeet)",
-      "pl": "Rozpoznawanie mowy AI (Parakeet)",
-      "uk": "ШІ розпізнавання мовлення (Parakeet)",
-      "zh-cn": "AI 语音识别 (Parakeet)"
+      "en": "Voice: local speech recognition and synthesis",
+      "de": "Voice: lokale Spracherkennung und Sprachausgabe",
+      "ru": "Voice: локальное распознавание и синтез речи",
+      "pt": "Voice: reconhecimento e síntese de fala locais",
+      "nl": "Voice: lokale spraakherkenning en spraaksynthese",
+      "fr": "Voice : reconnaissance et synthèse vocales locales",
+      "it": "Voice: riconoscimento e sintesi vocale locali",
+      "es": "Voice: reconocimiento y síntesis de voz locales",
+      "pl": "Voice: lokalne rozpoznawanie i synteza mowy",
+      "uk": "Voice: локальне розпізнавання та синтез мовлення",
+      "zh-cn": "Voice：本地语音识别与语音合成"
     },
     "desc": {
-      "en": "Local, offline speech recognition with NVIDIA Parakeet on the CPU (25 European languages), with an OpenAI-compatible transcription API",
-      "de": "Lokale Offline-Spracherkennung mit NVIDIA Parakeet auf der CPU (25 europäische Sprachen), mit OpenAI-kompatibler Transkriptions-API",
-      "ru": "Локальное офлайн-распознавание речи с NVIDIA Parakeet на CPU (25 европейских языков) с API транскрипции, совместимым с OpenAI",
-      "pt": "Reconhecimento de fala local e offline com NVIDIA Parakeet na CPU (25 idiomas europeus), com uma API de transcrição compatível com OpenAI",
-      "nl": "Lokale offline spraakherkenning met NVIDIA Parakeet op de CPU (25 Europese talen), met een OpenAI-compatibele transcriptie-API",
-      "fr": "Reconnaissance vocale locale et hors ligne avec NVIDIA Parakeet sur le CPU (25 langues européennes), avec une API de transcription compatible OpenAI",
-      "it": "Riconoscimento vocale locale e offline con NVIDIA Parakeet sulla CPU (25 lingue europee), con un'API di trascrizione compatibile con OpenAI",
-      "es": "Reconocimiento de voz local y sin conexión con NVIDIA Parakeet en la CPU (25 idiomas europeos), con una API de transcripción compatible con OpenAI",
-      "pl": "Lokalne rozpoznawanie mowy offline z NVIDIA Parakeet na CPU (25 języków europejskich), z API transkrypcji zgodnym z OpenAI",
-      "uk": "Локальне офлайн-розпізнавання мовлення з NVIDIA Parakeet на CPU (25 європейських мов) з API транскрипції, сумісним з OpenAI",
-      "zh-cn": "在 CPU 上使用 NVIDIA Parakeet 进行本地离线语音识别（25 种欧洲语言），提供兼容 OpenAI 的转录 API"
+      "en": "Local, offline voice for ioBroker: speech recognition with NVIDIA Parakeet on the CPU (25 European languages) with an OpenAI-compatible API, speech synthesis with Piper and a wake word microphone widget for VIS-2",
+      "de": "Lokale Offline-Sprachsteuerung für ioBroker: Spracherkennung mit NVIDIA Parakeet auf der CPU (25 europäische Sprachen) mit OpenAI-kompatibler API, Sprachausgabe mit Piper und ein Wakeword-Mikrofon-Widget für VIS-2",
+      "ru": "Локальный офлайн-голос для ioBroker: распознавание речи с NVIDIA Parakeet на CPU (25 европейских языков) с API, совместимым с OpenAI, синтез речи с Piper и виджет микрофона с ключевым словом для VIS-2",
+      "pt": "Voz local e offline para o ioBroker: reconhecimento de fala com NVIDIA Parakeet na CPU (25 idiomas europeus) com uma API compatível com OpenAI, síntese de fala com Piper e um widget de microfone com palavra de ativação para VIS-2",
+      "nl": "Lokale offline spraak voor ioBroker: spraakherkenning met NVIDIA Parakeet op de CPU (25 Europese talen) met een OpenAI-compatibele API, spraaksynthese met Piper en een wekwoordmicrofoonwidget voor VIS-2",
+      "fr": "Voix locale et hors ligne pour ioBroker : reconnaissance vocale avec NVIDIA Parakeet sur le CPU (25 langues européennes) avec une API compatible OpenAI, synthèse vocale avec Piper et un widget microphone à mot d’activation pour VIS-2",
+      "it": "Voce locale e offline per ioBroker: riconoscimento vocale con NVIDIA Parakeet sulla CPU (25 lingue europee) con un’API compatibile con OpenAI, sintesi vocale con Piper e un widget microfono con parola di attivazione per VIS-2",
+      "es": "Voz local y sin conexión para ioBroker: reconocimiento de voz con NVIDIA Parakeet en la CPU (25 idiomas europeos) con una API compatible con OpenAI, síntesis de voz con Piper y un widget de micrófono con palabra de activación para VIS-2",
+      "pl": "Lokalny głos offline dla ioBroker: rozpoznawanie mowy z NVIDIA Parakeet na CPU (25 języków europejskich) z API zgodnym z OpenAI, synteza mowy z Piper i widżet mikrofonu ze słowem aktywacyjnym dla VIS-2",
+      "uk": "Локальний офлайн-голос для ioBroker: розпізнавання мовлення з NVIDIA Parakeet на CPU (25 європейських мов) з API, сумісним з OpenAI, синтез мовлення з Piper і віджет мікрофона з ключовим словом для VIS-2",
+      "zh-cn": "ioBroker 的本地离线语音：在 CPU 上使用 NVIDIA Parakeet 进行语音识别（25 种欧洲语言）并提供兼容 OpenAI 的 API，使用 Piper 进行语音合成，以及适用于 VIS-2 的唤醒词麦克风小部件"
     },
     "authors": [
       "oweitman <oweitman@gmx.de>"
     ],
     "keywords": [
+      "voice",
       "ai",
       "speech recognition",
       "speech-to-text",
       "stt",
+      "text-to-speech",
+      "tts",
+      "piper",
+      "wake word",
       "transcription",
       "parakeet",
       "whisper",
@@ -129,9 +134,9 @@
     "platform": "Javascript/Node.js",
     "mode": "daemon",
     "loglevel": "info",
-    "icon": "ai-parakeet.svg",
-    "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.ai-parakeet/main/admin/ai-parakeet.svg",
-    "readme": "https://github.com/ioBroker/ioBroker.ai-parakeet/blob/main/README.md",
+    "icon": "voice.svg",
+    "extIcon": "https://raw.githubusercontent.com/ioBroker/ioBroker.voice/main/admin/voice.svg",
+    "readme": "https://github.com/ioBroker/ioBroker.voice/blob/main/README.md",
     "docs": {
       "en": [
         "README.md"

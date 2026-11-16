@@ -7,7 +7,7 @@ const DIR = join(ROOT, 'admin', 'webcomponents');
 
 describe('web component of the live test', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const manifest: any = JSON.parse(readFileSync(join(DIR, 'ai-parakeet-live.json'), 'utf8'));
+    const manifest: any = JSON.parse(readFileSync(join(DIR, 'voice-live.json'), 'utf8'));
 
     it('has a manifest that names its module and tag', () => {
         for (const key of ['manifestVersion', 'tag', 'name', 'module', 'settings']) {
@@ -20,9 +20,9 @@ describe('web component of the live test', () => {
 
     it('is used by the instance settings', () => {
         const config = readFileSync(join(ROOT, 'admin', 'jsonConfig.json'), 'utf8');
-        assert.ok(config.includes('"webComponent": "webcomponents/ai-parakeet-live.json"'));
+        assert.ok(config.includes('"webComponent": "webcomponents/voice-live.json"'));
         // the number of the instance from the pattern variable `_instance` of JSON-Config
-        assert.ok(config.includes('"instance": "ai-parakeet.${_instance}"'));
+        assert.ok(config.includes('"instance": "voice.${_instance}"'));
     });
 
     it('brings the same audio worklet as the test page', () => {
@@ -39,7 +39,7 @@ describe('web component of the live test', () => {
 });
 
 describe('VIS-2 wake word web component', () => {
-    it('is published by ai-parakeet and uses its instance for recognition and model settings', () => {
+    it('is published by voice and uses its instance for recognition and model settings', () => {
         const adapter = JSON.parse(readFileSync(join(ROOT, 'io-package.json'), 'utf8'));
         const manifest = JSON.parse(readFileSync(join(DIR, 'wakeword.json'), 'utf8'));
         assert.ok(adapter.common.webComponents.includes('webcomponents/wakeword.json'));
@@ -56,7 +56,7 @@ describe('VIS-2 wake word web component', () => {
             compact language accentColor processorType processorInstance assistantInstance showChat maxChatMessages speechEnabled
             speechEngine speechServerVoice`.split(/\s+/).sort());
         const settings = Object.assign({}, ...Object.values(groups).map((group: any) => group.items));
-        assert.equal(settings.parakeet.adapter, 'ai-parakeet');
+        assert.equal(settings.parakeet.adapter, 'voice');
         assert.equal(settings.wakewordAdapter, undefined);
         assert.equal(settings.processorInstance.type, 'instance');
         assert.equal(settings.processorInstance.adapter, 'smart-text2command');
