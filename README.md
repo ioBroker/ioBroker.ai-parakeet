@@ -262,7 +262,7 @@ Microphone access requires HTTPS or localhost and browser permission. Automatic 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.1.7 (2026-11-16)
 
 - (@GermanBluefox) **Renamed from ai-parakeet to voice.** A new instance takes over the settings, the downloaded model, the Piper files and the uploads of `ai-parakeet.<n>` with the same number, see [Moving from ai-parakeet](#moving-from-ai-parakeet)
 
@@ -289,10 +289,6 @@ Microphone access requires HTTPS or localhost and browser permission. Automatic 
 ### 0.1.3 (2026-11-05)
 
 - (@GermanBluefox) Updated packages
-
-### 0.1.2 (2026-11-05)
-
-- (@GermanBluefox) Published via npm trusted publishing
 
 ## License
 

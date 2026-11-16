@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "voice",
-    "version": "0.1.6",
+    "version": "0.1.7",
     "news": {
+      "0.1.7": {
+        "en": "**Renamed from ai-parakeet to voice.** A new instance takes over the settings, the downloaded model, the Piper files and the uploads of `ai-parakeet.<n>` with the same number, see [Moving from ai-parakeet](#moving-from-ai-parakeet)",
+        "de": "**Von Ai-Parakeet in Voice umbenannt.** Eine neue Instanz übernimmt die Einstellungen, das heruntergeladene Modell, Piper-Dateien und `Ai-Parakeet. <n>`mit derselben Nummer, siehe [Moving from Ai-Sittich] (#moving -from-ai-Sittich)",
+        "ru": "**Переименован с ai-parakeet на voice.** Новый экземпляр отвечает за настройки, загруженную модель, файлы Piper и загрузку `ai-parakeet. <n>`с тем же номером см. [Переход с попугая-попугая] (#moving -from-ai-parakeet)",
+        "pt": "**Renomeado de ai-parakeet para voz.** Uma nova instância assume as configurações, o modelo baixado, os arquivos Piper e o upload do `ai-parakeet. <n>`com o mesmo número, veja [Saindo do ai-parakeet] (#moving -from-ai-parakeet)",
+        "nl": "**Hernoemd van ai-parakeet naar voice.** Een nieuw exemplaar neemt de instellingen, het gedownloade model, de Piper-bestanden en de uploads van `ai-parakeet over. <n>`met hetzelfde nummer, zie [Op weg van ai-parkiet] (#moving -from-ai-parakeet)",
+        "fr": "**Renommé ai-parakeet en voix. ** Une nouvelle instance gère les paramètres, le modèle téléchargé, les fichiers Piper et les téléchargements de `ai-parakeet. <n>`avec le même numéro, voir [Moving from ai-parakeet] (#moving -from-ai-parakeet)",
+        "it": "**Rinominato da ai-parakeet a voice.** Una nuova istanza gestisce le impostazioni, il modello scaricato, i file Piper e gli upload di `ai-parakeet. <n>`con lo stesso numero, vedi [Da ai-parakeet] (#moving -from-ai-parakeet)",
+        "es": "**Cambiado de ai-parakeet a voz.** Una nueva instancia se encarga de los ajustes, el modelo descargado, los archivos de Piper y la subida de `ai-parakeet. <n>`con el mismo número, consulte [Moving from ai-parakeet] (#moving -from-ai-parakeet)",
+        "pl": "**Zmiana nazwy z ai-parakeet na głos.** Nowa instancja przejmuje ustawienia, pobrany model, pliki Piper i przesłane pliki `ai-parakeet. <n>`z tym samym numerem, patrz [Przenoszenie z ai-parakeet] (#moving -from-ai-parakeet)",
+        "uk": "**Перейменовано з ai-parakeet на голос.** Новий екземпляр бере на себе налаштування, завантажену модель, файли Piper та завантаження `ai-parakeet. <n>`з таким же числом див. [Перехід від ай-папуги] (#moving -from-ai-parakeet)",
+        "zh-cn": "**从 ai-parakeet 重命名为语音。** 一个新实例将接管设置、下载的模型、Piper 文件和 “ai-parakeet” 的上传。<n>`使用相同的数字，请参阅 [从 ai-parakeet 移动] (#moving-from-ai-parakeet)"
+      },
       "0.1.6": {
         "en": "The wake word widget can send recognized text to ioBroker.assistant (`ask`) as an alternative to smart-text2command\nRemoved the npm workspace, so the release script works again",
         "de": "Das Wake-Word-Widget kann erkannten Text als Alternative zu smart-text2command an ioBroker.Assistant (`ask`) senden\nNPM-Workspace entfernt, das Release-Script läuft wieder",
