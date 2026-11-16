@@ -197,16 +197,6 @@ The adapter runs the model in a separate Node.js process. A crash of ONNX Runtim
 
 The adapter is licensed under the MIT license. The model [nvidia/parakeet-tdt-0.6b-v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) is published by NVIDIA under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/); the adapter uses the ONNX conversion [ysdede/parakeet-tdt-0.6b-v3-onnx](https://huggingface.co/ysdede/parakeet-tdt-0.6b-v3-onnx) and [parakeet.js](https://github.com/ysdede/parakeet.js) (MIT).
 
-<!--
-    Placeholder for the next version (at the beginning of the line):
-    ### **WORK IN PROGRESS**
--->
-
-### **WORK IN PROGRESS**
-
-- (@GermanBluefox) **Renamed from ai-parakeet to voice.** A new instance takes over the settings, the downloaded model, the Piper files and the uploads of `ai-parakeet.<n>` with the same number, see [Moving from ai-parakeet](#moving-from-ai-parakeet)
-
-
 ## VIS-2 wake word widget
 
 This adapter also provides the `<iob-wakeword>` Web Component for VIS-2. Build it with `npm ci` and `npm run build`; `build:webcomponents` installs the Web Component dependencies from `src-webcomponents/package-lock.json`, and the component and its local model assets are then available under `admin/webcomponents/`. Add **Wake word microphone** to a VIS-2 view and select the `voice` instance. No second adapter or instance is needed. The microphone button enables or disables listening. The widget setting **Start microphone when loaded** controls automatic activation in runtime; the VIS editor never starts capture.
@@ -272,6 +262,10 @@ Microphone access requires HTTPS or localhost and browser permission. Automatic 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
+- (@GermanBluefox) **Renamed from ai-parakeet to voice.** A new instance takes over the settings, the downloaded model, the Piper files and the uploads of `ai-parakeet.<n>` with the same number, see [Moving from ai-parakeet](#moving-from-ai-parakeet)
+
 ### 0.1.6 (2026-11-16)
 
 - (@GermanBluefox) The wake word widget can send recognized text to ioBroker.assistant (`ask`) as an alternative to smart-text2command
