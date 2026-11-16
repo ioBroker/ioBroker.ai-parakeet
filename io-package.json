@@ -117,6 +117,7 @@
     "enabled": true,
     "compact": false,
     "messagebox": true,
+    "webComponents": ["webcomponents/wakeword.json"],
     "stopTimeout": 5000,
     "type": "utility",
     "connectionType": "local",
@@ -157,6 +158,12 @@
     ]
   },
   "native": {
+    "ttsVoice": "de_DE-thorsten-low",
+    "wakewordModel": "io_broker",
+    "wakewordModel2": "",
+    "wakewordModel3": "",
+    "wakewordThreshold": 0.5,
+    "wakewordUpload": "",
     "bind": "0.0.0.0",
     "port": 9999,
     "apiKey": "",
@@ -194,6 +201,12 @@
   ],
   "objects": [],
   "instanceObjects": [
+    {
+      "_id": "",
+      "type": "meta",
+      "common": { "name": "Uploaded wake word models", "type": "meta.user" },
+      "native": {}
+    },
     {
       "_id": "info",
       "type": "channel",

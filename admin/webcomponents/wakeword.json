@@ -1,0 +1,748 @@
+{
+  "$schema": "https://raw.githubusercontent.com/ioBroker/web-components/main/schemas/manifest.json",
+  "manifestVersion": 1,
+  "tag": "iob-wakeword",
+  "name": {
+    "en": "Wake word microphone",
+    "de": "Aktivierungswort-Mikrofon",
+    "ru": "Микрофон с ключевым словом",
+    "pt": "Microfone com palavra de ativação",
+    "nl": "Wekwoordmicrofoon",
+    "fr": "Microphone à mot d’activation",
+    "it": "Microfono con parola di attivazione",
+    "es": "Micrófono con palabra de activación",
+    "pl": "Mikrofon ze słowem aktywacyjnym",
+    "uk": "Мікрофон із ключовим словом",
+    "zh-cn": "唤醒词麦克风"
+  },
+  "description": {
+    "en": "Local voice input through ai-parakeet",
+    "de": "Lokale Spracheingabe über ai-parakeet",
+    "ru": "Локальный голосовой ввод через ai-parakeet",
+    "pt": "Entrada de voz local via ai-parakeet",
+    "nl": "Lokale spraakinvoer via ai-parakeet",
+    "fr": "Entrée vocale locale via ai-parakeet",
+    "it": "Input vocale locale tramite ai-parakeet",
+    "es": "Entrada de voz local mediante ai-parakeet",
+    "pl": "Lokalne wprowadzanie głosowe przez ai-parakeet",
+    "uk": "Локальне голосове введення через ai-parakeet",
+    "zh-cn": "通过 ai-parakeet 进行本地语音输入"
+  },
+  "icon": "wakeword.svg",
+  "module": "wakeword.js",
+  "size": {
+    "width": 320,
+    "height": 220
+  },
+  "settings": {
+    "type": "tabs",
+    "items": {
+      "general": {
+        "type": "panel",
+        "label": {
+          "en": "Common",
+          "de": "Allgemein",
+          "ru": "Общие",
+          "pt": "Comum",
+          "nl": "Algemeen",
+          "fr": "Commun",
+          "it": "Comune",
+          "es": "Común",
+          "pl": "Ogólne",
+          "uk": "Загальні",
+          "zh-cn": "通用"
+        },
+        "items": {
+          "parakeet": {
+            "type": "instance",
+            "adapter": "ai-parakeet",
+            "default": "ai-parakeet.0",
+            "label": {
+              "en": "Parakeet instance",
+              "de": "Parakeet-Instanz",
+              "ru": "Экземпляр Parakeet",
+              "pt": "Instância Parakeet",
+              "nl": "Parakeet-instantie",
+              "fr": "Instance Parakeet",
+              "it": "Istanza Parakeet",
+              "es": "Instancia Parakeet",
+              "pl": "Instancja Parakeet",
+              "uk": "Екземпляр Parakeet",
+              "zh-cn": "Parakeet 实例"
+            }
+          },
+          "autoStart": {
+            "type": "checkbox",
+            "default": false,
+            "label": {
+              "en": "Start microphone when loaded",
+              "de": "Mikrofon beim Laden aktivieren",
+              "ru": "Включать микрофон при загрузке",
+              "pt": "Ativar microfone ao carregar",
+              "nl": "Microfoon inschakelen bij laden",
+              "fr": "Activer le microphone au chargement",
+              "it": "Attiva microfono al caricamento",
+              "es": "Activar micrófono al cargar",
+              "pl": "Włącz mikrofon przy ładowaniu",
+              "uk": "Вмикати мікрофон під час завантаження",
+              "zh-cn": "加载时启用麦克风"
+            }
+          },
+          "mode": {
+            "type": "select",
+            "default": "wakeword",
+            "label": {
+              "en": "Activation mode",
+              "de": "Aktivierungsmodus",
+              "ru": "Режим активации",
+              "pt": "Modo de ativação",
+              "nl": "Activeringsmodus",
+              "fr": "Mode d’activation",
+              "it": "Modalità di attivazione",
+              "es": "Modo de activación",
+              "pl": "Tryb aktywacji",
+              "uk": "Режим активації",
+              "zh-cn": "激活模式"
+            },
+            "options": [
+              {
+                "value": "wakeword",
+                "label": {
+                  "en": "Wake word",
+                  "de": "Aktivierungswort",
+                  "ru": "Ключевое слово",
+                  "pt": "Palavra de ativação",
+                  "nl": "Wekwoord",
+                  "fr": "Mot d’activation",
+                  "it": "Parola di attivazione",
+                  "es": "Palabra de activación",
+                  "pl": "Słowo aktywacyjne",
+                  "uk": "Ключове слово",
+                  "zh-cn": "唤醒词"
+                }
+              },
+              {
+                "value": "ptt",
+                "label": {
+                  "en": "Push to talk",
+                  "de": "Sprechtaste",
+                  "ru": "Нажать и говорить",
+                  "pt": "Premir para falar",
+                  "nl": "Druk om te spreken",
+                  "fr": "Appuyer pour parler",
+                  "it": "Premi per parlare",
+                  "es": "Pulsar para hablar",
+                  "pl": "Naciśnij i mów",
+                  "uk": "Натиснути й говорити",
+                  "zh-cn": "按住说话"
+                }
+              },
+              {
+                "value": "combined",
+                "label": {
+                  "en": "Both",
+                  "de": "Beide",
+                  "ru": "Оба",
+                  "pt": "Ambos",
+                  "nl": "Beide",
+                  "fr": "Les deux",
+                  "it": "Entrambi",
+                  "es": "Ambos",
+                  "pl": "Oba",
+                  "uk": "Обидва",
+                  "zh-cn": "两者"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "audio": {
+        "type": "panel",
+        "label": {
+          "en": "Microphone and recognition",
+          "de": "Mikrofon und Erkennung",
+          "ru": "Микрофон и распознавание",
+          "pt": "Microfone e reconhecimento",
+          "nl": "Microfoon en herkenning",
+          "fr": "Microphone et reconnaissance",
+          "it": "Microfono e riconoscimento",
+          "es": "Micrófono y reconocimiento",
+          "pl": "Mikrofon i rozpoznawanie",
+          "uk": "Мікрофон і розпізнавання",
+          "zh-cn": "麦克风与识别"
+        },
+        "items": {
+          "activationTone": {
+            "type": "checkbox",
+            "default": true,
+            "label": {
+              "en": "Activation sound",
+              "de": "Aktivierungston",
+              "ru": "Звук активации",
+              "pt": "Som de ativação",
+              "nl": "Activeringsgeluid",
+              "fr": "Son d’activation",
+              "it": "Suono di attivazione",
+              "es": "Sonido de activación",
+              "pl": "Dźwięk aktywacji",
+              "uk": "Звук активації",
+              "zh-cn": "激活提示音"
+            }
+          },
+          "completionTone": {
+            "type": "checkbox",
+            "default": true,
+            "label": {
+              "en": "Completion sound",
+              "de": "Abschlusston",
+              "ru": "Звук завершения",
+              "pt": "Som de conclusão",
+              "nl": "Voltooiingsgeluid",
+              "fr": "Son de fin",
+              "it": "Suono di completamento",
+              "es": "Sonido de finalización",
+              "pl": "Dźwięk zakończenia",
+              "uk": "Звук завершення",
+              "zh-cn": "完成提示音"
+            }
+          },
+          "microphone": {
+            "type": "text",
+            "default": "",
+            "label": {
+              "en": "Microphone device ID (optional)",
+              "de": "Mikrofon-Geräte-ID (optional)",
+              "ru": "ID микрофона (необязательно)",
+              "pt": "ID do microfone (opcional)",
+              "nl": "Microfoonapparaat-ID (optioneel)",
+              "fr": "ID du microphone (facultatif)",
+              "it": "ID microfono (facoltativo)",
+              "es": "ID del micrófono (opcional)",
+              "pl": "ID mikrofonu (opcjonalnie)",
+              "uk": "ID мікрофона (необов’язково)",
+              "zh-cn": "麦克风设备 ID（可选）"
+            }
+          },
+          "ringBufferMs": {
+            "type": "number",
+            "label": {
+              "en": "Ring buffer (ms)",
+              "de": "Ringpuffer (ms)",
+              "ru": "Кольцевой буфер (мс)",
+              "pt": "Buffer circular (ms)",
+              "nl": "Ringbuffer (ms)",
+              "fr": "Tampon circulaire (ms)",
+              "it": "Buffer circolare (ms)",
+              "es": "Búfer circular (ms)",
+              "pl": "Bufor pierścieniowy (ms)",
+              "uk": "Кільцевий буфер (мс)",
+              "zh-cn": "环形缓冲区（毫秒）"
+            },
+            "default": 1000,
+            "min": 0,
+            "max": 3000
+          },
+          "stripWakeword": {
+            "type": "checkbox",
+            "default": false,
+            "label": {
+              "en": "Exclude wake word from sent audio",
+              "de": "Aktivierungswort nicht übertragen",
+              "ru": "Не передавать ключевое слово",
+              "pt": "Excluir palavra de ativação do áudio",
+              "nl": "Wekwoord niet meesturen",
+              "fr": "Exclure le mot d’activation de l’audio",
+              "it": "Escludi parola di attivazione dall’audio",
+              "es": "Excluir la palabra de activación del audio",
+              "pl": "Nie wysyłaj słowa aktywacyjnego",
+              "uk": "Не передавати ключове слово",
+              "zh-cn": "发送音频时去除唤醒词"
+            }
+          },
+          "threshold": {
+            "type": "number",
+            "label": {
+              "en": "VAD threshold (0-1)",
+              "de": "VAD-Schwelle (0-1)",
+              "ru": "Порог VAD (0-1)",
+              "pt": "Limiar VAD (0-1)",
+              "nl": "VAD-drempel (0-1)",
+              "fr": "Seuil VAD (0-1)",
+              "it": "Soglia VAD (0-1)",
+              "es": "Umbral VAD (0-1)",
+              "pl": "Próg VAD (0-1)",
+              "uk": "Поріг VAD (0-1)",
+              "zh-cn": "VAD 阈值（0-1）"
+            },
+            "default": 0.015,
+            "min": 0.001,
+            "max": 1
+          },
+          "minSpeechMs": {
+            "type": "number",
+            "label": {
+              "en": "Minimum speech (ms)",
+              "de": "Minimale Sprachdauer (ms)",
+              "ru": "Мин. длительность речи (мс)",
+              "pt": "Duração mínima da fala (ms)",
+              "nl": "Minimale spreekduur (ms)",
+              "fr": "Durée minimale de parole (ms)",
+              "it": "Durata minima del parlato (ms)",
+              "es": "Duración mínima del habla (ms)",
+              "pl": "Min. czas mowy (ms)",
+              "uk": "Мін. тривалість мовлення (мс)",
+              "zh-cn": "最短语音时长（毫秒）"
+            },
+            "default": 250,
+            "min": 0,
+            "max": 5000
+          },
+          "silenceMs": {
+            "type": "number",
+            "label": {
+              "en": "Trailing silence (ms)",
+              "de": "Stille nach Sprache (ms)",
+              "ru": "Тишина после речи (мс)",
+              "pt": "Silêncio após fala (ms)",
+              "nl": "Stilte na spraak (ms)",
+              "fr": "Silence après parole (ms)",
+              "it": "Silenzio dopo il parlato (ms)",
+              "es": "Silencio tras el habla (ms)",
+              "pl": "Cisza po mowie (ms)",
+              "uk": "Тиша після мовлення (мс)",
+              "zh-cn": "语音后静音（毫秒）"
+            },
+            "default": 1200,
+            "min": 100,
+            "max": 10000
+          },
+          "noSpeechMs": {
+            "type": "number",
+            "label": {
+              "en": "No-speech timeout (ms)",
+              "de": "Wartezeit nach Aktivierung (ms)",
+              "ru": "Ожидание речи (мс)",
+              "pt": "Espera por fala (ms)",
+              "nl": "Wachttijd op spraak (ms)",
+              "fr": "Délai sans parole (ms)",
+              "it": "Attesa del parlato (ms)",
+              "es": "Espera de voz (ms)",
+              "pl": "Oczekiwanie na mowę (ms)",
+              "uk": "Очікування мовлення (мс)",
+              "zh-cn": "等待语音超时（毫秒）"
+            },
+            "default": 5000,
+            "min": 500,
+            "max": 20000
+          },
+          "maxRecordMs": {
+            "type": "number",
+            "label": {
+              "en": "Maximum recording (ms)",
+              "de": "Maximale Aufnahme (ms)",
+              "ru": "Макс. запись (мс)",
+              "pt": "Gravação máxima (ms)",
+              "nl": "Maximale opname (ms)",
+              "fr": "Enregistrement maximal (ms)",
+              "it": "Registrazione massima (ms)",
+              "es": "Grabación máxima (ms)",
+              "pl": "Maks. nagranie (ms)",
+              "uk": "Макс. запис (мс)",
+              "zh-cn": "最长录音（毫秒）"
+            },
+            "default": 15000,
+            "min": 1000,
+            "max": 60000
+          }
+        }
+      },
+      "display": {
+        "type": "panel",
+        "label": {
+          "en": "Display and chat",
+          "de": "Anzeige und Chat",
+          "ru": "Отображение и чат",
+          "pt": "Visualização e chat",
+          "nl": "Weergave en chat",
+          "fr": "Affichage et discussion",
+          "it": "Visualizzazione e chat",
+          "es": "Pantalla y chat",
+          "pl": "Wyświetlanie i czat",
+          "uk": "Відображення та чат",
+          "zh-cn": "显示与聊天"
+        },
+        "items": {
+          "showText": {
+            "type": "checkbox",
+            "default": true,
+            "label": {
+              "en": "Show recognized text",
+              "de": "Erkannten Text anzeigen",
+              "ru": "Показывать распознанный текст",
+              "pt": "Mostrar texto reconhecido",
+              "nl": "Herkende tekst tonen",
+              "fr": "Afficher le texte reconnu",
+              "it": "Mostra testo riconosciuto",
+              "es": "Mostrar texto reconocido",
+              "pl": "Pokaż rozpoznany tekst",
+              "uk": "Показувати розпізнаний текст",
+              "zh-cn": "显示识别文本"
+            }
+          },
+          "showInterim": {
+            "type": "checkbox",
+            "default": true,
+            "label": {
+              "en": "Show interim text",
+              "de": "Zwischenresultate anzeigen",
+              "ru": "Показывать промежуточный текст",
+              "pt": "Mostrar resultados parciais",
+              "nl": "Tussentijdse resultaten tonen",
+              "fr": "Afficher les résultats partiels",
+              "it": "Mostra risultati parziali",
+              "es": "Mostrar resultados parciales",
+              "pl": "Pokaż wyniki częściowe",
+              "uk": "Показувати проміжний текст",
+              "zh-cn": "显示中间结果"
+            }
+          },
+          "showChat": {
+            "type": "checkbox",
+            "default": false,
+            "label": {
+              "en": "Show conversation",
+              "de": "Chatverlauf anzeigen",
+              "ru": "Показывать беседу",
+              "pt": "Mostrar conversa",
+              "nl": "Gesprek tonen",
+              "fr": "Afficher la conversation",
+              "it": "Mostra conversazione",
+              "es": "Mostrar conversación",
+              "pl": "Pokaż rozmowę",
+              "uk": "Показувати розмову",
+              "zh-cn": "显示对话"
+            }
+          },
+          "maxChatMessages": {
+            "type": "number",
+            "label": {
+              "en": "Chat messages to keep",
+              "de": "Nachrichten im Chat behalten",
+              "ru": "Хранить сообщений в чате",
+              "pt": "Mensagens a manter no chat",
+              "nl": "Chatberichten bewaren",
+              "fr": "Messages à conserver",
+              "it": "Messaggi da conservare",
+              "es": "Mensajes que conservar",
+              "pl": "Zachowaj wiadomości czatu",
+              "uk": "Зберігати повідомлень у чаті",
+              "zh-cn": "保留聊天消息数"
+            },
+            "default": 50,
+            "min": 1,
+            "max": 200
+          },
+          "compact": {
+            "type": "checkbox",
+            "default": false,
+            "label": {
+              "en": "Compact view",
+              "de": "Kompakte Darstellung",
+              "ru": "Компактный вид",
+              "pt": "Vista compacta",
+              "nl": "Compacte weergave",
+              "fr": "Vue compacte",
+              "it": "Vista compatta",
+              "es": "Vista compacta",
+              "pl": "Widok kompaktowy",
+              "uk": "Компактний вигляд",
+              "zh-cn": "紧凑视图"
+            }
+          },
+          "language": {
+            "type": "select",
+            "default": "auto",
+            "label": {
+              "en": "Interface language",
+              "de": "Sprache der Oberfläche",
+              "ru": "Язык интерфейса",
+              "pt": "Idioma da interface",
+              "nl": "Interfacetaal",
+              "fr": "Langue de l’interface",
+              "it": "Lingua dell’interfaccia",
+              "es": "Idioma de la interfaz",
+              "pl": "Język interfejsu",
+              "uk": "Мова інтерфейсу",
+              "zh-cn": "界面语言"
+            },
+            "options": [
+              {
+                "value": "auto",
+                "label": {
+                  "en": "Automatic",
+                  "de": "Automatisch",
+                  "ru": "Автоматически",
+                  "pt": "Automático",
+                  "nl": "Automatisch",
+                  "fr": "Automatique",
+                  "it": "Automatico",
+                  "es": "Automático",
+                  "pl": "Automatycznie",
+                  "uk": "Автоматично",
+                  "zh-cn": "自动"
+                }
+              },
+              {
+                "value": "en",
+                "label": "English"
+              },
+              {
+                "value": "de",
+                "label": "Deutsch"
+              },
+              {
+                "value": "ru",
+                "label": "Русский"
+              },
+              {
+                "value": "pt",
+                "label": "Português"
+              },
+              {
+                "value": "nl",
+                "label": "Nederlands"
+              },
+              {
+                "value": "fr",
+                "label": "Français"
+              },
+              {
+                "value": "it",
+                "label": "Italiano"
+              },
+              {
+                "value": "es",
+                "label": "Español"
+              },
+              {
+                "value": "pl",
+                "label": "Polski"
+              },
+              {
+                "value": "uk",
+                "label": "Українська"
+              },
+              {
+                "value": "zh-cn",
+                "label": "简体中文"
+              }
+            ]
+          },
+          "accentColor": {
+            "type": "color",
+            "default": "#2563eb",
+            "label": {
+              "en": "Accent color",
+              "de": "Akzentfarbe",
+              "ru": "Акцентный цвет",
+              "pt": "Cor de destaque",
+              "nl": "Accentkleur",
+              "fr": "Couleur d’accent",
+              "it": "Colore di accento",
+              "es": "Color de acento",
+              "pl": "Kolor akcentu",
+              "uk": "Колір акценту",
+              "zh-cn": "强调色"
+            }
+          }
+        }
+      },
+      "processing": {
+        "type": "panel",
+        "label": {
+          "en": "Text processing and output",
+          "de": "Textverarbeitung und Ausgabe",
+          "ru": "Обработка и вывод текста",
+          "pt": "Processamento e saída de texto",
+          "nl": "Tekstverwerking en uitvoer",
+          "fr": "Traitement et sortie du texte",
+          "it": "Elaborazione e uscita del testo",
+          "es": "Procesamiento y salida de texto",
+          "pl": "Przetwarzanie i wyjście tekstu",
+          "uk": "Обробка та виведення тексту",
+          "zh-cn": "文本处理与输出"
+        },
+        "items": {
+          "processorType": {
+            "type": "select",
+            "default": "none",
+            "label": {
+              "en": "Text processor",
+              "de": "Textverarbeitung",
+              "ru": "Обработчик текста",
+              "pt": "Processador de texto",
+              "nl": "Tekstverwerker",
+              "fr": "Processeur de texte",
+              "it": "Elaboratore di testo",
+              "es": "Procesador de texto",
+              "pl": "Procesor tekstu",
+              "uk": "Обробник тексту",
+              "zh-cn": "文本处理器"
+            },
+            "options": [
+              {
+                "value": "none",
+                "label": {
+                  "en": "None",
+                  "de": "Keine",
+                  "ru": "Нет",
+                  "pt": "Nenhum",
+                  "nl": "Geen",
+                  "fr": "Aucun",
+                  "it": "Nessuno",
+                  "es": "Ninguno",
+                  "pl": "Brak",
+                  "uk": "Немає",
+                  "zh-cn": "无"
+                }
+              },
+              {
+                "value": "smart-text2command",
+                "label": "smart-text2command"
+              }
+            ]
+          },
+          "processorInstance": {
+            "type": "instance",
+            "adapter": "smart-text2command",
+            "label": {
+              "en": "Processor instance",
+              "de": "Instanz für Textverarbeitung",
+              "ru": "Экземпляр обработчика",
+              "pt": "Instância do processador",
+              "nl": "Verwerkerinstantie",
+              "fr": "Instance du processeur",
+              "it": "Istanza dell’elaboratore",
+              "es": "Instancia del procesador",
+              "pl": "Instancja procesora",
+              "uk": "Екземпляр обробника",
+              "zh-cn": "处理器实例"
+            },
+            "hidden": "data.processorType !== 'smart-text2command'"
+          }
+        }
+      },
+      "speech": {
+        "type": "panel",
+        "label": {
+          "en": "Speech output",
+          "de": "Sprachausgabe",
+          "ru": "Синтез речи",
+          "pt": "Saída de voz",
+          "nl": "Spraakuitvoer",
+          "fr": "Synthèse vocale",
+          "it": "Sintesi vocale",
+          "es": "Salida de voz",
+          "pl": "Synteza mowy",
+          "uk": "Синтез мовлення",
+          "zh-cn": "语音输出"
+        },
+        "items": {
+          "speechEnabled": {
+            "type": "checkbox",
+            "default": false,
+            "label": {
+              "en": "Speak processor replies",
+              "de": "Antworten vorlesen",
+              "ru": "Озвучивать ответы",
+              "pt": "Ler respostas em voz alta",
+              "nl": "Antwoorden voorlezen",
+              "fr": "Lire les réponses à voix haute",
+              "it": "Leggi le risposte ad alta voce",
+              "es": "Leer respuestas en voz alta",
+              "pl": "Odczytuj odpowiedzi",
+              "uk": "Озвучувати відповіді",
+              "zh-cn": "朗读回复"
+            }
+          },
+          "speechEngine": {
+            "type": "select",
+            "default": "browser",
+            "label": {
+              "en": "Speech output",
+              "de": "Sprachausgabe",
+              "ru": "Синтез речи",
+              "pt": "Saída de voz",
+              "nl": "Spraakuitvoer",
+              "fr": "Synthèse vocale",
+              "it": "Sintesi vocale",
+              "es": "Salida de voz",
+              "pl": "Synteza mowy",
+              "uk": "Синтез мовлення",
+              "zh-cn": "语音输出"
+            },
+            "hidden": "!data.speechEnabled",
+            "options": [
+              {
+                "value": "browser",
+                "label": {
+                  "en": "Browser voice",
+                  "de": "Browserstimme",
+                  "ru": "Голос браузера",
+                  "pt": "Voz do navegador",
+                  "nl": "Browserstem",
+                  "fr": "Voix du navigateur",
+                  "it": "Voce del browser",
+                  "es": "Voz del navegador",
+                  "pl": "Głos przeglądarki",
+                  "uk": "Голос браузера",
+                  "zh-cn": "浏览器语音"
+                }
+              },
+              {
+                "value": "server",
+                "label": {
+                  "en": "Piper on adapter",
+                  "de": "Piper im Adapter",
+                  "ru": "Piper в адаптере",
+                  "pt": "Piper no adaptador",
+                  "nl": "Piper in adapter",
+                  "fr": "Piper sur l’adaptateur",
+                  "it": "Piper nell’adattatore",
+                  "es": "Piper en el adaptador",
+                  "pl": "Piper w adapterze",
+                  "uk": "Piper в адаптері",
+                  "zh-cn": "适配器上的 Piper"
+                }
+              }
+            ]
+          },
+          "speechServerVoice": {
+            "type": "selectSendTo",
+            "default": "",
+            "label": {
+              "en": "Piper voice",
+              "de": "Piper-Stimme",
+              "ru": "Голос Piper",
+              "pt": "Voz Piper",
+              "nl": "Piper-stem",
+              "fr": "Voix Piper",
+              "it": "Voce Piper",
+              "es": "Voz Piper",
+              "pl": "Głos Piper",
+              "uk": "Голос Piper",
+              "zh-cn": "Piper 语音"
+            },
+            "hidden": "!data.speechEnabled || data.speechEngine !== 'server'",
+            "command": "piperVoices",
+            "instance": "${data.parakeet}",
+            "data": {
+              "includeDefault": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

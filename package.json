@@ -51,6 +51,7 @@
     "url": "https://github.com/ioBroker/ioBroker.ai-parakeet/issues"
   },
   "main": "build/main.js",
+  "workspaces": ["src-webcomponents"],
   "files": [
     "admin/",
     "build/",
@@ -59,19 +60,25 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "check": "tsc --noEmit -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json && npm run build:webcomponents",
+    "build:webcomponents": "npm run build --prefix src-webcomponents",
+    "check": "tsc --noEmit -p tsconfig.json && npm run check --prefix src-webcomponents && tsc -p test/wakeword/tsconfig.json",
     "lint": "eslint -c eslint.config.mjs",
     "test:js": "mocha --config test/.mocharc.json \"test/unit/**/*.test.ts\"",
     "test:package": "mocha --config test/.mocharc.json test/package.test.ts",
     "test:integration": "mocha --config test/.mocharc.json test/integration.test.ts",
-    "test": "npm run test:js && npm run test:package",
+    "test:wakeword": "node --import tsx --test test/wakeword/*.test.mts",
+    "test": "npm run test:js && npm run test:package && npm run test:wakeword",
+    "prepublishOnly": "npm run build",
+    "dev:upload": "dev-server upload",
+    "dev:run": "dev-server run",
+    "dev:watch": "dev-server watch --noStart",
     "release": "release-script",
     "release-patch": "release-script patch --yes",
     "release-minor": "release-script minor --yes",
     "release-major": "release-script major --yes",
     "update-packages": "npx -y npm-check-updates --upgrade",
-    "npm": "npm i"
+    "npm": "npm i && cd src-webcomponents && npm i"
   },
   "readmeFilename": "README.md"
 }

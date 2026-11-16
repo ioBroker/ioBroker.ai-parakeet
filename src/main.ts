@@ -20,6 +20,7 @@ import { downloadFfmpegStatic, ffmpegStaticPath } from './lib/ffmpegStatic';
 import { translate, type TextId } from './lib/i18n';
 import { LiveSessions } from './lib/liveSessions';
 import { checkModel, downloadModel, MODEL, MODEL_SIZE, verifyModel } from './lib/modelFiles';
+import { CUSTOM_VOICE_NAME, PiperTts } from './lib/piperTts';
 import { directAdminHost, isSecureContextUrl, selectLanAddress } from './lib/network';
 import type { JobResult } from './lib/scheduler';
 import { adapterTimers } from './lib/timers';
@@ -29,6 +30,8 @@ import type { AiParakeetConfig } from './types';
 const DEFAULT_PORT = 9999;
 const MAX_FILE_BYTES = 64 * 1024 * 1024;
 const WILDCARD_ADDRESSES = ['', '0.0.0.0', '::'];
+const BUNDLED_WAKEWORDS = ['io_broker', 'hey_jarvis', 'alexa', 'hey_mycroft', 'hey_rhasspy'];
+const MAX_WAKEWORD_MODEL_BYTES = 10 * 1024 * 1024;
 
 type Status = 'starting' | 'downloading' | 'verifying' | 'loading' | 'ready' | 'idle' | 'error';
 
@@ -77,6 +80,7 @@ export class AiParakeetAdapter extends Adapter {
     private server: ApiServer | null = null;
     /** Live test of admin over sendTo; works without the server, e.g. while its port is used */
     private live: LiveSessions | null = null;
+    private piper: PiperTts | null = null;
     private abort = new AbortController();
 
     private systemLanguage = 'en';
@@ -126,6 +130,7 @@ export class AiParakeetAdapter extends Adapter {
             configuredDir && isAbsolute(configuredDir)
                 ? configuredDir
                 : join(getAbsoluteDefaultDataDir(), 'ai-parakeet', 'models');
+        this.piper = new PiperTts(this.instanceDataDir(), this.log, name => this.readUploadedPiperVoice(name));
         const maxAudioSeconds = Math.round(num(cfg.maxAudioSeconds, 300, 5, 3600));
 
         this.engine = new Engine({
@@ -526,8 +531,80 @@ export class AiParakeetAdapter extends Adapter {
         let response: unknown;
         try {
             switch (obj.command) {
+                case 'getWakewords':
+                    response = (await this.wakewordNames()).map(name => ({ value: name, label: name }));
+                    break;
+                case 'getWakewordConfig': {
+                    const available = await this.wakewordNames();
+                    const names = [
+                        this.config.wakewordModel,
+                        this.config.wakewordModel2,
+                        this.config.wakewordModel3,
+                    ].filter(name => name && available.includes(name));
+                    response = {
+                        names: names.length ? names : ['io_broker'],
+                        threshold: num(this.config.wakewordThreshold, 0.5, 0.01, 1),
+                    };
+                    break;
+                }
+                case 'getWakewordModel': {
+                    const name = (obj.message as { name?: unknown } | undefined)?.name;
+                    if (
+                        typeof name !== 'string' ||
+                        !/^[\w.-]+\.onnx$/i.test(name) ||
+                        !(await this.wakewordNames()).includes(name)
+                    ) {
+                        throw new Error('Unknown uploaded wake word model');
+                    }
+                    const file = await this.readFileAsync(this.namespace, `wakeWords/${name}`);
+                    const data = file && typeof file === 'object' && 'file' in file ? file.file : file;
+                    const bytes = Buffer.isBuffer(data) ? data : Buffer.from(data, 'binary');
+                    if (!bytes.length || bytes.length > MAX_WAKEWORD_MODEL_BYTES) {
+                        throw new Error('Invalid wake word model size');
+                    }
+                    response = { base64: bytes.toString('base64') };
+                    break;
+                }
                 case 'transcribe':
                     response = await this.transcribeMessage(obj.message);
+                    break;
+                case 'piperVoices':
+                    response = [
+                        ...((obj.message as { includeDefault?: boolean } | undefined)?.includeDefault
+                            ? [
+                                  {
+                                      value: '',
+                                      label: 'Adapter default',
+                                      description: 'Use the voice configured in the adapter',
+                                  },
+                              ]
+                            : []),
+                        ...(this.piper?.listVoices() || []),
+                        ...(await this.uploadedPiperVoiceNames()).map(name => ({
+                            value: `custom:${name}`,
+                            label: `Uploaded: ${name}`,
+                            description: 'User-supplied model; verify its license and Piper compatibility',
+                            language: '',
+                            license: 'user supplied',
+                            standard: false,
+                            installed: true,
+                        })),
+                    ];
+                    break;
+                case 'downloadPiperVoice': {
+                    const id = (obj.message as { voice?: unknown } | undefined)?.voice;
+                    if (typeof id !== 'string' || !this.piper) {
+                        throw new Error('Unknown Piper voice');
+                    }
+                    await this.piper.downloadVoice(id);
+                    response = { result: `Piper voice ${id} is ready` };
+                    break;
+                }
+                case 'synthesize':
+                    if (!this.piper) {
+                        throw new Error('Piper is not ready');
+                    }
+                    response = await this.piper.synthesize(obj.message, this.config.ttsVoice || 'de_DE-thorsten-low');
                     break;
                 case 'status':
                     // message = { href } with the address of admin in the browser (admin with `_href`)
@@ -574,6 +651,49 @@ export class AiParakeetAdapter extends Adapter {
             response = { error: e.message };
         }
         this.sendTo(obj.from, obj.command, response as ioBroker.MessagePayload, obj.callback);
+    }
+
+    private async wakewordNames(): Promise<string[]> {
+        try {
+            const files = await this.readDirAsync(this.namespace, 'wakeWords/');
+            const uploaded = files
+                .filter(file => !file.isDir)
+                .map(file => file.file.split('/').pop() || '')
+                .filter(name => /^[\w.-]+\.onnx$/i.test(name));
+            return [...BUNDLED_WAKEWORDS, ...uploaded];
+        } catch {
+            return [...BUNDLED_WAKEWORDS];
+        }
+    }
+
+    private async uploadedPiperVoiceNames(): Promise<string[]> {
+        try {
+            const files = await this.readDirAsync(this.namespace, 'ttsVoices/');
+            const names = new Set(files.filter(file => !file.isDir).map(file => file.file.split('/').pop() || ''));
+            return [...names]
+                .filter(
+                    file =>
+                        file.endsWith('.onnx') &&
+                        CUSTOM_VOICE_NAME.test(file.slice(0, -5)) &&
+                        names.has(`${file}.json`),
+                )
+                .map(file => file.slice(0, -5))
+                .sort();
+        } catch {
+            return [];
+        }
+    }
+
+    private async readUploadedPiperVoice(name: string): Promise<{ model: Buffer; config: Buffer }> {
+        if (!CUSTOM_VOICE_NAME.test(name) || !(await this.uploadedPiperVoiceNames()).includes(name)) {
+            throw new Error('Unknown uploaded Piper voice');
+        }
+        const read = async (fileName: string): Promise<Buffer> => {
+            const file = await this.readFileAsync(this.namespace, `ttsVoices/${fileName}`);
+            const data = file && typeof file === 'object' && 'file' in file ? file.file : file;
+            return Buffer.isBuffer(data) ? data : Buffer.from(data, fileName.endsWith('.json') ? 'utf8' : 'binary');
+        };
+        return { model: await read(`${name}.onnx`), config: await read(`${name}.onnx.json`) };
     }
 
     // ---------------------------------------------------------------- ffmpeg
@@ -659,6 +779,7 @@ export class AiParakeetAdapter extends Adapter {
     private async onUnload(callback: () => void): Promise<void> {
         try {
             this.abort.abort();
+            this.piper?.close();
             this.live?.closeAll();
             this.transcriber?.scheduler.cancelAll(new Error('The adapter stops'));
             await this.server?.stop();

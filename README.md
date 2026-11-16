@@ -21,7 +21,7 @@ Local, offline speech recognition for ioBroker with [NVIDIA Parakeet TDT 0.6B v3
 The model is INT8 quantized (about 670 MB) and needs about **1.1 GB of memory**. Measured times for a command of 3 to 6 seconds:
 
 | Host                                        | CPU threads | Computing time | Real-time factor  |
-|---------------------------------------------|-------------|----------------|-------------------|
+| ------------------------------------------- | ----------- | -------------- | ----------------- |
 | Raspberry Pi 5 (8 GB), with Frigate running | 3           | 0.5 - 1.1 s    | about 0.2         |
 | Intel Core i9-14900HX                       | 4           | 0.1 - 0.3 s    | about 0.03 - 0.05 |
 
@@ -96,7 +96,12 @@ sendTo('ai-parakeet.0', 'transcribe', { file: '/opt/iobroker/voice.ogg' }, resul
 });
 
 // an audio file as Buffer or base64 text
-sendTo('ai-parakeet.0', 'transcribe', { audio: fs.readFileSync('/tmp/a.wav'), prompt: 'ioBroker, Wohnzimmer' }, console.log);
+sendTo(
+    'ai-parakeet.0',
+    'transcribe',
+    { audio: fs.readFileSync('/tmp/a.wav'), prompt: 'ioBroker, Wohnzimmer' },
+    console.log,
+);
 
 // raw 16-bit mono PCM
 sendTo('ai-parakeet.0', 'transcribe', { pcm: buffer, sampleRate: 16000 }, console.log);
@@ -115,10 +120,10 @@ The tab is a web component of [`@iobroker/web-components`](https://github.com/io
 The live test sends 16-bit audio in messages of about 0.2 s (about 32 KB/s) and gets the new results with every answer:
 
 ```js
-sendTo('ai-parakeet.0', 'live', { action: 'start' });                   // → { id, sampleRate, corrections }
-sendTo('ai-parakeet.0', 'live', { action: 'audio', id, seq: 1, pcm });  // pcm: 16 kHz mono 16-bit LE as base64 → { events }
-sendTo('ai-parakeet.0', 'live', { action: 'stop', id, seq: 2 });        // → { events }
-sendTo('ai-parakeet.0', 'live', { action: 'poll', id });                // → { events }, until an event "done" or "error"
+sendTo('ai-parakeet.0', 'live', { action: 'start' }); // → { id, sampleRate, corrections }
+sendTo('ai-parakeet.0', 'live', { action: 'audio', id, seq: 1, pcm }); // pcm: 16 kHz mono 16-bit LE as base64 → { events }
+sendTo('ai-parakeet.0', 'live', { action: 'stop', id, seq: 2 }); // → { events }
+sendTo('ai-parakeet.0', 'live', { action: 'poll', id }); // → { events }, until an event "done" or "error"
 ```
 
 A session without a message for 15 s is dropped.
@@ -137,31 +142,31 @@ Words that the model regularly recognizes wrongly can be replaced. Each row has 
 
 ## Settings
 
-| Setting | Default | Meaning |
-|---|---|---|
-| IP address, port | 0.0.0.0, 9999 | Address of the server. 0.0.0.0 makes it reachable from the whole network |
-| API key | empty | Clients must send it as `Authorization: Bearer <key>`. Recommended if the network is not trusted |
-| HTTPS | off | Needed for the microphone of the test page on other computers |
-| Model directory | `iobroker-data/ai-parakeet/models` | E.g. a directory on an SSD. It is not part of the ioBroker backup |
-| CPU threads | 0 (automatic) | Cores - 1, at most 4. On a busy host fewer threads can be faster |
-| Unload after idle minutes | 0 | Frees the memory when the model is not used. Loading it again takes a few seconds |
-| Check free memory | on | Does not load the model with less than 1.1 GB of free memory |
-| Maximal audio length | 300 s | |
-| Path of ffmpeg | empty | For other formats than WAV. Empty: the downloaded ffmpeg, else `ffmpeg` from the search path. Buttons **Check ffmpeg** and **Download ffmpeg** |
+| Setting                   | Default                            | Meaning                                                                                                                                        |
+| ------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| IP address, port          | 0.0.0.0, 9999                      | Address of the server. 0.0.0.0 makes it reachable from the whole network                                                                       |
+| API key                   | empty                              | Clients must send it as `Authorization: Bearer <key>`. Recommended if the network is not trusted                                               |
+| HTTPS                     | off                                | Needed for the microphone of the test page on other computers                                                                                  |
+| Model directory           | `iobroker-data/ai-parakeet/models` | E.g. a directory on an SSD. It is not part of the ioBroker backup                                                                              |
+| CPU threads               | 0 (automatic)                      | Cores - 1, at most 4. On a busy host fewer threads can be faster                                                                               |
+| Unload after idle minutes | 0                                  | Frees the memory when the model is not used. Loading it again takes a few seconds                                                              |
+| Check free memory         | on                                 | Does not load the model with less than 1.1 GB of free memory                                                                                   |
+| Maximal audio length      | 300 s                              |                                                                                                                                                |
+| Path of ffmpeg            | empty                              | For other formats than WAV. Empty: the downloaded ffmpeg, else `ffmpeg` from the search path. Buttons **Check ffmpeg** and **Download ffmpeg** |
 
 ## States
 
-| State | Meaning |
-|---|---|
-| `info.connection` | The speech recognition can be used |
-| `info.status` | `starting`, `downloading`, `verifying`, `loading`, `ready`, `idle` (unloaded) or `error` |
-| `info.lastError` | Last error |
-| `info.modelProgress` | Progress of the download in % |
-| `info.endpoint` | Address of the API |
-| `stats.lastText` | Last recognized text (can be disabled) |
-| `stats.lastAudioSeconds`, `stats.lastInferenceMs`, `stats.lastRtf` | Length, computing time and real-time factor of the last recognition |
-| `stats.requests` | Number of recognitions |
-| `stats.queue` | Waiting requests |
+| State                                                              | Meaning                                                                                  |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| `info.connection`                                                  | The speech recognition can be used                                                       |
+| `info.status`                                                      | `starting`, `downloading`, `verifying`, `loading`, `ready`, `idle` (unloaded) or `error` |
+| `info.lastError`                                                   | Last error                                                                               |
+| `info.modelProgress`                                               | Progress of the download in %                                                            |
+| `info.endpoint`                                                    | Address of the API                                                                       |
+| `stats.lastText`                                                   | Last recognized text (can be disabled)                                                   |
+| `stats.lastAudioSeconds`, `stats.lastInferenceMs`, `stats.lastRtf` | Length, computing time and real-time factor of the last recognition                      |
+| `stats.requests`                                                   | Number of recognitions                                                                   |
+| `stats.queue`                                                      | Waiting requests                                                                         |
 
 ## How it works
 
@@ -176,14 +181,76 @@ The adapter is licensed under the MIT license. The model [nvidia/parakeet-tdt-0.
     ### **WORK IN PROGRESS**
 -->
 
+## VIS-2 wake word widget
+
+This adapter also provides the `<iob-wakeword>` Web Component for VIS-2. Build it with `npm ci` and `npm run build`; npm installs the Web Component dependencies through the workspace, and the component and its local model assets are then available under `admin/webcomponents/`. Add **Wake word microphone** to a VIS-2 view and select the `ai-parakeet` instance. No second adapter or instance is needed. The microphone button enables or disables listening. The widget setting **Start microphone when loaded** controls automatic activation in runtime; the VIS editor never starts capture.
+
+The VIS-2 editor groups the widget settings into named tabs: **Common**, **Microphone and recognition**, **Display and chat**, **Text processing and output**, and **Speech output**. Editor labels and runtime text share translations for all eleven ioBroker languages. The two feedback sounds are enabled by default; saved `false` values remain off.
+
+The widget supports wake word, push to talk and combined modes. Before activation, microphone audio remains in browser memory. Once activated, 16 kHz mono PCM is sent through the adapter's existing `live` message protocol. It uses a local AudioWorklet, a configurable one-second ring buffer by default, and local energy-based voice activity detection. The widget can show intermediate and final transcripts and optionally send final text to a selected `smart-text2command` instance.
+
+VIS-2 widget CSS controls the outer background, border, shadow and padding. Text styles such as color, font size, font family, weight and alignment inherit into the Web Component. Project CSS can style shadow content through `iob-wakeword::part(content)`, `::part(microphone)`, `::part(status)`, `::part(meter)` and `::part(transcript)`. For example: `#w00001 iob-wakeword::part(microphone) { border: 2px solid red; }`.
+
+For command processing, choose **Text processor: smart-text2command** and one of its installed instances in the widget settings. The list is an ioBroker `instance` field filtered to `smart-text2command`; no other adapter is offered. Each final transcript is sent to `processText` in `execute` mode with a new request ID and a stable session ID. A clarification ID from a reply is sent with the next spoken answer. **Show conversation** displays final transcripts and the adapter's `response`, including clarification and error replies. The number of messages kept in browser memory is configurable; the conversation is not saved or transmitted elsewhere. The processor integration is isolated in `src-webcomponents/src/processors.ts` so further adapter protocols can be added later.
+
+**Speak processor replies** is off by default. Select **Browser voice** or **Piper on adapter** in the widget settings. For browser speech, a gear icon in the running visualization opens the voice menu. It lists that browser's voices with `(local)` or `(remote)` labels. **Automatic (local)** is the default; choosing another browser voice is stored per widget and browser. The VIS-2 editor does not show the gear or start microphone capture. A remote browser voice may send reply text to its provider for synthesis. For Piper, the adapter's configured default voice or a widget override is used. The Piper choices are loaded from the adapter with `selectSendTo`; VIS-2 with `@iobroker/web-components` 0.8 support shows a dropdown, while older hosts fall back to a text field. Speech pauses wake word detection until playback ends; disabling the microphone stops the widget's speech output. Browser autoplay rules may require an initial click before speech can play.
+
+## Local Piper speech server
+
+The adapter exposes a generic `sendTo` API for local speech synthesis. It does not send audio to another adapter itself. The caller can decode the base64 WAV and play it, store it, or hand it to another service. Synthesis uses a Piper command line runtime on the ioBroker host and does not require Python. The first request downloads a checksum-pinned Piper runtime and the selected voice into the adapter data directory. After that, synthesis works without Internet access. The host needs `tar` for the one-time runtime extraction. Windows x64, Linux x64/arm64/armv7, and macOS x64/arm64 have pinned runtime archives; other platforms currently return an explicit error.
+
+The **Speech synthesis (Piper)** adapter tab is the last tab. It offers three standard voices: German Thorsten, German Kerstin, and English Kristin. French Siwis and Spanish CarlFM are additional catalog voices; select one and click **Download selected voice** to fetch it in advance. The selected default voice is also downloaded automatically on first synthesis. All five catalog models are pinned to a tested repository revision and checked with SHA-256. To use another Piper voice, upload a matching `name.onnx` and `name.onnx.json` through **Upload custom Piper voice files**. Both files must use the same base name (letters, digits, dots, underscores or hyphens, starting with a letter or digit); the JSON must contain an eSpeak voice, phoneme mapping and a sample rate from 8 to 48 kHz. Models are limited to 150 MiB and JSON files to 256 KiB. Uploads appear as `custom:name` in `piperVoices` and can be selected in the adapter or widget. Compatibility with the bundled Piper runtime is checked by synthesis; the user is responsible for the model's license.
+
+```javascript
+sendTo(
+    'ai-parakeet.0',
+    'synthesize',
+    {
+        text: 'Hallo ioBroker',
+        voice: 'de_DE-thorsten-low', // optional; otherwise the configured default
+        lengthScale: 1, // optional, 0.5 to 2
+        noiseScale: 0.667, // optional, 0 to 2
+        noiseW: 0.8, // optional, 0 to 2
+        speaker: 0, // optional, for multi-speaker voices
+        format: 'wav',
+    },
+    response => {
+        if (response.error) throw new Error(response.error);
+        // response.audio: base64 WAV; response.mimeType: 'audio/wav'
+        // Also includes format, filename, sampleRate, channels, durationMs and voice.
+        const wav = Buffer.from(response.audio, 'base64');
+        // The caller decides what to do with wav.
+    },
+);
+```
+
+`sendTo('ai-parakeet.0', 'piperVoices', {}, callback)` lists the catalog with `value`, `label`, `description`, `language`, `license`, `standard`, and `installed`. Here `license` names the source dataset license from the model card. `sendTo('ai-parakeet.0', 'downloadPiperVoice', {voice: 'fr_FR-siwis-low'}, callback)` downloads a catalog voice. A request is limited to 1,000 text characters; at most eight synthesis requests may be queued, and a response is limited to 8 MiB of WAV data. The synthesize command returns `{error: string}` on failure through the usual adapter callback. Piper writes a temporary WAV file in the adapter data directory during synthesis; the adapter removes it after the response or an error.
+
+The Piper runtime is downloaded from the [Piper 2023.11.14-2 release](https://github.com/rhasspy/piper/releases/tag/2023.11.14-2). Voice files come from the pinned [Piper voices repository](https://huggingface.co/rhasspy/piper-voices/tree/e9ab671f2a0e50a701b34361136ba3e6a3a9eb0c). The source dataset licenses in the model cards are [Thorsten: CC0](https://huggingface.co/rhasspy/piper-voices/blob/main/de/de_DE/thorsten/low/MODEL_CARD), [Kerstin: CC0](https://huggingface.co/rhasspy/piper-voices/blob/main/de/de_DE/kerstin/low/MODEL_CARD), [Kristin: public domain](https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/kristin/medium/MODEL_CARD), [Siwis: CC BY 4.0](https://huggingface.co/rhasspy/piper-voices/blob/main/fr/fr_FR/siwis/low/MODEL_CARD), and [CarlFM: public domain](https://huggingface.co/rhasspy/piper-voices/blob/main/es/es_ES/carlfm/x_low/MODEL_CARD). These are dataset statements, not blanket licenses for the model or runtime. The runtime includes third-party components such as eSpeak NG with their own licenses; the adapter's MIT license does not replace those terms. Check the individual model card before redistributing a downloaded voice.
+
+The adapter's **Wake word widget** configuration tab selects up to three local ONNX classifiers and their threshold. `io_broker` is the default; `hey_jarvis`, `alexa`, `hey_mycroft`, and `hey_rhasspy` are bundled. Custom `.onnx` classifiers can be uploaded there. They must accept `[1,16,96]` float32 embeddings and emit a score; changing the model label does not train another wake word. The bundled feature and additional wake word models have separate licenses documented in [model provenance](admin/webcomponents/models/SOURCES.md). The OpenWakeWord release assets are CC BY-NC-SA 4.0, which limits commercial distribution or use without separate rights.
+
+Additional ONNX wake words can be downloaded from <https://openwakeword.com/library> after registration.
+
+Microphone access requires HTTPS or localhost and browser permission. Automatic start may still require a user click under browser audio policies. Background tabs, screen lock, and mobile power management can pause capture. Configure the widget only on a view that stays mounted if continuous listening across VIS pages is required. Run `npm run check`, `npm run lint`, `npm test`, and `npm run build` for verification. `npm run test:wakeword` includes a local ONNX/WASM inference smoke test. Live accuracy and tablet behavior require testing with the target microphone and VIS-2 installation.
+
 ## Changelog
+
 <!--
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+
 ### **WORK IN PROGRESS**
 
-* (GermanBluefox) Removed the prepublishOnly script and added CHANGELOG_OLD.md and the dependabot automerge workflow (#5)
+- A "wakeword" widget has been added as a web component capable of communicating with "smart-text2command." It is designed to be extensible for communication with the assistant adapter or other adapters.
+- An ioBroker "wakeword" function with improved detection performance has been integrated.
+- A chat display has been added.
+- Speech synthesis for audio output via the browser has been implemented.
+- An option to select the voice used for speech synthesis has been added.
+- "Piper TTS" has been integrated on the server side; audio data can be requested using the "sendTo" command.
+- Speech synthesis options (browser/server) have been added for clients that do not support native speech synthesis.
+- (GermanBluefox) Removed the prepublishOnly script and added CHANGELOG_OLD.md and the dependabot automerge workflow (#5)
 
 ### 0.1.4 (2026-11-09)
 

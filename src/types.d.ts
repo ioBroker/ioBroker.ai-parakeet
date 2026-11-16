@@ -7,6 +7,13 @@ export interface CorrectionRow {
 }
 
 export interface AiParakeetConfig {
+    /** Default Piper voice for local text-to-speech */
+    ttsVoice: string;
+    wakewordModel: string;
+    wakewordModel2: string;
+    wakewordModel3: string;
+    wakewordThreshold: number | string;
+    wakewordUpload: string;
     /** IP address to listen on. "0.0.0.0" is all addresses */
     bind: string;
     port: number | string;

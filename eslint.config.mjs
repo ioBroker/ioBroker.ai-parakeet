@@ -14,7 +14,16 @@ export default [
     },
     {
         // public/ is the browser test page (AudioWorklet globals), served as it is
-        ignores: ['admin/**/*', 'public/**/*', 'node_modules/**/*', 'test/**/*', 'build/**/*', 'tmp/**/*', '.**/*'],
+        ignores: [
+            'admin/**/*',
+            'public/**/*',
+            'src-webcomponents/**/*',
+            'node_modules/**/*',
+            'test/**/*',
+            'build/**/*',
+            'tmp/**/*',
+            '.**/*',
+        ],
     },
     {
         rules: {
