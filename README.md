@@ -240,8 +240,7 @@ Microphone access requires HTTPS or localhost and browser permission. Automatic 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 0.1.5 (2026-11-16)
 
 - A "wakeword" widget has been added as a web component capable of communicating with "smart-text2command." It is designed to be extensible for communication with the assistant adapter or other adapters.
 - An ioBroker "wakeword" function with improved detection performance has been integrated.
