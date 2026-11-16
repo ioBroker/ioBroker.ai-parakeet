@@ -330,28 +330,70 @@
                 "_wakewordInfo": {
                     "type": "staticText",
                     "text": "Configure local wake word recognition for the VIS-2 web component. The microphone is controlled in the widget.",
-                    "xs": 12
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
                 },
                 "wakewordModel": {
-                    "type": "autocompleteSendTo", "label": "Wake word model", "command": "getWakewords",
-                    "default": "io_broker", "xs": 12, "sm": 6
+                    "type": "autocompleteSendTo",
+                    "label": "Wake word model",
+                    "command": "getWakewords",
+                    "default": "io_broker",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 4,
+                    "lg": 3,
+                    "xl": 3
                 },
                 "wakewordModel2": {
-                    "type": "autocompleteSendTo", "label": "Second wake word", "command": "getWakewords",
-                    "xs": 12, "sm": 6
+                    "type": "autocompleteSendTo",
+                    "label": "Second wake word",
+                    "command": "getWakewords",
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 4,
+                    "lg": 3,
+                    "xl": 3
                 },
                 "wakewordModel3": {
-                    "type": "autocompleteSendTo", "label": "Third wake word", "command": "getWakewords",
-                    "xs": 12, "sm": 6
+                    "type": "autocompleteSendTo",
+                    "label": "Third wake word",
+                    "command": "getWakewords",
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 4,
+                    "lg": 3,
+                    "xl": 3
                 },
                 "wakewordThreshold": {
-                    "type": "number", "label": "Detection threshold", "min": 0.01, "max": 1,
-                    "default": 0.5, "xs": 12, "sm": 6
+                    "type": "number",
+                    "label": "Detection threshold",
+                    "min": 0.01,
+                    "max": 1,
+                    "default": 0.5,
+                    "xs": 12,
+                    "sm": 6,
+                    "md": 4,
+                    "lg": 3,
+                    "xl": 3
                 },
                 "wakewordUpload": {
-                    "type": "fileSelector", "objectID": "voice.%INSTANCE%",
-                    "pattern": "wakeWords/*.onnx", "upload": "wakeWords/", "maxSize": 10485760,
-                    "delete": true, "label": "Upload ONNX wake word model", "xs": 12
+                    "type": "fileSelector",
+                    "objectID": "voice.%INSTANCE%",
+                    "pattern": "wakeWords/*.onnx",
+                    "upload": "wakeWords/",
+                    "maxSize": 10485760,
+                    "delete": true,
+                    "label": "Upload ONNX wake word model",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
                 }
             }
         },
@@ -471,7 +513,11 @@
                 "_ttsInfo": {
                     "type": "staticText",
                     "text": "Piper runs locally without Python. Standard voices are listed here; the runtime and a voice are downloaded automatically on first synthesis. Select another voice and download it in advance if desired.",
-                    "xs": 12
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
                 },
                 "ttsVoice": {
                     "type": "selectSendTo",
@@ -502,7 +548,11 @@
                     "type": "staticText",
                     "text": "Upload two matching files for each custom voice: name.onnx and name.onnx.json. Use a Piper voice model compatible with Piper 2023.11.14-2, with an eSpeak voice and sample rate from 8 to 48 kHz. Model limit: 150 MiB; JSON config limit: 256 KiB. Check the voice license yourself. An incompatible model is rejected during synthesis.",
                     "newLine": true,
-                    "xs": 12
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
                 },
                 "ttsVoiceUpload": {
                     "type": "fileSelector",
@@ -512,7 +562,11 @@
                     "maxSize": 157286400,
                     "delete": true,
                     "label": "Upload custom Piper voice files",
-                    "xs": 12
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 12,
+                    "lg": 12,
+                    "xl": 12
                 }
             }
         }

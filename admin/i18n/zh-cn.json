@@ -51,5 +51,18 @@
   "The audio goes through the connection of admin: no HTTPS of the server and no API key needed. Admin itself must be opened over HTTPS or on localhost.": "音频通过 admin 的连接传输：服务器无需 HTTPS，也无需 API 密钥。admin 本身必须通过 HTTPS 或在 localhost 上打开。",
   "Live recognition": "实时识别",
   "Test page in the browser": "浏览器中的测试页面",
-  "Test page and admin together": "测试页面和 admin 合计"
+  "Test page and admin together": "测试页面和 admin 合计",
+  "Wake word widget": "唤醒词小部件",
+  "Configure local wake word recognition for the VIS-2 web component. The microphone is controlled in the widget.": "为 VIS-2 Web 组件配置本地唤醒词识别。麦克风在小部件中控制。",
+  "Wake word model": "唤醒词模型",
+  "Second wake word": "第二个唤醒词",
+  "Third wake word": "第三个唤醒词",
+  "Detection threshold": "检测阈值",
+  "Upload ONNX wake word model": "上传 ONNX 唤醒词模型",
+  "Speech synthesis (Piper)": "语音合成 (Piper)",
+  "Piper runs locally without Python. Standard voices are listed here; the runtime and a voice are downloaded automatically on first synthesis. Select another voice and download it in advance if desired.": "Piper 在本地运行，无需 Python。此处列出了标准语音；首次合成时会自动下载运行时和一个语音。如有需要，可选择其他语音并提前下载。",
+  "Default Piper voice": "默认 Piper 语音",
+  "Download selected voice": "下载所选语音",
+  "Upload two matching files for each custom voice: name.onnx and name.onnx.json. Use a Piper voice model compatible with Piper 2023.11.14-2, with an eSpeak voice and sample rate from 8 to 48 kHz. Model limit: 150 MiB; JSON config limit: 256 KiB. Check the voice license yourself. An incompatible model is rejected during synthesis.": "为每个自定义语音上传两个匹配的文件：name.onnx 和 name.onnx.json。请使用与 Piper 2023.11.14-2 兼容的 Piper 语音模型，包含 eSpeak 语音，采样率为 8 至 48 kHz。模型上限：150 MiB；JSON 配置上限：256 KiB。请自行检查语音的许可证。不兼容的模型会在合成时被拒绝。",
+  "Upload custom Piper voice files": "上传自定义 Piper 语音文件"
 }

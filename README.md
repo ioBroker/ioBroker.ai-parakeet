@@ -262,6 +262,10 @@ Microphone access requires HTTPS or localhost and browser permission. Automatic 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
+* (GermanBluefox) Fixed the findings of the repository checker: responsive sizes in the admin, missing translations, Dependabot auto-merge workflow and old news entries (#7)
+
 ### 0.1.7 (2026-11-16)
 
 - (@GermanBluefox) **Renamed from ai-parakeet to voice.** A new instance takes over the settings, the downloaded model, the Piper files and the uploads of `ai-parakeet.<n>` with the same number, see [Moving from ai-parakeet](#moving-from-ai-parakeet)

@@ -1,6 +1,7 @@
 node_modules
 .idea
-.vscode
+.vscode/*
+!.vscode/settings.json
 tmp
 .DS_Store
 build
@@ -11,7 +12,6 @@ build
 
 #ignore .commitinfo created by ioBroker release script
 .commitinfo
-admin/webcomponents/wakeword.json
 models/20261113-070425-e2d7-microwakeword-iobroker.json
 models/20261113-070425-e2d7-microwakeword-iobroker.tflite
 models/20261113-093517-149a-openwakeword-iobroker.onnx

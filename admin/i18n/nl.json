@@ -51,5 +51,18 @@
   "The audio goes through the connection of admin: no HTTPS of the server and no API key needed. Admin itself must be opened over HTTPS or on localhost.": "De audio gaat via de verbinding van admin: geen HTTPS van de server en geen API-sleutel nodig. Admin zelf moet via HTTPS of op localhost geopend zijn.",
   "Live recognition": "Live-herkenning",
   "Test page in the browser": "Testpagina in de browser",
-  "Test page and admin together": "Testpagina en admin samen"
+  "Test page and admin together": "Testpagina en admin samen",
+  "Wake word widget": "Activeringswoord-widget",
+  "Configure local wake word recognition for the VIS-2 web component. The microphone is controlled in the widget.": "Lokale herkenning van het activeringswoord voor de VIS-2-webcomponent instellen. De microfoon wordt in de widget bediend.",
+  "Wake word model": "Activeringswoordmodel",
+  "Second wake word": "Tweede activeringswoord",
+  "Third wake word": "Derde activeringswoord",
+  "Detection threshold": "Detectiedrempel",
+  "Upload ONNX wake word model": "ONNX-model voor activeringswoord uploaden",
+  "Speech synthesis (Piper)": "Spraaksynthese (Piper)",
+  "Piper runs locally without Python. Standard voices are listed here; the runtime and a voice are downloaded automatically on first synthesis. Select another voice and download it in advance if desired.": "Piper draait lokaal zonder Python. Standaardstemmen staan hier vermeld; de runtime en een stem worden bij de eerste synthese automatisch gedownload. Kies desgewenst een andere stem en download deze vooraf.",
+  "Default Piper voice": "Standaard Piper-stem",
+  "Download selected voice": "Geselecteerde stem downloaden",
+  "Upload two matching files for each custom voice: name.onnx and name.onnx.json. Use a Piper voice model compatible with Piper 2023.11.14-2, with an eSpeak voice and sample rate from 8 to 48 kHz. Model limit: 150 MiB; JSON config limit: 256 KiB. Check the voice license yourself. An incompatible model is rejected during synthesis.": "Upload voor elke eigen stem twee bijbehorende bestanden: name.onnx en name.onnx.json. Gebruik een Piper-stemmodel dat compatibel is met Piper 2023.11.14-2, met een eSpeak-stem en een samplefrequentie van 8 tot 48 kHz. Limiet model: 150 MiB; limiet JSON-configuratie: 256 KiB. Controleer zelf de licentie van de stem. Een incompatibel model wordt bij de synthese geweigerd.",
+  "Upload custom Piper voice files": "Eigen Piper-stembestanden uploaden"
 }
