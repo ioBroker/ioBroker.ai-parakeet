@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "ai-parakeet",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "news": {
+      "0.1.6": {
+        "en": "The wake word widget can send recognized text to ioBroker.assistant (`ask`) as an alternative to smart-text2command\nRemoved the npm workspace, so the release script works again",
+        "de": "Das Wake-Word-Widget kann erkannten Text als Alternative zu smart-text2command an ioBroker.Assistant (`ask`) senden\nNPM-Workspace entfernt, das Release-Script läuft wieder",
+        "ru": "Виджет wake Word может отправлять распознанный текст в IOBroker.assistant (`ask`) в качестве альтернативы smart-text2command\nУдалено рабочее пространство npm, поэтому сценарий выпуска снова работает",
+        "pt": "O widget wake word pode enviar texto reconhecido para IOBroker.assistant (`ask`) em vez de smart-text2command\nRemovido o npm workspace e o script de lançamento volta",
+        "nl": "De wake-word-widget kan herkende tekst naar IOBroker.Assistant (`ask`) sturen als alternatief voor smart-text2command\nDe npm-werkruimte is verwijderd, dus het releasescript werkt weer",
+        "fr": "Le widget Wake Word peut envoyer du texte reconnu à IOBroker.assistant (`ask`) au lieu de smart-text2command\nL'espace de travail npm a été supprimé pour que le script redémarre",
+        "it": "Il widget Wake Word può inviare testo riconosciuto a IOBroker.Assistant (`ask`) invece di smart-text2command\nRimosso il workspace npm, lo script di rilascio funziona",
+        "es": "El widget wake word puede enviar texto reconocido a IOBroker.Assistant (`ask`) como alternativa a smart-text2command\nSe quitó el espacio de trabajo de npm para que el guion vuelva a funcionar",
+        "pl": "Widżet typu wake word może wysyłać rozpoznany tekst do IOBroker.Assistant (`ask`) jako alternatywa dla smart-text2command\nUsunięto obszar roboczy npm, więc skrypt wydania działa ponownie",
+        "uk": "Віджет слова пробудження може надсилати розпізнаний текст на IObroker.assistant (`ask`) як альтернативу smart-text2command\nВилучено робочу область npm, тому сценарій випуску знову працює",
+        "zh-cn": "作为 smart-text2command 的替代方案，Wake Word 控件可以向 iobroker.Assistant (`ask`) 发送识别出的文本\n移除了 npm 工作区，因此发布脚本可以再次运行"
+      },
       "0.1.5": {
         "en": "A \"wakeword\" widget has been added as a web component capable of communicating with \"smart-text2command.\" It is designed to be extensible for communication with the assistant adapter or other adapters.\nAn ioBroker \"wakeword\" function with improved detection performance has been integrated.\nA chat display has been added.\nSpeech synthesis for audio output via the browser has been implemented.\nAn option to select the voice used for speech synthesis has been added.\n\"Piper TTS\" has been integrated on the server side; audio data can be requested using the \"sendTo\" command.\nSpeech synthesis options (browser/server) have been added for clients that do not support native speech synthesis.\nRemoved the prepublishOnly script and added CHANGELOG_OLD.md and the dependabot automerge workflow (#5)",
         "de": "Ein „Wakeword“ -Widget wurde als Webkomponente mit „smart-text2command“ hinzugefügt. Es ist erweiterbar für die Kommunikation mit dem Assistent-Adapter oder anderen Adaptern.\nEine ioBroker-Wakeword-Funktion mit verbesserter Erkennungsleistung wurde integriert.\nNeues Chat-Display.\nSprachsynthese für Audioausgabe im Browser wurde eingebaut.\nEine Option zur Wahl der Sprachsynthese wurde hinzugefügt.\n„Piper TTS“ wurde serverseitig integriert; Audiodaten können mit „SendTo“ abgerufen werden.\nSprachsyntheseoptionen (Browser/Server) wurden für Kunden hinzugefügt, die keine Sprachsynthese unterstützen.\nPrePublishOnly-Skript entfernt und Changelog_OLD.md und Dependabot Automerge hinzugefügt (#5)",
