@@ -1,4 +1,8 @@
 # Older changes
+## 0.1.3 (2026-11-05)
+
+- (@GermanBluefox) Updated packages
+
 ## 0.1.2 (2026-11-05)
 
 - (@GermanBluefox) Published via npm trusted publishing

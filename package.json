@@ -1,6 +1,6 @@
 {
   "name": "iobroker.voice",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Local, offline voice for ioBroker: speech recognition with NVIDIA Parakeet TDT 0.6B v3 on the CPU with an OpenAI-compatible API, speech synthesis with Piper and a wake word microphone widget for VIS-2",
   "author": {
     "name": "oweitman",

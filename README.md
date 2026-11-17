@@ -262,7 +262,7 @@ Microphone access requires HTTPS or localhost and browser permission. Automatic 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.1.8 (2026-11-17)
 
 - (@GermanBluefox) Fixed the findings of the repository checker: responsive sizes in the admin, missing translations, Dependabot auto-merge workflow and old news entries (#7)
 - (@GermanBluefox) `common.webComponents` carries the short form of the wake word manifest (tag, name, icon, size), so that VIS-2, Aura and other hosts can list the widget before the adapter is installed; the build writes it with `iob-web-components sync-io-package`
@@ -290,10 +290,6 @@ Microphone access requires HTTPS or localhost and browser permission. Automatic 
 ### 0.1.4 (2026-11-09)
 
 - (@GermanBluefox) Timers of the libraries are cleared when the adapter stops. Fixed the findings of the repository checker
-
-### 0.1.3 (2026-11-05)
-
-- (@GermanBluefox) Updated packages
 
 ## License
 
