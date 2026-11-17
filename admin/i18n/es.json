@@ -51,5 +51,18 @@
   "The audio goes through the connection of admin: no HTTPS of the server and no API key needed. Admin itself must be opened over HTTPS or on localhost.": "El audio pasa por la conexión de admin: no se necesita HTTPS del servidor ni clave de API. Admin debe estar abierto por HTTPS o en localhost.",
   "Live recognition": "Reconocimiento en directo",
   "Test page in the browser": "Página de prueba en el navegador",
-  "Test page and admin together": "Página de prueba y admin juntos"
+  "Test page and admin together": "Página de prueba y admin juntos",
+  "Wake word widget": "Widget de palabra de activación",
+  "Configure local wake word recognition for the VIS-2 web component. The microphone is controlled in the widget.": "Configure el reconocimiento local de la palabra de activación para el componente web de VIS-2. El micrófono se controla en el widget.",
+  "Wake word model": "Modelo de palabra de activación",
+  "Second wake word": "Segunda palabra de activación",
+  "Third wake word": "Tercera palabra de activación",
+  "Detection threshold": "Umbral de detección",
+  "Upload ONNX wake word model": "Subir modelo ONNX de palabra de activación",
+  "Speech synthesis (Piper)": "Síntesis de voz (Piper)",
+  "Piper runs locally without Python. Standard voices are listed here; the runtime and a voice are downloaded automatically on first synthesis. Select another voice and download it in advance if desired.": "Piper funciona localmente sin Python. Aquí se listan las voces estándar; el entorno de ejecución y una voz se descargan automáticamente en la primera síntesis. Si lo desea, seleccione otra voz y descárguela por adelantado.",
+  "Default Piper voice": "Voz de Piper predeterminada",
+  "Download selected voice": "Descargar la voz seleccionada",
+  "Upload two matching files for each custom voice: name.onnx and name.onnx.json. Use a Piper voice model compatible with Piper 2023.11.14-2, with an eSpeak voice and sample rate from 8 to 48 kHz. Model limit: 150 MiB; JSON config limit: 256 KiB. Check the voice license yourself. An incompatible model is rejected during synthesis.": "Suba dos archivos correspondientes para cada voz propia: name.onnx y name.onnx.json. Use un modelo de voz de Piper compatible con Piper 2023.11.14-2, con una voz de eSpeak y una frecuencia de muestreo de 8 a 48 kHz. Límite del modelo: 150 MiB; límite de la configuración JSON: 256 KiB. Compruebe usted mismo la licencia de la voz. Un modelo incompatible se rechaza durante la síntesis.",
+  "Upload custom Piper voice files": "Subir archivos de voz propios de Piper"
 }
