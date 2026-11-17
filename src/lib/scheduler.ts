@@ -12,6 +12,8 @@ export interface Job {
     segments?: boolean;
     /** Vocabulary from the "prompt" field */
     prompt?: string;
+    /** Language of the speech (ISO 639-1), used by a model that takes it (Canary); '' = the model decides */
+    language?: string;
 }
 
 export interface Segment {

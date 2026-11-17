@@ -29,6 +29,8 @@ export interface VoiceConfig {
     /** Serve the browser test page with live microphone streaming at "/" */
     testPage: boolean;
 
+    /** Speech recognition model: 'parakeet-tdt-0.6b-v3' (default) or 'canary-1b-v2' (is told the language) */
+    model: string;
     /** Directory of the model files. Empty = <iobroker-data>/voice/models */
     modelDir: string;
     /** Download the model if it is missing */

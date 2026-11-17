@@ -32,7 +32,55 @@ export const MODEL = {
     ],
 } as const;
 
-export const MODEL_SIZE = MODEL.files.reduce((sum, file) => sum + file.size, 0);
+/**
+ * Canary 1B v2 (NVIDIA, CC-BY-4.0), converted to ONNX with INT8 weights by istupakov (onnx-asr).
+ * The same 25 European languages as Parakeet, but the language of the speech is given to it instead of guessed:
+ * Parakeet turns accented German into English or Cyrillic words, Canary keeps it German. About twice as slow.
+ * The revision is pinned, the checksums were taken from the Hugging Face API (vocab.txt and config.json hashed).
+ */
+export const CANARY = {
+    id: 'canary-1b-v2',
+    repository: 'istupakov/canary-1b-v2-onnx',
+    revision: '5ebc1520cef7b6b318b3526ad17adbfe00bc1bfc',
+    files: [
+        {
+            name: 'encoder-model.int8.onnx',
+            size: 859_078_138,
+            sha256: '6d96e9945898e5ace48f4efecd459ca1df81859730be27b8af6b197639403ee1',
+        },
+        {
+            name: 'decoder-model.int8.onnx',
+            size: 170_040_374,
+            sha256: '52d83aa7aad41fbbe4f9dfcd341d784735a6eb4c6eb0d3290fc27a0d8ac39abf',
+        },
+        {
+            name: 'vocab.txt',
+            size: 208_022,
+            sha256: '2c9efe6104fd29522ea27ce0e3aef5d37c690af4e5a4232e643e23ca403ffea3',
+        },
+    ],
+} as const;
+
+/** The models the adapter can run */
+export type ModelId = typeof MODEL.id | typeof CANARY.id;
+
+/** Free memory a model needs to be loaded (MB) */
+export const MODEL_MEMORY_MB: Record<ModelId, number> = {
+    [MODEL.id]: 1100,
+    [CANARY.id]: 1700,
+};
+
+/** @param id the setting `model`; anything unknown is Parakeet */
+export function modelOf(id: unknown): typeof MODEL | typeof CANARY {
+    return id === CANARY.id ? CANARY : MODEL;
+}
+
+/** @param model the model */
+export function modelSize(model: ModelSpec): number {
+    return model.files.reduce((sum, file) => sum + file.size, 0);
+}
+
+export const MODEL_SIZE = modelSize(MODEL);
 
 export interface ModelFile {
     name: string;

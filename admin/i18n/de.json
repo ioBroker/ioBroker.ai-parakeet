@@ -64,5 +64,9 @@
   "Default Piper voice": "Piper-Standardstimme",
   "Download selected voice": "Ausgewählte Stimme herunterladen",
   "Upload two matching files for each custom voice: name.onnx and name.onnx.json. Use a Piper voice model compatible with Piper 2023.11.14-2, with an eSpeak voice and sample rate from 8 to 48 kHz. Model limit: 150 MiB; JSON config limit: 256 KiB. Check the voice license yourself. An incompatible model is rejected during synthesis.": "Für jede eigene Stimme zwei zusammengehörige Dateien hochladen: name.onnx und name.onnx.json. Das Piper-Stimmenmodell muss mit Piper 2023.11.14-2 kompatibel sein, eine eSpeak-Stimme enthalten und eine Abtastrate von 8 bis 48 kHz verwenden. Modellgrenze: 150 MiB; JSON-Konfiguration: 256 KiB. Bitte die Lizenz der Stimme selbst prüfen. Ein inkompatibles Modell wird bei der Sprachausgabe abgewiesen.",
-  "Upload custom Piper voice files": "Eigene Piper-Stimmdateien hochladen"
+  "Upload custom Piper voice files": "Eigene Piper-Stimmdateien hochladen",
+  "Speech recognition model": "Modell der Spracherkennung",
+  "Canary is told the language of the speech by the caller (ioBroker.assistant sends the language of the wake word, the OpenAI API the field \"language\"): accented speech stays in its language instead of turning into English or Cyrillic words. It needs about 1.1 GB of disk, 1.7 GB of memory and about twice the time of Parakeet. A request without a language is recognised in the language of the system.": "Canary wird die Sprache vom Aufrufer mitgeteilt (ioBroker.assistant schickt die Sprache des Aktivierungsworts, die OpenAI-API das Feld \"language\"): Sprache mit Akzent bleibt in ihrer Sprache, statt zu englischen oder kyrillischen Wörtern zu werden. Es braucht etwa 1,1 GB Speicherplatz, 1,7 GB Arbeitsspeicher und etwa doppelt so viel Zeit wie Parakeet. Eine Anfrage ohne Sprache wird in der Systemsprache erkannt.",
+  "Parakeet TDT 0.6B v3 (detects the language)": "Parakeet TDT 0.6B v3 (erkennt die Sprache selbst)",
+  "Canary 1B v2 (is told the language)": "Canary 1B v2 (bekommt die Sprache mitgeteilt)"
 }

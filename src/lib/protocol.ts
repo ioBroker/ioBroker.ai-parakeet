@@ -1,9 +1,10 @@
 /** Messages between the adapter and the inference process */
+import type { ModelId } from './modelFiles';
 import type { Segment } from './scheduler';
 
 export type InferenceRequest =
-    | { type: 'load'; modelDir: string; threads: number }
-    | { type: 'transcribe'; id: number; pcm: Float32Array; segments?: boolean }
+    | { type: 'load'; modelDir: string; threads: number; model?: ModelId; language?: string }
+    | { type: 'transcribe'; id: number; pcm: Float32Array; segments?: boolean; language?: string }
     | { type: 'close' };
 
 export type InferenceResponse =

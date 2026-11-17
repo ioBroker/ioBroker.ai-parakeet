@@ -24,6 +24,8 @@ export interface TranscriberOptions {
 export interface TranscribeOptions {
     prompt?: string;
     segments?: boolean;
+    /** Language of the speech (ISO 639-1); only a model that takes it uses it (Canary) */
+    language?: string;
     /** Gets the owner of the job, to cancel it when the client goes away */
     register?: (owner: Owner) => void;
 }
@@ -61,7 +63,7 @@ export class Transcriber {
         }
         let result: EngineResult;
         try {
-            result = await this.options.engine.transcribe(job.pcm, !!job.segments);
+            result = await this.options.engine.transcribe(job.pcm, !!job.segments, job.language);
         } catch (error) {
             // The model could not be loaded (memory, broken files): that is not the fault of the request
             if (this.options.engine.state === 'error') {
@@ -105,7 +107,7 @@ export class Transcriber {
             );
         }
         const result = await this.scheduler.submit(
-            { pcm, prompt: options.prompt, segments: options.segments },
+            { pcm, prompt: options.prompt, segments: options.segments, language: options.language },
             options.register,
         );
         this.options.onResult?.(result);

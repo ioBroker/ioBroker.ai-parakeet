@@ -11,7 +11,6 @@ import type { SessionOptions } from './audioSession';
 import type { EngineLogger } from './engine';
 import { formatResponse, needsSegments, parseResponseFormat } from './formats';
 import { correctionInfo, LiveStream } from './liveStream';
-import { MODEL } from './modelFiles';
 import { getBoundary, parseMultipart } from './multipart';
 import type { JobResult, Owner } from './scheduler';
 import type { Transcriber } from './transcriber';
@@ -34,6 +33,8 @@ export interface ApiServerOptions {
     otherClients?: () => number;
     session: SessionOptions;
     transcriber: Transcriber;
+    /** Id of the model, for /v1/models and verbose_json (e.g. parakeet-tdt-0.6b-v3) */
+    modelId: string;
     /** Status for /health */
     health: () => { ready: boolean; status: string; error?: string; threads: number };
     log: EngineLogger;
@@ -221,7 +222,7 @@ export class ApiServer {
             const { scheduler } = this.options.transcriber;
             sendJson(response, health.ready ? 200 : 503, {
                 ...health,
-                model: `${MODEL.id} int8`,
+                model: `${this.options.modelId} int8`,
                 backend: 'cpu',
                 auth: !!this.options.apiKey,
                 clients: this.clients,
@@ -245,7 +246,7 @@ export class ApiServer {
             if (path === '/v1/models' && request.method === 'GET') {
                 sendJson(response, 200, {
                     object: 'list',
-                    data: [{ id: MODEL.id, object: 'model', created: 0, owned_by: 'nvidia' }],
+                    data: [{ id: this.options.modelId, object: 'model', created: 0, owned_by: 'nvidia' }],
                 });
                 return;
             }
@@ -320,6 +321,8 @@ export class ApiServer {
             const result: JobResult = await this.options.transcriber.transcribeFile(file, {
                 prompt: fields.get('prompt'),
                 segments: needsSegments(format),
+                // OpenAI field: Canary is told the language, Parakeet decides itself
+                language: fields.get('language') || undefined,
                 register: registered => (owner = registered),
             });
             this.options.log.debug(

@@ -5,7 +5,17 @@ import { createServer, type Server } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { checkModel, downloadModel, MODEL, verifyModel, type ModelSpec } from '../../src/lib/modelFiles';
+import {
+    CANARY,
+    checkModel,
+    downloadModel,
+    MODEL,
+    MODEL_MEMORY_MB,
+    modelOf,
+    modelSize,
+    verifyModel,
+    type ModelSpec,
+} from '../../src/lib/modelFiles';
 import { silentLog } from './helpers';
 
 const content = {
@@ -122,5 +132,24 @@ describe('model files', () => {
                 retryDelayMs: () => 30,
             }),
         );
+    });
+});
+
+describe('model choice', () => {
+    it('takes Canary only when it is set, anything else is Parakeet', () => {
+        assert.equal(modelOf('canary-1b-v2'), CANARY);
+        assert.equal(modelOf('parakeet-tdt-0.6b-v3'), MODEL);
+        assert.equal(modelOf(''), MODEL);
+        assert.equal(modelOf(undefined), MODEL);
+        assert.equal(modelOf('whisper'), MODEL);
+    });
+
+    it('knows size, files and memory of Canary', () => {
+        assert.deepEqual(
+            CANARY.files.map(file => file.name),
+            ['encoder-model.int8.onnx', 'decoder-model.int8.onnx', 'vocab.txt'],
+        );
+        assert.equal(modelSize(CANARY), 1_029_326_534);
+        assert.ok(MODEL_MEMORY_MB[CANARY.id] > MODEL_MEMORY_MB[MODEL.id]);
     });
 });

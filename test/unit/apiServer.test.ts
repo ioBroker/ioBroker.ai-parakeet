@@ -17,10 +17,10 @@ class FakeEngine implements EngineLike {
     public state: EngineLike['state'] = 'ready';
     public error = '';
     public threads = 2;
-    public calls: { samples: number; segments: boolean }[] = [];
+    public calls: { samples: number; segments: boolean; language?: string }[] = [];
 
-    public transcribe(pcm: Float32Array, segments = false): Promise<EngineResult> {
-        this.calls.push({ samples: pcm.length, segments });
+    public transcribe(pcm: Float32Array, segments = false, language?: string): Promise<EngineResult> {
+        this.calls.push({ samples: pcm.length, segments, language });
         const seconds = pcm.length / 16000;
         return Promise.resolve({
             text: `io broker hat ${seconds.toFixed(1)} sekunden gehört`,
@@ -54,6 +54,7 @@ async function startServer(
         maxClients: 2,
         session: { threshold: 0.008, interval: 1, silence: 0.5 },
         transcriber,
+        modelId: 'parakeet-tdt-0.6b-v3',
         health: () => ({ ready: true, status: 'ready', threads: 2 }),
         log: silentLog,
     });
@@ -96,6 +97,7 @@ describe('ApiServer', () => {
         assert.equal(response.status, 200);
         assert.deepEqual(await json(response), { text: 'ioBroker hat 2.0 sekunden gehört' });
         assert.equal(context.engine.calls[0].samples, 32000);
+        assert.equal(context.engine.calls[0].language, 'de', 'the language goes to the model (Canary uses it)');
         assert.equal(context.results[0].rawText, 'io broker hat 2.0 sekunden gehört');
     });
 

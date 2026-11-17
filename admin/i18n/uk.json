@@ -64,5 +64,9 @@
   "Default Piper voice": "Голос Piper за замовчуванням",
   "Download selected voice": "Завантажити вибраний голос",
   "Upload two matching files for each custom voice: name.onnx and name.onnx.json. Use a Piper voice model compatible with Piper 2023.11.14-2, with an eSpeak voice and sample rate from 8 to 48 kHz. Model limit: 150 MiB; JSON config limit: 256 KiB. Check the voice license yourself. An incompatible model is rejected during synthesis.": "Для кожного власного голосу завантажте два відповідні файли: name.onnx і name.onnx.json. Використовуйте модель голосу Piper, сумісну з Piper 2023.11.14-2, з голосом eSpeak і частотою дискретизації від 8 до 48 кГц. Ліміт моделі: 150 МіБ; ліміт JSON-конфігурації: 256 КіБ. Ліцензію голосу перевірте самостійно. Несумісна модель відхиляється під час синтезу.",
-  "Upload custom Piper voice files": "Завантажити власні файли голосу Piper"
+  "Upload custom Piper voice files": "Завантажити власні файли голосу Piper",
+  "Speech recognition model": "Модель розпізнавання мовлення",
+  "Canary is told the language of the speech by the caller (ioBroker.assistant sends the language of the wake word, the OpenAI API the field \"language\"): accented speech stays in its language instead of turning into English or Cyrillic words. It needs about 1.1 GB of disk, 1.7 GB of memory and about twice the time of Parakeet. A request without a language is recognised in the language of the system.": "Canary отримує мову мовлення від того, хто викликає (ioBroker.assistant передає мову слова активації, OpenAI API — поле \"language\"): мовлення з акцентом залишається своєю мовою, а не перетворюється на англійські чи кириличні слова. Їй потрібно близько 1,1 ГБ на диску, 1,7 ГБ пам'яті та приблизно вдвічі більше часу, ніж Parakeet. Запит без мови розпізнається мовою системи.",
+  "Parakeet TDT 0.6B v3 (detects the language)": "Parakeet TDT 0.6B v3 (визначає мову сам)",
+  "Canary 1B v2 (is told the language)": "Canary 1B v2 (отримує мову)"
 }

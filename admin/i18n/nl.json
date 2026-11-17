@@ -64,5 +64,9 @@
   "Default Piper voice": "Standaard Piper-stem",
   "Download selected voice": "Geselecteerde stem downloaden",
   "Upload two matching files for each custom voice: name.onnx and name.onnx.json. Use a Piper voice model compatible with Piper 2023.11.14-2, with an eSpeak voice and sample rate from 8 to 48 kHz. Model limit: 150 MiB; JSON config limit: 256 KiB. Check the voice license yourself. An incompatible model is rejected during synthesis.": "Upload voor elke eigen stem twee bijbehorende bestanden: name.onnx en name.onnx.json. Gebruik een Piper-stemmodel dat compatibel is met Piper 2023.11.14-2, met een eSpeak-stem en een samplefrequentie van 8 tot 48 kHz. Limiet model: 150 MiB; limiet JSON-configuratie: 256 KiB. Controleer zelf de licentie van de stem. Een incompatibel model wordt bij de synthese geweigerd.",
-  "Upload custom Piper voice files": "Eigen Piper-stembestanden uploaden"
+  "Upload custom Piper voice files": "Eigen Piper-stembestanden uploaden",
+  "Speech recognition model": "Spraakherkenningsmodel",
+  "Canary is told the language of the speech by the caller (ioBroker.assistant sends the language of the wake word, the OpenAI API the field \"language\"): accented speech stays in its language instead of turning into English or Cyrillic words. It needs about 1.1 GB of disk, 1.7 GB of memory and about twice the time of Parakeet. A request without a language is recognised in the language of the system.": "Canary krijgt de taal van de spraak van de aanroeper (ioBroker.assistant stuurt de taal van het wekwoord, de OpenAI-API het veld \"language\"): spraak met een accent blijft in zijn taal in plaats van Engelse of Cyrillische woorden te worden. Het heeft ongeveer 1,1 GB schijfruimte, 1,7 GB geheugen en ongeveer twee keer de tijd van Parakeet nodig. Een verzoek zonder taal wordt in de systeemtaal herkend.",
+  "Parakeet TDT 0.6B v3 (detects the language)": "Parakeet TDT 0.6B v3 (herkent de taal zelf)",
+  "Canary 1B v2 (is told the language)": "Canary 1B v2 (krijgt de taal mee)"
 }
