@@ -11,8 +11,10 @@ class FakeEngine implements EngineLike {
     public state: EngineLike['state'] = 'ready';
     public error = '';
     public threads = 2;
+    public languages: (string | undefined)[] = [];
 
-    public transcribe(pcm: Float32Array): Promise<EngineResult> {
+    public transcribe(pcm: Float32Array, _segments = false, language?: string): Promise<EngineResult> {
+        this.languages.push(language);
         return Promise.resolve({ text: `io broker hat ${(pcm.length / 16000).toFixed(1)} sekunden`, inferenceMs: 5 });
     }
 }
@@ -30,10 +32,12 @@ type Answer = Record<string, any>;
 function create(options: { maxClients?: number; otherClients?: number; unavailable?: string } = {}): {
     live: LiveSessions;
     results: JobResult[];
+    engine: FakeEngine;
 } {
     const results: JobResult[] = [];
+    const engine = new FakeEngine();
     const transcriber = new Transcriber({
-        engine: new FakeEngine(),
+        engine,
         corrector: createCorrector([{ replacement: 'ioBroker', variants: 'io broker' }]),
         maxAudioSeconds: 20,
         ffmpegPath: () => '',
@@ -47,7 +51,7 @@ function create(options: { maxClients?: number; otherClients?: number; unavailab
         maxClients: options.maxClients ?? 2,
         otherClients: () => options.otherClients ?? 0,
     });
-    return { live, results };
+    return { live, results, engine };
 }
 
 /** Polls until the session sends `done` or `error` */
@@ -94,6 +98,32 @@ describe('LiveSessions', () => {
         // the session is forgotten after its last events
         assert.equal(live.size, 0);
         assert.match(String(live.handle({ action: 'poll', id }).error), /ended/);
+        assert.ok(
+            context.engine.languages.every(language => language === undefined),
+            'without a language the model gets none',
+        );
+    });
+
+    it('gives the language of start to the model, a language it does not know not', async () => {
+        for (const [language, expected] of [
+            ['de-DE', 'de'],
+            ['ja', undefined],
+        ]) {
+            const context = create();
+            live = context.live;
+            const id = live.handle({ action: 'start', language }).id as string;
+            const events: Answer[] = [];
+            events.push(...live.handle({ action: 'audio', id, seq: 1, pcm: pcm16(tone(1, 16000, 200, 0.3)) }).events);
+            events.push(...(live.handle({ action: 'stop', id, seq: 2 }).events as Answer[]));
+            await finish(live, id, events);
+            assert.equal(events.at(-1)!.type, 'done');
+            assert.ok(context.engine.languages.length > 0);
+            assert.ok(
+                context.engine.languages.every(value => value === expected),
+                `${language}: ${context.engine.languages.join()}`,
+            );
+            live.closeAll();
+        }
     });
 
     it('fails on a lost audio message and on invalid audio', async () => {

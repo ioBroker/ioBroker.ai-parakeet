@@ -40,7 +40,7 @@ function timestamp(seconds: number, separator: ',' | '.'): string {
  *
  * @param format response_format of the request
  * @param result result of the transcription
- * @param language language of the request (the model detects it, but does not report it)
+ * @param language language of the request (Canary is told it; Parakeet detects it, but does not report it)
  */
 export function formatResponse(
     format: ResponseFormat,

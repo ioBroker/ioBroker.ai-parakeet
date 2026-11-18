@@ -187,6 +187,7 @@
     "certPrivate": "",
     "certChained": "",
     "testPage": true,
+    "model": "parakeet-tdt-0.6b-v3",
     "modelDir": "",
     "autoDownload": true,
     "downloadUrl": "https://huggingface.co",

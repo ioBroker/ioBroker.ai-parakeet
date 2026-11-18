@@ -13,6 +13,8 @@ export type LiveEvent =
 export interface LiveStreamOptions {
     transcriber: Transcriber;
     session: SessionOptions;
+    /** Language of the speech (ISO 639-1), for a model that must be told it (Canary); undefined = system language */
+    language?: string;
     /** Gets every event: the transcripts, at the end `done` or `error` */
     send: (event: LiveEvent) => void;
     /** The stream is over: `true` after `done`, `false` after `error`. The transport ends its connection */
@@ -54,7 +56,10 @@ export class LiveStream {
             idle: (): void => this.checkDone(),
             fail: (error: Error): void => this.fail(error),
         };
-        this.session = new AudioSession(job => transcriber.enqueue(this.owner, job), options.session);
+        this.session = new AudioSession(
+            job => transcriber.enqueue(this.owner, { ...job, language: options.language }),
+            options.session,
+        );
         this.timer = adapterTimers.setTimeout(
             () => this.fail(new Error(`The maximal session length is ${MAX_STREAM_MINUTES} minutes`)),
             MAX_STREAM_MINUTES * 60_000,

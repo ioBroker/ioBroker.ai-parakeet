@@ -2,12 +2,11 @@ import { fork, type ChildProcess } from 'node:child_process';
 import { availableParallelism, freemem } from 'node:os';
 import { join } from 'node:path';
 
+import { MODEL, MODEL_MEMORY_MB, type ModelId } from './modelFiles';
 import type { InferenceRequest, InferenceResponse } from './protocol';
 import type { Segment } from './scheduler';
 import { adapterTimers } from './timers';
 
-/** The process needs about 1.1 GB with 12-second windows, measured on a Raspberry Pi 5 */
-export const REQUIRED_MEMORY_MB = 1100;
 const LOAD_TIMEOUT_MS = 5 * 60_000;
 /** After a failed start the next try waits so long */
 const RETRY_AFTER_MS = 30_000;
@@ -29,6 +28,10 @@ export interface EngineLogger {
 
 export interface EngineOptions {
     modelDir: string;
+    /** The model in `modelDir`; default Parakeet */
+    model?: ModelId;
+    /** Language of a request without one, for a model that must be told it (Canary): the system language */
+    language?: string;
     /** 0 = automatic */
     threads: number;
     /** Do not start if the host has less free memory */
@@ -105,8 +108,9 @@ export class Engine {
         const { log } = this.options;
         if (this.options.memoryCheck) {
             const free = Math.round(freemem() / 1024 / 1024);
-            if (free < REQUIRED_MEMORY_MB) {
-                const message = `Only ${free} MB of memory are free, the model needs about ${REQUIRED_MEMORY_MB} MB. Free memory or disable the memory check in the instance settings.`;
+            const required = MODEL_MEMORY_MB[this.options.model ?? MODEL.id];
+            if (free < required) {
+                const message = `Only ${free} MB of memory are free, the model needs about ${required} MB. Free memory or disable the memory check in the instance settings.`;
                 this.lastFailure = Date.now();
                 this.setState('error', message);
                 return Promise.reject(new Error(message));
@@ -211,7 +215,13 @@ export class Engine {
                     this.setState('error', error.message);
                 }
             });
-            this.send({ type: 'load', modelDir: this.options.modelDir, threads: this.threads });
+            this.send({
+                type: 'load',
+                modelDir: this.options.modelDir,
+                threads: this.threads,
+                model: this.options.model,
+                language: this.options.language,
+            });
         });
     }
 
@@ -240,8 +250,9 @@ export class Engine {
      *
      * @param pcm the audio
      * @param segments return the sentences with times
+     * @param language language of the speech (ISO 639-1), for a model that takes it
      */
-    public async transcribe(pcm: Float32Array, segments = false): Promise<EngineResult> {
+    public async transcribe(pcm: Float32Array, segments = false, language?: string): Promise<EngineResult> {
         await this.start();
         const child = this.child;
         if (!child) {
@@ -263,7 +274,7 @@ export class Engine {
                 adapterTimers.clearTimeout(this.idleTimer);
                 this.idleTimer = null;
             }
-            this.send({ type: 'transcribe', id, pcm, segments });
+            this.send({ type: 'transcribe', id, pcm, segments, language });
         });
     }
 

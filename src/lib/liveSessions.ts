@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto';
 
 import { pcm16ToFloat, SAMPLE_RATE } from './audio';
 import type { SessionOptions } from './audioSession';
+import { speechLanguage } from './languages';
 import { correctionInfo, LiveStream, type LiveEvent } from './liveStream';
 import type { Transcriber } from './transcriber';
 import { adapterTimers } from './timers';
@@ -29,6 +30,8 @@ export interface LiveRequest {
     seq?: unknown;
     /** 16 kHz mono, 16-bit little-endian PCM as base64 */
     pcm?: unknown;
+    /** `start`: language of the speech (ISO 639-1), for a model that must be told it (Canary) */
+    language?: unknown;
 }
 
 interface Session {
@@ -44,7 +47,7 @@ interface Session {
  * HTTPS while the server is not. The browser sends one message at a time and gets the events since its previous
  * message as answer:
  *
- * - `{ action: 'start' }` → `{ id, sampleRate, corrections }`
+ * - `{ action: 'start', language? }` → `{ id, sampleRate, corrections }`
  * - `{ action: 'audio', id, seq, pcm }` → `{ events }`
  * - `{ action: 'stop', id, seq }` → `{ events }`, then `poll` until an event `done` or `error`
  * - `{ action: 'poll', id }` → `{ events }`
@@ -70,7 +73,7 @@ export class LiveSessions {
     public handle(message: unknown): Record<string, unknown> {
         const request = (message && typeof message === 'object' ? message : {}) as LiveRequest;
         if (request.action === 'start') {
-            return this.start();
+            return this.start(speechLanguage(request.language));
         }
         const id = typeof request.id === 'string' ? request.id : '';
         const session = this.sessions.get(id);
@@ -109,7 +112,7 @@ export class LiveSessions {
         this.stopTimer();
     }
 
-    private start(): Record<string, unknown> {
+    private start(language: string | undefined): Record<string, unknown> {
         const { transcriber } = this.options;
         const reason = transcriber.unavailableReason;
         if (reason) {
@@ -128,6 +131,7 @@ export class LiveSessions {
             stream: new LiveStream({
                 transcriber,
                 session: this.options.session,
+                language,
                 send: event => events.push(event),
                 end: () => (session.ended = true),
             }),

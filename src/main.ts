@@ -18,9 +18,10 @@ import { createCorrector } from './lib/corrections';
 import { Engine, type EngineState } from './lib/engine';
 import { downloadFfmpegStatic, ffmpegStaticPath } from './lib/ffmpegStatic';
 import { translate, type TextId } from './lib/i18n';
+import { speechLanguage } from './lib/languages';
 import { LiveSessions } from './lib/liveSessions';
 import { moveOldDir, OLD_ADAPTER_NAME, UPLOAD_FOLDERS } from './lib/migration';
-import { checkModel, downloadModel, MODEL, MODEL_SIZE, verifyModel } from './lib/modelFiles';
+import { checkModel, downloadModel, MODEL, modelOf, modelSize, verifyModel, type KnownModel } from './lib/modelFiles';
 import { CUSTOM_VOICE_NAME, PiperTts } from './lib/piperTts';
 import { directAdminHost, isSecureContextUrl, selectLanAddress } from './lib/network';
 import type { JobResult } from './lib/scheduler';
@@ -86,6 +87,8 @@ export class VoiceAdapter extends Adapter {
 
     private systemLanguage = 'en';
     private modelDir = '';
+    /** The model of the settings (`model`): Parakeet, or Canary, which is told the language */
+    private model: KnownModel = MODEL;
     /** Data directory of the instance; the old one of ai-parakeet if it could not be moved */
     private dataDir = '';
     private port = DEFAULT_PORT;
@@ -135,7 +138,7 @@ export class VoiceAdapter extends Adapter {
         }
         // Up to 0.1.x the adapter was called ai-parakeet: use its downloads instead of loading them again.
         const dataRoot = getAbsoluteDefaultDataDir();
-        this.modelDir =
+        const modelRoot =
             configuredDir && isAbsolute(configuredDir)
                 ? configuredDir
                 : await moveOldDir(
@@ -143,6 +146,9 @@ export class VoiceAdapter extends Adapter {
                       join(dataRoot, 'voice', 'models'),
                       this.log,
                   );
+        this.model = modelOf(cfg.model);
+        // Parakeet stays where it always was; another model gets a directory of its own next to it
+        this.modelDir = this.model.id === MODEL.id ? modelRoot : join(modelRoot, this.model.id);
         this.dataDir = await moveOldDir(
             join(dataRoot, `${OLD_ADAPTER_NAME}.${this.instance}`),
             this.instanceDataDir(),
@@ -154,6 +160,8 @@ export class VoiceAdapter extends Adapter {
 
         this.engine = new Engine({
             modelDir: this.modelDir,
+            model: this.model.id,
+            language: this.systemLanguage,
             threads: Math.round(num(cfg.threads, 0, 0, 64)),
             memoryCheck: cfg.memoryCheck !== false,
             unloadAfterMs: num(cfg.unloadAfter, 0, 0, 7 * 24 * 60) * 60_000,
@@ -230,6 +238,7 @@ export class VoiceAdapter extends Adapter {
             otherClients: () => this.live?.size ?? 0,
             session: this.sessionOptions(),
             transcriber: this.transcriber!,
+            modelId: this.model.id,
             health: () => ({
                 ready: this.status === 'ready' || this.status === 'idle',
                 status: this.status,
@@ -301,7 +310,7 @@ export class VoiceAdapter extends Adapter {
     private async prepareModel(): Promise<void> {
         const signal = this.abort.signal;
         try {
-            const check = await checkModel(this.modelDir);
+            const check = await checkModel(this.modelDir, this.model);
             if (check === 'missing') {
                 if (this.config.autoDownload === false) {
                     throw new Error(
@@ -312,9 +321,10 @@ export class VoiceAdapter extends Adapter {
                 this.progress = 0;
                 await this.updateStatus();
                 this.log.info(
-                    `Downloading the model ${MODEL.id} (${Math.round(MODEL_SIZE / 1024 / 1024)} MB) into ${this.modelDir}`,
+                    `Downloading the model ${this.model.id} (${Math.round(modelSize(this.model) / 1024 / 1024)} MB) into ${this.modelDir}`,
                 );
                 await downloadModel(this.modelDir, {
+                    model: this.model,
                     baseUrl: this.config.downloadUrl || 'https://huggingface.co',
                     signal,
                     log: this.log,
@@ -328,7 +338,7 @@ export class VoiceAdapter extends Adapter {
                 this.modelState = 'verifying';
                 await this.updateStatus();
                 this.log.info(`Checking the model files in ${this.modelDir}`);
-                await verifyModel(this.modelDir, signal);
+                await verifyModel(this.modelDir, signal, this.model);
             }
             this.modelState = 'available';
             this.progress = 100;
@@ -489,7 +499,7 @@ export class VoiceAdapter extends Adapter {
         return `<table>${table}</table>${assistant}`;
     }
 
-    /** sendTo('voice.0', 'transcribe', { file | audio | pcm, sampleRate, prompt, segments }) */
+    /** sendTo('voice.0', 'transcribe', { file | audio | pcm, sampleRate, prompt, segments, language }) */
     private async transcribeMessage(message: unknown): Promise<Record<string, unknown>> {
         const transcriber = this.transcriber;
         if (!transcriber) {
@@ -502,10 +512,13 @@ export class VoiceAdapter extends Adapter {
             sampleRate?: unknown;
             prompt?: unknown;
             segments?: unknown;
+            language?: unknown;
         };
         const options = {
             prompt: typeof msg.prompt === 'string' ? msg.prompt : undefined,
             segments: msg.segments === true,
+            // Canary is told the language of the speech; Parakeet decides itself
+            language: speechLanguage(msg.language),
         };
         let result: JobResult;
         if (typeof msg.file === 'string' && msg.file) {

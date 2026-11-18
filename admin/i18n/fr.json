@@ -64,5 +64,9 @@
   "Default Piper voice": "Voix Piper par défaut",
   "Download selected voice": "Télécharger la voix sélectionnée",
   "Upload two matching files for each custom voice: name.onnx and name.onnx.json. Use a Piper voice model compatible with Piper 2023.11.14-2, with an eSpeak voice and sample rate from 8 to 48 kHz. Model limit: 150 MiB; JSON config limit: 256 KiB. Check the voice license yourself. An incompatible model is rejected during synthesis.": "Téléversez deux fichiers correspondants pour chaque voix personnalisée : name.onnx et name.onnx.json. Utilisez un modèle de voix Piper compatible avec Piper 2023.11.14-2, avec une voix eSpeak et une fréquence d'échantillonnage de 8 à 48 kHz. Limite du modèle : 150 MiB ; limite de la configuration JSON : 256 KiB. Vérifiez vous-même la licence de la voix. Un modèle incompatible est rejeté lors de la synthèse.",
-  "Upload custom Piper voice files": "Téléverser des fichiers de voix Piper personnalisés"
+  "Upload custom Piper voice files": "Téléverser des fichiers de voix Piper personnalisés",
+  "Speech recognition model": "Modèle de reconnaissance vocale",
+  "Canary is told the language of the speech by the caller (ioBroker.assistant sends the language of the wake word, the OpenAI API the field \"language\"): accented speech stays in its language instead of turning into English or Cyrillic words. It needs about 1.1 GB of disk, 1.7 GB of memory and about twice the time of Parakeet. A request without a language is recognised in the language of the system.": "Canary reçoit la langue de la parole de l'appelant (ioBroker.assistant envoie la langue du mot d'activation, l'API OpenAI le champ \"language\") : une parole avec accent reste dans sa langue au lieu de devenir des mots anglais ou cyrilliques. Il lui faut environ 1,1 Go de disque, 1,7 Go de mémoire et environ deux fois le temps de Parakeet. Une requête sans langue est reconnue dans la langue du système.",
+  "Parakeet TDT 0.6B v3 (detects the language)": "Parakeet TDT 0.6B v3 (détecte la langue)",
+  "Canary 1B v2 (is told the language)": "Canary 1B v2 (reçoit la langue)"
 }

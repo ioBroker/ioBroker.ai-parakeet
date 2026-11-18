@@ -17,10 +17,10 @@ class FakeEngine implements EngineLike {
     public state: EngineLike['state'] = 'ready';
     public error = '';
     public threads = 2;
-    public calls: { samples: number; segments: boolean }[] = [];
+    public calls: { samples: number; segments: boolean; language?: string }[] = [];
 
-    public transcribe(pcm: Float32Array, segments = false): Promise<EngineResult> {
-        this.calls.push({ samples: pcm.length, segments });
+    public transcribe(pcm: Float32Array, segments = false, language?: string): Promise<EngineResult> {
+        this.calls.push({ samples: pcm.length, segments, language });
         const seconds = pcm.length / 16000;
         return Promise.resolve({
             text: `io broker hat ${seconds.toFixed(1)} sekunden gehört`,
@@ -54,6 +54,7 @@ async function startServer(
         maxClients: 2,
         session: { threshold: 0.008, interval: 1, silence: 0.5 },
         transcriber,
+        modelId: 'parakeet-tdt-0.6b-v3',
         health: () => ({ ready: true, status: 'ready', threads: 2 }),
         log: silentLog,
     });
@@ -96,6 +97,7 @@ describe('ApiServer', () => {
         assert.equal(response.status, 200);
         assert.deepEqual(await json(response), { text: 'ioBroker hat 2.0 sekunden gehört' });
         assert.equal(context.engine.calls[0].samples, 32000);
+        assert.equal(context.engine.calls[0].language, 'de', 'the language goes to the model (Canary uses it)');
         assert.equal(context.results[0].rawText, 'io broker hat 2.0 sekunden gehört');
     });
 
@@ -108,13 +110,18 @@ describe('ApiServer', () => {
         });
         assert.equal(await srt.text(), '1\n00:00:00,100 --> 00:00:01,000\nioBroker hat\n');
         assert.equal(context.engine.calls[0].segments, true);
+        assert.equal(context.engine.calls[0].language, undefined, 'no language: the system language');
 
-        const text = await fetch(`${context.base}/v1/audio/transcriptions?response_format=text&prompt=Sekunden`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'audio/wav' },
-            body: wav,
-        });
+        const text = await fetch(
+            `${context.base}/v1/audio/transcriptions?response_format=text&prompt=Sekunden&language=ja`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'audio/wav' },
+                body: wav,
+            },
+        );
         assert.equal(await text.text(), 'ioBroker hat 1.0 Sekunden gehört');
+        assert.equal(context.engine.calls[1].language, undefined, 'a language the model does not know is ignored');
     });
 
     it('returns OpenAI errors', async () => {
@@ -196,7 +203,7 @@ describe('ApiServer', () => {
             socket.on('error', reject);
         });
         await new Promise(resolve => socket.once('open', resolve));
-        socket.send(JSON.stringify({ type: 'hello', key: 'stream-key' }));
+        socket.send(JSON.stringify({ type: 'hello', key: 'stream-key', language: 'ru' }));
         await new Promise(resolve => setTimeout(resolve, 50));
         assert.equal(messages[0].type, 'ready');
         const speech = tone(1.2, 16000, 200, 0.3);
@@ -209,6 +216,10 @@ describe('ApiServer', () => {
         assert.equal(finals.length, 1);
         assert.equal(finals[0].text, 'ioBroker hat 1.2 sekunden gehört');
         assert.equal(context.results.length, 1, 'final results are reported');
+        assert.ok(
+            context.engine.calls.every(call => call.language === 'ru'),
+            'the language of hello goes to the model',
+        );
     });
 
     it('rejects WebSocket clients with a wrong key or another origin', async () => {

@@ -64,5 +64,9 @@
   "Default Piper voice": "Voz padrão do Piper",
   "Download selected voice": "Transferir a voz selecionada",
   "Upload two matching files for each custom voice: name.onnx and name.onnx.json. Use a Piper voice model compatible with Piper 2023.11.14-2, with an eSpeak voice and sample rate from 8 to 48 kHz. Model limit: 150 MiB; JSON config limit: 256 KiB. Check the voice license yourself. An incompatible model is rejected during synthesis.": "Carregue dois ficheiros correspondentes para cada voz personalizada: name.onnx e name.onnx.json. Use um modelo de voz do Piper compatível com o Piper 2023.11.14-2, com uma voz eSpeak e uma taxa de amostragem de 8 a 48 kHz. Limite do modelo: 150 MiB; limite da configuração JSON: 256 KiB. Verifique a licença da voz por conta própria. Um modelo incompatível é rejeitado durante a síntese.",
-  "Upload custom Piper voice files": "Carregar ficheiros de voz personalizados do Piper"
+  "Upload custom Piper voice files": "Carregar ficheiros de voz personalizados do Piper",
+  "Speech recognition model": "Modelo de reconhecimento de fala",
+  "Canary is told the language of the speech by the caller (ioBroker.assistant sends the language of the wake word, the OpenAI API the field \"language\"): accented speech stays in its language instead of turning into English or Cyrillic words. It needs about 1.1 GB of disk, 1.7 GB of memory and about twice the time of Parakeet. A request without a language is recognised in the language of the system.": "O Canary recebe o idioma da fala de quem chama (o ioBroker.assistant envia o idioma da palavra de ativação, a API OpenAI o campo \"language\"): a fala com sotaque fica no seu idioma em vez de se tornar palavras inglesas ou cirílicas. Precisa de cerca de 1,1 GB de disco, 1,7 GB de memória e cerca do dobro do tempo do Parakeet. Um pedido sem idioma é reconhecido no idioma do sistema.",
+  "Parakeet TDT 0.6B v3 (detects the language)": "Parakeet TDT 0.6B v3 (deteta o idioma)",
+  "Canary 1B v2 (is told the language)": "Canary 1B v2 (recebe o idioma)"
 }

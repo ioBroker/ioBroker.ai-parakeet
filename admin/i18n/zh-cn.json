@@ -64,5 +64,9 @@
   "Default Piper voice": "默认 Piper 语音",
   "Download selected voice": "下载所选语音",
   "Upload two matching files for each custom voice: name.onnx and name.onnx.json. Use a Piper voice model compatible with Piper 2023.11.14-2, with an eSpeak voice and sample rate from 8 to 48 kHz. Model limit: 150 MiB; JSON config limit: 256 KiB. Check the voice license yourself. An incompatible model is rejected during synthesis.": "为每个自定义语音上传两个匹配的文件：name.onnx 和 name.onnx.json。请使用与 Piper 2023.11.14-2 兼容的 Piper 语音模型，包含 eSpeak 语音，采样率为 8 至 48 kHz。模型上限：150 MiB；JSON 配置上限：256 KiB。请自行检查语音的许可证。不兼容的模型会在合成时被拒绝。",
-  "Upload custom Piper voice files": "上传自定义 Piper 语音文件"
+  "Upload custom Piper voice files": "上传自定义 Piper 语音文件",
+  "Speech recognition model": "语音识别模型",
+  "Canary is told the language of the speech by the caller (ioBroker.assistant sends the language of the wake word, the OpenAI API the field \"language\"): accented speech stays in its language instead of turning into English or Cyrillic words. It needs about 1.1 GB of disk, 1.7 GB of memory and about twice the time of Parakeet. A request without a language is recognised in the language of the system.": "Canary 由调用方告知语音的语言（ioBroker.assistant 发送唤醒词的语言，OpenAI API 发送字段 \"language\"）：带口音的语音保持在其语言中，而不会变成英文或西里尔文单词。它大约需要 1.1 GB 磁盘空间、1.7 GB 内存，耗时约为 Parakeet 的两倍。没有语言的请求按系统语言识别。",
+  "Parakeet TDT 0.6B v3 (detects the language)": "Parakeet TDT 0.6B v3（自行识别语言）",
+  "Canary 1B v2 (is told the language)": "Canary 1B v2（接收语言）"
 }

@@ -134,6 +134,22 @@
                     "lg": 12,
                     "xl": 12
                 },
+                "model": {
+                    "type": "select",
+                    "label": "Speech recognition model",
+                    "help": "Canary is told the language of the speech by the caller (ioBroker.assistant sends the language of the wake word, the OpenAI API the field \"language\"): accented speech stays in its language instead of turning into English or Cyrillic words. It needs about 1.1 GB of disk, 1.7 GB of memory and about twice the time of Parakeet. A request without a language is recognised in the language of the system.",
+                    "options": [
+                        { "label": "Parakeet TDT 0.6B v3 (detects the language)", "value": "parakeet-tdt-0.6b-v3" },
+                        { "label": "Canary 1B v2 (is told the language)", "value": "canary-1b-v2" }
+                    ],
+                    "default": "parakeet-tdt-0.6b-v3",
+                    "newLine": true,
+                    "xs": 12,
+                    "sm": 12,
+                    "md": 6,
+                    "lg": 4,
+                    "xl": 4
+                },
                 "modelDir": {
                     "type": "text",
                     "label": "Model directory",

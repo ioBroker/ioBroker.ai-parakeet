@@ -8,11 +8,11 @@
 
 [Deutsche Beschreibung](docs/de/README.md)
 
-Local, offline voice for ioBroker: speech recognition with [NVIDIA Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3), speech synthesis with [Piper](https://github.com/rhasspy/piper) and a wake word microphone for VIS-2. Everything runs on the CPU of the ioBroker host. No cloud, no GPU and no Docker are needed.
+Local, offline voice for ioBroker: speech recognition with [NVIDIA Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) or [NVIDIA Canary 1B v2](https://huggingface.co/nvidia/canary-1b-v2), speech synthesis with [Piper](https://github.com/rhasspy/piper) and a wake word microphone for VIS-2. Everything runs on the CPU of the ioBroker host. No cloud, no GPU and no Docker are needed.
 
 Up to version 0.1.x this adapter was called **ai-parakeet**, see [Moving from ai-parakeet](#moving-from-ai-parakeet).
 
-- **25 European languages**, the language is detected automatically (German, English, French, Italian, Spanish, Dutch, Polish, Russian, Ukrainian, Portuguese and more), with punctuation and capitalization
+- **25 European languages** (German, English, French, Italian, Spanish, Dutch, Polish, Russian, Ukrainian, Portuguese and more), with punctuation and capitalization: Parakeet detects the language itself, Canary is told it by the caller, see [Speech recognition model](#speech-recognition-model)
 - **OpenAI-compatible API** `POST /v1/audio/transcriptions`: everything that can use the OpenAI Whisper API can use this adapter, e.g. [ioBroker.assistant](https://github.com/ioBroker/ioBroker.assistant)
 - **sendTo** for scripts, e.g. to transcribe voice messages
 - **Live test** of the microphone in the instance settings, and a **test page** with live recognition in the browser
@@ -48,11 +48,24 @@ The model is INT8 quantized (about 670 MB) and needs about **1.1 GB of memory**.
 
 The real-time factor is the computing time divided by the length of the audio: 0.2 means 10 seconds of speech are recognized in 2 seconds. A Raspberry Pi 4 should work too, but was not measured and is clearly slower. 32-bit systems are not supported.
 
+## Speech recognition model
+
+The setting **Speech recognition model** on the tab **Model** selects the model:
+
+- **Parakeet TDT 0.6B v3** (default) detects the language of the speech itself. On short commands spoken with an accent it sometimes picks the wrong language and writes English or Cyrillic words.
+- **Canary 1B v2** is told the language of the speech, so accented speech stays in its language. It needs about 1 GB of disk, about 1.7 GB of memory and about twice the computing time of Parakeet (real-time factor 0.155 instead of 0.068 on an Intel Core i9-9900K with 4 threads).
+
+Canary gets the language from the caller, as ISO 639-1 code (`de`, `en`, `ru`, …; `de-DE` works too): the field `language` of the [OpenAI-compatible API](#openai-compatible-api), `language` of [`sendTo('transcribe')`](#sendto), of `start` of the [live test](#live-test-in-admin) and of `hello` of the WebSocket of the test page. ioBroker.assistant sends the language of its wake word. A request without a language, or with a language that is not one of the 25, is recognised in the language of the system. The live test in admin, the test page and the VIS-2 wake word widget send no language. Canary does not detect the language: speech in another language than the given one is not recognised correctly. Parakeet ignores the language.
+
+Canary is downloaded into the subdirectory `canary-1b-v2` of the model directory; Parakeet stays where it is. The model that is not selected is not deleted: delete its files by hand to free the disk space. Recordings longer than 30 s are recognised by Canary in windows of 30 s, and it has no times per sentence: `segments`, `verbose_json`, `srt` and `vtt` get one segment per window.
+
+Without internet access, download `encoder-model.int8.onnx`, `decoder-model.int8.onnx` and `vocab.txt` from [istupakov/canary-1b-v2-onnx](https://huggingface.co/istupakov/canary-1b-v2-onnx/tree/5ebc1520cef7b6b318b3526ad17adbfe00bc1bfc) into the subdirectory `canary-1b-v2` of the model directory.
+
 ## Requirements
 
 - 64-bit Linux, Windows or macOS (x64 or arm64), Node.js 22 or newer
-- At least 1.5 GB of free memory (better 4 GB or more in total)
-- About 700 MB of disk space for the model. An SSD is recommended on a Raspberry Pi
+- At least 1.5 GB of free memory, 2 GB with Canary (better 4 GB or more in total)
+- About 700 MB of disk space for the model, about 1 GB for Canary. An SSD is recommended on a Raspberry Pi
 - Access to `huggingface.co` for the first start (or copy the model files manually, see below)
 - js-controller 6 or newer, admin 7.6.20 or newer
 
@@ -61,7 +74,7 @@ The real-time factor is the computing time divided by the length of the audio: 0
 ## Setup
 
 1. Install the adapter and create an instance, on the host where the speech recognition should run. In a multihost system this can be another host than the one of ioBroker.assistant.
-2. On the first start, the adapter downloads the model (about 670 MB) and checks its SHA-256 checksums. The tab **Server** of the instance settings shows the progress. An interrupted download continues where it stopped.
+2. On the first start, the adapter downloads the model (about 670 MB, Canary about 1 GB) and checks its SHA-256 checksums. The tab **Server** of the instance settings shows the progress. An interrupted download continues where it stopped.
 3. Then the model is loaded (a few seconds) and the status becomes `ready`.
 
 If the host has no internet access, download the three files `encoder-model.int8.onnx`, `decoder_joint-model.int8.onnx` and `vocab.txt` from [ysdede/parakeet-tdt-0.6b-v3-onnx](https://huggingface.co/ysdede/parakeet-tdt-0.6b-v3-onnx/tree/e5356bf6e24bdb7a269536b0e9e7869bc034b893) and copy them into the model directory. The adapter checks them on the next start.
@@ -84,7 +97,7 @@ Content-Type: multipart/form-data
 file=<audio file>
 response_format=json | text | verbose_json | srt | vtt   (optional, default json)
 prompt=<names, separated by commas>                       (optional)
-language=<ignored, the model detects the language>
+language=<de, en, ru, ...>                                 (optional, for Canary; Parakeet detects the language)
 model=<ignored>
 ```
 
@@ -94,9 +107,9 @@ The audio can also be sent directly as body with `Content-Type: audio/wav`, the 
 
 - **WAV** (PCM 8/16/24/32 bit or float, any sample rate, mono or stereo) is read directly.
 - **MP3, OGG/Opus, M4A, WebM, FLAC** need [ffmpeg](https://ffmpeg.org/). Either install it on the host (`sudo apt install ffmpeg`), or click **Download ffmpeg** on the tab **Recognition**: it downloads the static ffmpeg of [ffmpeg-static](https://github.com/eugeneware/ffmpeg-static) (20-30 MB, about 80 MB unpacked, checked against a fixed SHA-256) into `iobroker-data/voice.0/ffmpeg`, the same as ioBroker.assistant does. It is used at once, without a restart, while no path is entered. ioBroker.assistant sends WAV, so it does not need ffmpeg here.
-- Recordings longer than **Maximal audio length** (default 300 s) are rejected. Recordings longer than 90 s are recognized in windows of 60 s.
+- Recordings longer than **Maximal audio length** (default 300 s) are rejected. Recordings longer than 90 s are recognized in windows of 60 s (Canary: longer than 30 s in windows of 30 s).
 - `GET /v1/models` lists the model, `GET /health` shows the status (without key).
-- `/v1/audio/translations` is not supported: Parakeet only transcribes.
+- `/v1/audio/translations` is not supported: the adapter only transcribes.
 
 Example with curl:
 
@@ -128,7 +141,7 @@ sendTo(
 sendTo('voice.0', 'transcribe', { pcm: buffer, sampleRate: 16000 }, console.log);
 ```
 
-The answer contains `text` (with corrections), `rawText` (as recognized by the model), `audioSeconds`, `inferenceMs` and `queueMs`. With `segments: true` it also contains the sentences with their start and end times.
+The answer contains `text` (with corrections), `rawText` (as recognized by the model), `audioSeconds`, `inferenceMs` and `queueMs`. With `segments: true` it also contains the sentences with their start and end times. `language: 'de'` tells [Canary](#speech-recognition-model) the language of the speech; Parakeet ignores it.
 
 `sendTo('voice.0', 'getEndpoint', {}, console.log)` returns the address of the API.
 
@@ -141,7 +154,7 @@ The tab is a web component of [`@iobroker/web-components`](https://github.com/io
 The live test sends 16-bit audio in messages of about 0.2 s (about 32 KB/s) and gets the new results with every answer:
 
 ```js
-sendTo('voice.0', 'live', { action: 'start' }); // → { id, sampleRate, corrections }
+sendTo('voice.0', 'live', { action: 'start', language: 'de' }); // → { id, sampleRate, corrections }; language only for Canary, optional
 sendTo('voice.0', 'live', { action: 'audio', id, seq: 1, pcm }); // pcm: 16 kHz mono 16-bit LE as base64 → { events }
 sendTo('voice.0', 'live', { action: 'stop', id, seq: 2 }); // → { events }
 sendTo('voice.0', 'live', { action: 'poll', id }); // → { events }, until an event "done" or "error"
@@ -195,7 +208,7 @@ The adapter runs the model in a separate Node.js process. A crash of ONNX Runtim
 
 ## License and model
 
-The adapter is licensed under the MIT license. The model [nvidia/parakeet-tdt-0.6b-v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) is published by NVIDIA under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/); the adapter uses the ONNX conversion [ysdede/parakeet-tdt-0.6b-v3-onnx](https://huggingface.co/ysdede/parakeet-tdt-0.6b-v3-onnx) and [parakeet.js](https://github.com/ysdede/parakeet.js) (MIT).
+The adapter is licensed under the MIT license. The model [nvidia/parakeet-tdt-0.6b-v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) is published by NVIDIA under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/); the adapter uses the ONNX conversion [ysdede/parakeet-tdt-0.6b-v3-onnx](https://huggingface.co/ysdede/parakeet-tdt-0.6b-v3-onnx) and [parakeet.js](https://github.com/ysdede/parakeet.js) (MIT). The model [nvidia/canary-1b-v2](https://huggingface.co/nvidia/canary-1b-v2) is published by NVIDIA under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/) as well; the adapter uses the ONNX conversion [istupakov/canary-1b-v2-onnx](https://huggingface.co/istupakov/canary-1b-v2-onnx) and runs it the way [onnx-asr](https://github.com/istupakov/onnx-asr) does.
 
 ## VIS-2 wake word widget
 
@@ -262,6 +275,10 @@ Microphone access requires HTTPS or localhost and browser permission. Automatic 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+
+- (@sadam6752-tech) A second speech recognition model, NVIDIA Canary 1B v2 (setting "Speech recognition model"): it is told the language of the speech (`language` of `sendTo`, of the OpenAI API, of `start` of the live test and of `hello` of the WebSocket; ioBroker.assistant sends the language of the wake word), so accented speech stays in its language instead of turning into English or Cyrillic words; about twice the time of Parakeet
+
 ### 0.1.8 (2026-11-17)
 
 - (@GermanBluefox) Fixed the findings of the repository checker: responsive sizes in the admin, missing translations, Dependabot auto-merge workflow and old news entries (#7)
