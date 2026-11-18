@@ -275,7 +275,7 @@ Microphone access requires HTTPS or localhost and browser permission. Automatic 
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.2.0 (2026-11-18)
 
 - (@sadam6752-tech) A second speech recognition model, NVIDIA Canary 1B v2 (setting "Speech recognition model"): it is told the language of the speech (`language` of `sendTo`, of the OpenAI API, of `start` of the live test and of `hello` of the WebSocket; ioBroker.assistant sends the language of the wake word), so accented speech stays in its language instead of turning into English or Cyrillic words; about twice the time of Parakeet
 
@@ -303,10 +303,6 @@ Microphone access requires HTTPS or localhost and browser permission. Automatic 
 - "Piper TTS" has been integrated on the server side; audio data can be requested using the "sendTo" command.
 - Speech synthesis options (browser/server) have been added for clients that do not support native speech synthesis.
 - (GermanBluefox) Removed the prepublishOnly script and added CHANGELOG_OLD.md and the dependabot automerge workflow (#5)
-
-### 0.1.4 (2026-11-09)
-
-- (@GermanBluefox) Timers of the libraries are cleared when the adapter stops. Fixed the findings of the repository checker
 
 ## License
 

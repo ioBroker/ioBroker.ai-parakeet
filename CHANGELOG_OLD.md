@@ -1,4 +1,8 @@
 # Older changes
+## 0.1.4 (2026-11-09)
+
+- (@GermanBluefox) Timers of the libraries are cleared when the adapter stops. Fixed the findings of the repository checker
+
 ## 0.1.3 (2026-11-05)
 
 - (@GermanBluefox) Updated packages
