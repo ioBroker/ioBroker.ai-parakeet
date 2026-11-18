@@ -62,16 +62,20 @@ export const CANARY = {
 } as const;
 
 /** The models the adapter can run */
-export type ModelId = typeof MODEL.id | typeof CANARY.id;
+export type KnownModel = typeof MODEL | typeof CANARY;
+export type ModelId = KnownModel['id'];
 
-/** Free memory a model needs to be loaded (MB) */
+/**
+ * Free memory a model needs to be loaded (MB). The process of Parakeet needs about 1.1 GB with 12-second windows,
+ * measured on a Raspberry Pi 5.
+ */
 export const MODEL_MEMORY_MB: Record<ModelId, number> = {
     [MODEL.id]: 1100,
     [CANARY.id]: 1700,
 };
 
 /** @param id the setting `model`; anything unknown is Parakeet */
-export function modelOf(id: unknown): typeof MODEL | typeof CANARY {
+export function modelOf(id: unknown): KnownModel {
     return id === CANARY.id ? CANARY : MODEL;
 }
 

@@ -2,13 +2,11 @@ import { fork, type ChildProcess } from 'node:child_process';
 import { availableParallelism, freemem } from 'node:os';
 import { join } from 'node:path';
 
-import { MODEL_MEMORY_MB, type ModelId } from './modelFiles';
+import { MODEL, MODEL_MEMORY_MB, type ModelId } from './modelFiles';
 import type { InferenceRequest, InferenceResponse } from './protocol';
 import type { Segment } from './scheduler';
 import { adapterTimers } from './timers';
 
-/** The process needs about 1.1 GB with 12-second windows, measured on a Raspberry Pi 5 */
-export const REQUIRED_MEMORY_MB = 1100;
 const LOAD_TIMEOUT_MS = 5 * 60_000;
 /** After a failed start the next try waits so long */
 const RETRY_AFTER_MS = 30_000;
@@ -110,7 +108,7 @@ export class Engine {
         const { log } = this.options;
         if (this.options.memoryCheck) {
             const free = Math.round(freemem() / 1024 / 1024);
-            const required = (this.options.model && MODEL_MEMORY_MB[this.options.model]) || REQUIRED_MEMORY_MB;
+            const required = MODEL_MEMORY_MB[this.options.model ?? MODEL.id];
             if (free < required) {
                 const message = `Only ${free} MB of memory are free, the model needs about ${required} MB. Free memory or disable the memory check in the instance settings.`;
                 this.lastFailure = Date.now();

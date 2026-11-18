@@ -2,11 +2,11 @@
 
 # ioBroker.voice
 
-Lokale Offline-Sprachsteuerung für ioBroker: Spracherkennung mit [NVIDIA Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3), Sprachausgabe mit [Piper](https://github.com/rhasspy/piper) und ein Wakeword-Mikrofon für VIS-2. Alles läuft auf der CPU des ioBroker-Hosts. Es braucht weder Cloud noch Grafikkarte noch Docker.
+Lokale Offline-Sprachsteuerung für ioBroker: Spracherkennung mit [NVIDIA Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) oder [NVIDIA Canary 1B v2](https://huggingface.co/nvidia/canary-1b-v2), Sprachausgabe mit [Piper](https://github.com/rhasspy/piper) und ein Wakeword-Mikrofon für VIS-2. Alles läuft auf der CPU des ioBroker-Hosts. Es braucht weder Cloud noch Grafikkarte noch Docker.
 
 Bis Version 0.1.x hieß dieser Adapter **ai-parakeet**, siehe [Umstieg von ai-parakeet](#umstieg-von-ai-parakeet).
 
-- **25 europäische Sprachen**, die Sprache wird automatisch erkannt (Deutsch, Englisch, Französisch, Italienisch, Spanisch, Niederländisch, Polnisch, Russisch, Ukrainisch, Portugiesisch und weitere), mit Satzzeichen und Groß-/Kleinschreibung
+- **25 europäische Sprachen** (Deutsch, Englisch, Französisch, Italienisch, Spanisch, Niederländisch, Polnisch, Russisch, Ukrainisch, Portugiesisch und weitere), mit Satzzeichen und Groß-/Kleinschreibung: Parakeet erkennt die Sprache selbst, Canary bekommt sie vom Aufrufer mitgeteilt, siehe [Modell der Spracherkennung](#modell-der-spracherkennung)
 - **OpenAI-kompatible API** `POST /v1/audio/transcriptions`: Alles, was die Whisper-API von OpenAI nutzen kann, kann auch diesen Adapter nutzen, z. B. [ioBroker.assistant](https://github.com/ioBroker/ioBroker.assistant)
 - **sendTo** für Skripte, z. B. um Sprachnachrichten zu transkribieren
 - **Live-Test** des Mikrofons in den Instanz-Einstellungen und eine **Testseite** mit Live-Erkennung im Browser
@@ -41,11 +41,24 @@ Das Modell ist INT8-quantisiert (etwa 670 MB) und braucht etwa **1,1 GB Arbeitss
 
 Der Echtzeitfaktor ist die Rechenzeit geteilt durch die Länge des Audios: 0,2 bedeutet, 10 Sekunden Sprache werden in 2 Sekunden erkannt. Ein Raspberry Pi 4 sollte auch gehen, wurde aber nicht gemessen und ist deutlich langsamer. 32-Bit-Systeme werden nicht unterstützt.
 
+## Modell der Spracherkennung
+
+Die Einstellung **Modell der Spracherkennung** im Reiter **Modell** wählt das Modell:
+
+- **Parakeet TDT 0.6B v3** (Standard) erkennt die Sprache selbst. Bei kurzen Befehlen mit Akzent wählt es manchmal die falsche Sprache und schreibt englische oder kyrillische Wörter.
+- **Canary 1B v2** bekommt die Sprache mitgeteilt, Sprache mit Akzent bleibt so in ihrer Sprache. Es braucht etwa 1 GB Speicherplatz, etwa 1,7 GB Arbeitsspeicher und etwa doppelt so viel Rechenzeit wie Parakeet (Echtzeitfaktor 0,155 statt 0,068 auf einem Intel Core i9-9900K mit 4 Threads).
+
+Canary bekommt die Sprache vom Aufrufer, als ISO-639-1-Code (`de`, `en`, `ru`, …; `de-DE` geht auch): das Feld `language` der [OpenAI-kompatiblen API](#openai-kompatible-api), `language` von [`sendTo('transcribe')`](#sendto), von `start` des [Live-Tests](#live-test-im-admin) und von `hello` am WebSocket der Testseite. ioBroker.assistant schickt die Sprache seines Aktivierungsworts. Eine Anfrage ohne Sprache oder mit einer Sprache, die nicht zu den 25 gehört, wird in der Systemsprache erkannt. Der Live-Test im Admin, die Testseite und das VIS-2-Wakeword-Widget schicken keine Sprache. Canary erkennt die Sprache nicht selbst: Sprache in einer anderen als der angegebenen Sprache wird nicht richtig erkannt. Parakeet ignoriert die Sprache.
+
+Canary wird in das Unterverzeichnis `canary-1b-v2` des Modellverzeichnisses geladen; Parakeet bleibt, wo es ist. Das nicht gewählte Modell wird nicht gelöscht: Seine Dateien von Hand löschen, um den Platz freizugeben. Aufnahmen über 30 s erkennt Canary in Fenstern von 30 s, und es liefert keine Zeiten pro Satz: `segments`, `verbose_json`, `srt` und `vtt` bekommen ein Segment pro Fenster.
+
+Ohne Internetzugang `encoder-model.int8.onnx`, `decoder-model.int8.onnx` und `vocab.txt` von [istupakov/canary-1b-v2-onnx](https://huggingface.co/istupakov/canary-1b-v2-onnx/tree/5ebc1520cef7b6b318b3526ad17adbfe00bc1bfc) herunterladen und in das Unterverzeichnis `canary-1b-v2` des Modellverzeichnisses kopieren.
+
 ## Voraussetzungen
 
 - 64-Bit Linux, Windows oder macOS (x64 oder arm64), Node.js 22 oder neuer
-- Mindestens 1,5 GB freier Arbeitsspeicher (besser insgesamt 4 GB oder mehr)
-- Etwa 700 MB Speicherplatz für das Modell. Auf einem Raspberry Pi ist eine SSD empfehlenswert
+- Mindestens 1,5 GB freier Arbeitsspeicher, mit Canary 2 GB (besser insgesamt 4 GB oder mehr)
+- Etwa 700 MB Speicherplatz für das Modell, etwa 1 GB für Canary. Auf einem Raspberry Pi ist eine SSD empfehlenswert
 - Zugriff auf `huggingface.co` beim ersten Start (oder die Modelldateien von Hand kopieren, siehe unten)
 - js-controller 6 oder neuer, admin 7.6.20 oder neuer
 
@@ -54,7 +67,7 @@ Der Echtzeitfaktor ist die Rechenzeit geteilt durch die Länge des Audios: 0,2 b
 ## Einrichtung
 
 1. Adapter installieren und eine Instanz auf dem Host anlegen, auf dem die Spracherkennung laufen soll. In einem Multihost-System kann das ein anderer Host sein als der von ioBroker.assistant.
-2. Beim ersten Start lädt der Adapter das Modell (etwa 670 MB) und prüft die SHA-256-Prüfsummen. Der Reiter **Server** der Instanz-Einstellungen zeigt den Fortschritt. Ein abgebrochener Download wird an der Abbruchstelle fortgesetzt.
+2. Beim ersten Start lädt der Adapter das Modell (etwa 670 MB, Canary etwa 1 GB) und prüft die SHA-256-Prüfsummen. Der Reiter **Server** der Instanz-Einstellungen zeigt den Fortschritt. Ein abgebrochener Download wird an der Abbruchstelle fortgesetzt.
 3. Danach wird das Modell geladen (einige Sekunden), der Status wird `ready`.
 
 Hat der Host keinen Internetzugang, die drei Dateien `encoder-model.int8.onnx`, `decoder_joint-model.int8.onnx` und `vocab.txt` von [ysdede/parakeet-tdt-0.6b-v3-onnx](https://huggingface.co/ysdede/parakeet-tdt-0.6b-v3-onnx/tree/e5356bf6e24bdb7a269536b0e9e7869bc034b893) herunterladen und in das Modellverzeichnis kopieren. Der Adapter prüft sie beim nächsten Start.
@@ -77,7 +90,7 @@ Content-Type: multipart/form-data
 file=<Audiodatei>
 response_format=json | text | verbose_json | srt | vtt   (optional, Standard json)
 prompt=<Namen, durch Kommas getrennt>                     (optional)
-language=<wird ignoriert, das Modell erkennt die Sprache>
+language=<de, en, ru, ...>                                (optional, für Canary; Parakeet erkennt die Sprache selbst)
 model=<wird ignoriert>
 ```
 
@@ -87,9 +100,9 @@ Das Audio kann auch direkt als Body mit `Content-Type: audio/wav` geschickt werd
 
 - **WAV** (PCM 8/16/24/32 Bit oder Float, beliebige Abtastrate, mono oder stereo) wird direkt gelesen.
 - **MP3, OGG/Opus, M4A, WebM, FLAC** brauchen [ffmpeg](https://ffmpeg.org/). Entweder auf dem Host installieren (`sudo apt install ffmpeg`) oder im Reiter **Erkennung** auf **ffmpeg herunterladen** klicken: Das lädt das statische ffmpeg von [ffmpeg-static](https://github.com/eugeneware/ffmpeg-static) (20–30 MB, entpackt etwa 80 MB, geprüft mit fester SHA-256) nach `iobroker-data/voice.0/ffmpeg`, so wie ioBroker.assistant. Es wird sofort ohne Neustart benutzt, solange kein Pfad eingetragen ist. ioBroker.assistant schickt WAV und braucht hier kein ffmpeg.
-- Aufnahmen über der **maximalen Audiolänge** (Standard 300 s) werden abgelehnt. Aufnahmen über 90 s werden in Fenstern von 60 s erkannt.
+- Aufnahmen über der **maximalen Audiolänge** (Standard 300 s) werden abgelehnt. Aufnahmen über 90 s werden in Fenstern von 60 s erkannt (Canary: über 30 s in Fenstern von 30 s).
 - `GET /v1/models` listet das Modell, `GET /health` zeigt den Status (ohne Schlüssel).
-- `/v1/audio/translations` wird nicht unterstützt: Parakeet transkribiert nur.
+- `/v1/audio/translations` wird nicht unterstützt: Der Adapter transkribiert nur.
 
 Beispiel mit curl:
 
@@ -116,7 +129,7 @@ sendTo('voice.0', 'transcribe', { audio: fs.readFileSync('/tmp/a.wav'), prompt: 
 sendTo('voice.0', 'transcribe', { pcm: buffer, sampleRate: 16000 }, console.log);
 ```
 
-Die Antwort enthält `text` (mit Korrekturen), `rawText` (wie vom Modell erkannt), `audioSeconds`, `inferenceMs` und `queueMs`. Mit `segments: true` zusätzlich die Sätze mit Start- und Endzeit.
+Die Antwort enthält `text` (mit Korrekturen), `rawText` (wie vom Modell erkannt), `audioSeconds`, `inferenceMs` und `queueMs`. Mit `segments: true` zusätzlich die Sätze mit Start- und Endzeit. `language: 'de'` teilt [Canary](#modell-der-spracherkennung) die Sprache mit; Parakeet ignoriert es.
 
 `sendTo('voice.0', 'getEndpoint', {}, console.log)` liefert die Adresse der API.
 
@@ -129,7 +142,7 @@ Der Tab ist eine Web-Komponente von [`@iobroker/web-components`](https://github.
 Der Live-Test schickt 16-Bit-Audio in Nachrichten von etwa 0,2 s (etwa 32 KB/s) und bekommt mit jeder Antwort die neuen Ergebnisse:
 
 ```js
-sendTo('voice.0', 'live', { action: 'start' });                   // → { id, sampleRate, corrections }
+sendTo('voice.0', 'live', { action: 'start', language: 'de' });   // → { id, sampleRate, corrections }; language nur für Canary, optional
 sendTo('voice.0', 'live', { action: 'audio', id, seq: 1, pcm });  // pcm: 16 kHz mono 16 Bit LE als base64 → { events }
 sendTo('voice.0', 'live', { action: 'stop', id, seq: 2 });        // → { events }
 sendTo('voice.0', 'live', { action: 'poll', id });                // → { events }, bis ein Ereignis "done" oder "error" kommt
@@ -183,4 +196,4 @@ Der Adapter führt das Modell in einem eigenen Node.js-Prozess aus. Ein Absturz 
 
 ## Lizenz und Modell
 
-Der Adapter steht unter der MIT-Lizenz. Das Modell [nvidia/parakeet-tdt-0.6b-v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) veröffentlicht NVIDIA unter [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/); der Adapter nutzt die ONNX-Umwandlung [ysdede/parakeet-tdt-0.6b-v3-onnx](https://huggingface.co/ysdede/parakeet-tdt-0.6b-v3-onnx) und [parakeet.js](https://github.com/ysdede/parakeet.js) (MIT).
+Der Adapter steht unter der MIT-Lizenz. Das Modell [nvidia/parakeet-tdt-0.6b-v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) veröffentlicht NVIDIA unter [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/); der Adapter nutzt die ONNX-Umwandlung [ysdede/parakeet-tdt-0.6b-v3-onnx](https://huggingface.co/ysdede/parakeet-tdt-0.6b-v3-onnx) und [parakeet.js](https://github.com/ysdede/parakeet.js) (MIT). Das Modell [nvidia/canary-1b-v2](https://huggingface.co/nvidia/canary-1b-v2) veröffentlicht NVIDIA ebenfalls unter [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/); der Adapter nutzt die ONNX-Umwandlung [istupakov/canary-1b-v2-onnx](https://huggingface.co/istupakov/canary-1b-v2-onnx) und führt sie so aus wie [onnx-asr](https://github.com/istupakov/onnx-asr).

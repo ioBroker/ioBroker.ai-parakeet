@@ -10,6 +10,7 @@ import { RequestError, SAMPLE_RATE } from './audio';
 import type { SessionOptions } from './audioSession';
 import type { EngineLogger } from './engine';
 import { formatResponse, needsSegments, parseResponseFormat } from './formats';
+import { speechLanguage } from './languages';
 import { correctionInfo, LiveStream } from './liveStream';
 import { getBoundary, parseMultipart } from './multipart';
 import type { JobResult, Owner } from './scheduler';
@@ -322,7 +323,7 @@ export class ApiServer {
                 prompt: fields.get('prompt'),
                 segments: needsSegments(format),
                 // OpenAI field: Canary is told the language, Parakeet decides itself
-                language: fields.get('language') || undefined,
+                language: speechLanguage(fields.get('language')),
                 register: registered => (owner = registered),
             });
             this.options.log.debug(
@@ -343,7 +344,7 @@ export class ApiServer {
         }
     }
 
-    /** Live streaming of the test page: `hello` (with the key), then Float32 PCM, then `stop` */
+    /** Live streaming of the test page: `hello` (with the key and the language), then Float32 PCM, then `stop` */
     private onStream(socket: WebSocket): void {
         const { transcriber, log } = this.options;
         let stream: LiveStream | null = null;
@@ -379,7 +380,11 @@ export class ApiServer {
             }
             try {
                 if (!binary) {
-                    const message = JSON.parse(rawToBuffer(data).toString('utf8')) as { type?: string; key?: string };
+                    const message = JSON.parse(rawToBuffer(data).toString('utf8')) as {
+                        type?: string;
+                        key?: string;
+                        language?: unknown;
+                    };
                     if (!stream && message.type === 'hello') {
                         if (this.options.apiKey && !keyMatches(message.key, this.options.apiKey)) {
                             rejected = true;
@@ -391,6 +396,7 @@ export class ApiServer {
                         stream = new LiveStream({
                             transcriber,
                             session: this.options.session,
+                            language: speechLanguage(message.language),
                             send,
                             end: ok => socket.close(ok ? 1000 : 1011),
                         });

@@ -110,13 +110,18 @@ describe('ApiServer', () => {
         });
         assert.equal(await srt.text(), '1\n00:00:00,100 --> 00:00:01,000\nioBroker hat\n');
         assert.equal(context.engine.calls[0].segments, true);
+        assert.equal(context.engine.calls[0].language, undefined, 'no language: the system language');
 
-        const text = await fetch(`${context.base}/v1/audio/transcriptions?response_format=text&prompt=Sekunden`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'audio/wav' },
-            body: wav,
-        });
+        const text = await fetch(
+            `${context.base}/v1/audio/transcriptions?response_format=text&prompt=Sekunden&language=ja`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'audio/wav' },
+                body: wav,
+            },
+        );
         assert.equal(await text.text(), 'ioBroker hat 1.0 Sekunden gehört');
+        assert.equal(context.engine.calls[1].language, undefined, 'a language the model does not know is ignored');
     });
 
     it('returns OpenAI errors', async () => {
@@ -198,7 +203,7 @@ describe('ApiServer', () => {
             socket.on('error', reject);
         });
         await new Promise(resolve => socket.once('open', resolve));
-        socket.send(JSON.stringify({ type: 'hello', key: 'stream-key' }));
+        socket.send(JSON.stringify({ type: 'hello', key: 'stream-key', language: 'ru' }));
         await new Promise(resolve => setTimeout(resolve, 50));
         assert.equal(messages[0].type, 'ready');
         const speech = tone(1.2, 16000, 200, 0.3);
@@ -211,6 +216,10 @@ describe('ApiServer', () => {
         assert.equal(finals.length, 1);
         assert.equal(finals[0].text, 'ioBroker hat 1.2 sekunden gehört');
         assert.equal(context.results.length, 1, 'final results are reported');
+        assert.ok(
+            context.engine.calls.every(call => call.language === 'ru'),
+            'the language of hello goes to the model',
+        );
     });
 
     it('rejects WebSocket clients with a wrong key or another origin', async () => {

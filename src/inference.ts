@@ -9,6 +9,7 @@ import { pathToFileURL } from 'node:url';
 
 import type { InferenceSession } from 'onnxruntime-node';
 
+import { speechLanguage } from './lib/languages';
 import type { InferenceRequest, InferenceResponse } from './lib/protocol';
 import { joinTokens } from './lib/tokenText';
 
@@ -162,8 +163,9 @@ async function loadCanary(modelDir: string, threads: number, defaultLanguage: st
         tokenId('<|notimestamp|>'),
         tokenId('<|nodiarize|>'),
     ];
+    // Only the 25 languages of the model: anything else would put another special token into the prompt
     const languageToken = (language: string | undefined): number | undefined => {
-        const code = (language || '').toLowerCase().split(/[-_]/)[0];
+        const code = speechLanguage(language);
         return code ? ids.get(`<|${code}|>`) : undefined;
     };
     const fallback = languageToken(defaultLanguage) ?? tokenId('<|en|>');
